@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Numerics;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 
 namespace Auth_Microservice.Controllers
@@ -31,10 +33,12 @@ namespace Auth_Microservice.Controllers
         {
             var user = new User
             {
-                Name = dto.Name,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Adress = dto.Adress,
+                Phone = dto.Phone,
                 Email = dto.Email,
-                Role = dto.Role,
-                Username=dto.Username,
+                Role = "User",
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password)
             };
 
@@ -133,10 +137,12 @@ namespace Auth_Microservice.Controllers
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.GivenName, user.Name),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.NameIdentifier,user.Email),
+                new Claim(ClaimTypes.Name,user.FirstName),
+                new Claim(ClaimTypes.StreetAddress, user.Adress),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.MobilePhone, user.Phone),
+
             };
 
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],

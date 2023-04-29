@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Qj4L9zk9aQqQDwO5vJizsCxP+o3kfLSjCb0COdjL+Vd+mWWA6bVeYyo5NvIps3PMh4UOg7oEAdRmBILBHhP0qQ==",
+  "dgSpecHash": "0OZM85ZhXVg/Dn5P7JgghvIIpg9VB4le3gf0An8KWBdyz36LIn8U7XX7J+VapY0+g9odhn7KbmQ+PO2MKDkVrg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\saief\\source\\repos\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj",
+  "projectFilePath": "C:\\Users\\saief\\source\\repos\\PFE\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\saief\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",

@@ -52,10 +52,12 @@ namespace JwtApp.Controllers
                 var userClaims = identity.Claims;
                 User user = new User
                 {
-                    Username = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
-                    Email = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Email)?.Value,
-                    Name = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.GivenName)?.Value,
-                    Role = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value
+                   // Id = int.Parse (userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value),
+                    Email = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
+                    FirstName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Name)?.Value,
+                    Role = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value,
+                    Phone = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.MobilePhone)?.Value,
+                    Adress = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.StreetAddress)?.Value
                 };
 
                 return Ok(user);
@@ -75,10 +77,11 @@ namespace JwtApp.Controllers
 
                 return new User
                 {
-                    Username = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
-                    Email = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Email)?.Value,
-                    Name = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.GivenName)?.Value,
-                    Role = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value
+                    Email = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
+                    FirstName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Name)?.Value,
+                    Role = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value,
+                    Phone = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.MobilePhone)?.Value,
+                    Adress = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.StreetAddress)?.Value
                 };
             }
             return null;

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\saief\\source\\repos\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj": {}
+    "C:\\Users\\saief\\source\\repos\\PFE\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj": {}
   },
   "projects": {
-    "C:\\Users\\saief\\source\\repos\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj": {
+    "C:\\Users\\saief\\source\\repos\\PFE\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\saief\\source\\repos\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj",
+        "projectUniqueName": "C:\\Users\\saief\\source\\repos\\PFE\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj",
         "projectName": "Auth_Microservice",
-        "projectPath": "C:\\Users\\saief\\source\\repos\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj",
+        "projectPath": "C:\\Users\\saief\\source\\repos\\PFE\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj",
         "packagesPath": "C:\\Users\\saief\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\saief\\source\\repos\\Auth_Microservice\\Auth_Microservice\\obj\\",
+        "outputPath": "C:\\Users\\saief\\source\\repos\\PFE\\Auth_Microservice\\Auth_Microservice\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\saief\\AppData\\Roaming\\NuGet\\NuGet.Config",
