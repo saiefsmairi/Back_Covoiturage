@@ -125,8 +125,21 @@ namespace Auth_Microservice.Controllers
                 return BadRequest(new { message = "Invalid Credentials" });
             }
                 var token = Generate(user);
-                return Ok(token);
-          
+            var response = new
+            {
+                token = token,
+                user = new
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Adress = user.Adress,
+                    Phone = user.Phone,
+                    Email = user.Email,
+
+                }
+            };
+            return Ok(response);
+
         }
 
 

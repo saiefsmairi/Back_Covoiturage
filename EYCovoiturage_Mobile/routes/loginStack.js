@@ -3,23 +3,23 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import login from '../screens/login'
 import register from '../screens/register'
-
-
+import listTrips from '../screens/listTrips'
+import Login from '../screens/login';
+import RideDetails from '../screens/rideDetails';
+import MyTabs from './mytabs';
+import IntroAddTrip from '../screens/introAddTrip';
 
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
     return (
         <Stack.Navigator
-            initialRouteName="register"
-            screenOptions={{
-                headerTintColor: 'white',
-                headerStyle: { backgroundColor: '#2196F3' },
-            }}
+            initialRouteName="login"
         >
+            <Stack.Screen options={{ headerShown: false }} name="main" component={MyTabs} />
             <Stack.Screen
                 name="login"
-                component={login}
+                component={Login}
                 options={{
                     headerShown: false
                 }}
@@ -32,8 +32,47 @@ function MyStack() {
                 }}
             />
 
+            <Stack.Screen
+                name="rideDetails"
+                component={RideDetails}
+                options={{
+                    title: 'Ride Details',
+                    headerStyle: {
+                        backgroundColor: 'yellow',
+                    },
+                    headerTitleStyle: {
+                        fontWeight: 'bold',
+                        color: '#2c2c3b',
+                    },
+                }}
+            />
 
+            <Stack.Screen
+                name="listTrips"
+                component={listTrips}
+                options={{
+                    title: 'Available trips',
+                    headerStyle: {
+                        backgroundColor: 'yellow',
+                    },
+                    headerTitleStyle: {
+                        fontWeight: 'bold',
+                        color: '#2c2c3b',
+                    },
+                }}
+            />
 
+            <Stack.Screen
+                name="introAddTrip"
+                component={IntroAddTrip}
+                options={{
+                    headerShown: false,
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="home" size={size} color={color} />
+                    ),
+                    tabBarLabel: 'Home',
+                }}
+            />
         </Stack.Navigator>
     );
 }

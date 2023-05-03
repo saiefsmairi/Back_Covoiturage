@@ -1,120 +1,124 @@
 import React, { useEffect } from 'react'
-import { StyleSheet, Text, View, Image, TextInput, ScrollView, Button, Keyboard, Alert } from 'react-native';
-import { Input } from '../components/input';
+import { StyleSheet, Text, View, Image, TextInput, ScrollView, Keyboard, Alert, Button, TouchableOpacity } from 'react-native';
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Box, Heading, VStack, FormControl, Input, Center, NativeBaseProvider, Pressable, Icon, Stack } from "native-base";
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import authService from "../services/authService";
+import { MaterialIcons } from "@expo/vector-icons";
+
 
 export default function Login({ navigation }) {
-    const [inputs, setInputs] = React.useState({ email: '', password: '' });
-    const [errors, setErrors] = React.useState({});
+
     const [loading, setLoading] = React.useState(false);
-    const [failedLogin, setfailedLogin] = React.useState(false);
+    const [show, setShow] = React.useState(false);
 
-    const validate = async () => {
-        console.log(errors)
-        Keyboard.dismiss();
-        let isValid = true;
-        if (!inputs.email) {
-            handleError('Please write an email', 'email');
-            isValid = false;
-        }
-        if (!inputs.password) {
-            handleError('Please write password', 'password');
-            isValid = false;
-        }
-        if (isValid) {
+    const SigninSchema = Yup.object().shape({
 
-            login(inputs);
-        }
-    };
+        password: Yup.string()
+            .min(2, 'Too Short!')
+            .max(50, 'Too Long!')
+            .required('Required'),
 
-/*     // Login user
-    const login = async (inputs) => {
-        try {
-            const response = await axios.post("http://192.168.1.14:5000/users/" + 'login', inputs)
-            const jsonValue = JSON.stringify(response.data)
-            await AsyncStorage.setItem('user', jsonValue)
-            navigation.navigate('AffectedZonesList')
-        } catch (e) {
-            setfailedLogin(true)
+        email: Yup.string().email('Invalid email').required('Required'),
 
-            console.log("save to storage failed")
-        }
-
-    } */
-
- /*    const getDataFromStorage = async () => {
-        try {
-            const jsonValue = await AsyncStorage.getItem('user')
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-        } catch (e) {
-            console.log("error getDataFromStorage")
-        }
-    }
- */
+    });
 
 
     useEffect(() => {
-      /*   getDataFromStorage().then((val) => {
-            if (val) {
-                navigation.navigate('AffectedZonesList')
-            }
-        }); */
+        /*   getDataFromStorage().then((val) => {
+              if (val) {
+                  navigation.navigate('AffectedZonesList')
+              }
+          }); */
     }, [])
-
-
-    const handleOnchange = (text, input) => {
-        setInputs(prevState => ({ ...prevState, [input]: text }));
-    };
-
-    const handleError = (error, input) => {
-        setErrors(prevState => ({ ...prevState, [input]: error }));
+    const handlePress = () => {
+        navigation.navigate('register');
     };
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container} >
 
-            <ScrollView contentContainerStyle={{ paddingTop: 50, paddingHorizontal: 20 }}>
+            <Center w="100%">
+                <Box safeArea p="2" w="90%" maxW="290" py="8" h="100%" >
+                    <VStack space={3} mb="10">
 
-                <View style={styles.container2}>
-                    <Image
-                        style={styles.tinyLogo}
-                        source={{
-                            uri: 'https://www.sunsetlearning.com/wp-content/uploads/2019/09/User-Icon-Grey-300x300.png',
+                        <Heading mt="1" color="coolGray.600" _dark={{
+                            color: "warmGray.200"
+                        }} fontWeight="medium" size="xs">
+
+                            <Image
+                                style={styles.tinyLogo}
+                                source={{
+                                    uri: 'https://ey.co.il/wp-content/uploads/2021/11/logo-black.png',
+                                }}
+                            />
+                        </Heading>
+                        <Heading mt="1" color="coolGray.600" _dark={{
+                            color: "warmGray.200"
+                        }} fontWeight="medium" size="xs">
+                            Sign up to continue!
+                        </Heading>
+                        <TouchableOpacity onPress={handlePress}>
+                            <Heading mt="1" color="coolGray.600" _dark={{
+                                color: "warmGray.200"
+                            }} fontWeight="medium" size="xs">
+                                Don't have an account? Register now.
+                            </Heading>
+                        </TouchableOpacity>
+                    </VStack>
+
+                    <Formik
+                        initialValues={{ email: '', password: '' }}
+                        validationSchema={SigninSchema}
+                        onSubmit={async values => {
+                          //  const response = await authService.login(values);
+                          //  console.log(response);
+                            console.log(values)
+                            navigation.navigate('main');
+
                         }}
-                    />
-                    <Text style={styles.firstTitle}>Welcome Back </Text>
-                    <Text style={styles.secondTitle}>Sign to continue</Text>
-                </View>
+                    >
+                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                            <View>
 
-                <View >
-                    <Input onChangeText={text => handleOnchange(text, 'email')}
-                        onFocus={() => handleError(null, 'email')}
-                        error={errors.email}
-                        label='Email' placeholder="Enter your email address" iconName="email" />
+                                <FormControl.Label>Email</FormControl.Label>
 
-                    <Input onChangeText={text => handleOnchange(text, 'password')}
-                        onFocus={() => handleError(null, 'password')}
-                        error={errors.password}
-                        label='Password' password placeholder="Enter your password" iconName="lock" />
-                </View>
+                                <Input
+                                    onChangeText={handleChange('email')}
+                                    onBlur={handleBlur('email')}
+                                    value={values.email} />
+                                {touched.email && errors.email && (
+                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.email}</Text>
+                                )}
+                                <FormControl.Label>Password</FormControl.Label>
 
-                <View style={{ marginTop: 40 }} >
-                    <Button onPress={validate}
-                        title="Log in"
-                        color="#2196F3"
-                        accessibilityLabel="Log in"
-                    />
+                                <Input
+                                    onChangeText={handleChange('password')}
+                                    onBlur={handleBlur('password')}
+                                    value={values.password}
+                                    type={show ? "text" : "password"} InputRightElement={<Pressable onPress={() => setShow(!show)}>
+                                        <Icon as={<MaterialIcons name={show ? "visibility" : "visibility-off"} />} size={5} mr="2" color="muted.400" />
+                                    </Pressable>} />
 
+                                {touched.password && errors.password && (
+                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.password}</Text>
+                                )}
+                                <VStack space={3} mt="16" >
+                                    <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                                        <Text style={styles.textStyle}>Login</Text>
+                                    </TouchableOpacity>
+                                </VStack>
 
-                </View>
-{/* 
-                {failedLogin && (
-                    <Example />
-                )} */}
-            </ScrollView>
+                            </View>
+
+                        )}
+
+                    </Formik>
+                </Box>
+            </Center>;
         </View>
-
     )
 
 
@@ -123,11 +127,11 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        /*     alignItems: 'center',
-            justifyContent: 'center', */
+        /*  alignItems: 'center',
+         justifyContent: 'center', */
     },
     container2: {
-        flex: 1,
+
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -140,15 +144,15 @@ const styles = StyleSheet.create({
         margin: 12,
         // borderWidth: 1,
     },
-    firstTitle: {
-        fontWeight: 'bold',
-        fontSize: 30,
+
+    button: {
+        alignItems: "center",
+        backgroundColor: "#2c2c3b",
+        padding: 10,
 
     },
-    secondTitle: {
-        fontWeight: 'bold',
-        color: '#c1c3c2',
-
-    },
-
+    textStyle: {
+        color: "yellow",
+        fontWeight: 500
+    }
 });

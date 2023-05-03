@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react'
 import { StyleSheet, Text, View, Image, TextInput, ScrollView, Keyboard, Alert, Button, TouchableOpacity } from 'react-native';
-import axios from 'axios'
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Box, Heading, VStack, FormControl, Input, Center, NativeBaseProvider, Pressable, Icon, Stack } from "native-base";
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
@@ -41,7 +39,6 @@ export default function Register({ navigation }) {
         email: Yup.string().email('Invalid email').required('Required'),
 
     });
-
 
     useEffect(() => {
         /*   getDataFromStorage().then((val) => {
@@ -95,54 +92,55 @@ export default function Register({ navigation }) {
                                     onChangeText={handleChange('firstName')}
                                     onBlur={handleBlur('firstName')}
                                     value={values.firstName} />
-                                {touched.firstName && errors.firstName && <Text>{errors.firstName}</Text>}
-
+                                {touched.firstName && errors.firstName && (
+                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.firstName}</Text>
+                                )}
                                 <FormControl.Label>Last Name</FormControl.Label>
                                 <Input
                                     onChangeText={handleChange('lastName')}
                                     onBlur={handleBlur('lastName')}
                                     value={values.lastName} />
-                                {touched.lastName && errors.lastName && <Text>{errors.lastName}</Text>}
-                                <FormControl.Label>Phone</FormControl.Label>
+                                {touched.lastName && errors.lastName && (
+                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.lastName}</Text>
+                                )}                                <FormControl.Label>Phone</FormControl.Label>
 
                                 <Input
                                     onChangeText={handleChange('phone')}
                                     onBlur={handleBlur('phone')}
                                     value={values.phone} />
-                                {touched.phone && errors.phone && <Text>{errors.phone}</Text>}
+                                {touched.phone && errors.phone && (
+                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.phone}</Text>
+                                )}
                                 <FormControl.Label>Adress</FormControl.Label>
 
                                 <Input
                                     onChangeText={handleChange('adress')}
                                     onBlur={handleBlur('adress')}
                                     value={values.adress} />
-                                {touched.adress && errors.adress && <Text>{errors.adress}</Text>}
+                                {touched.adress && errors.adress && (
+                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.adress}</Text>
+                                )}
                                 <FormControl.Label>Email</FormControl.Label>
 
                                 <Input
                                     onChangeText={handleChange('email')}
                                     onBlur={handleBlur('email')}
                                     value={values.email} />
-                                {touched.email && errors.email && <Text>{errors.email}</Text>}
+                                {touched.email && errors.email && (
+                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.email}</Text>
+                                )}
                                 <FormControl.Label>Password</FormControl.Label>
-
-
 
                                 <Input
                                     onChangeText={handleChange('password')}
                                     onBlur={handleBlur('password')}
-                                    value={values.password} 
+                                    value={values.password}
                                     type={show ? "text" : "password"} InputRightElement={<Pressable onPress={() => setShow(!show)}>
                                         <Icon as={<MaterialIcons name={show ? "visibility" : "visibility-off"} />} size={5} mr="2" color="muted.400" />
                                     </Pressable>} />
-
-                                {touched.password && errors.password && <Text>{errors.password}</Text>}
-
-
-
-
-
-
+                                {touched.password && errors.password && (
+                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.password}</Text>
+                                )}
 
                                 <FormControl.Label>Confirm password</FormControl.Label>
 
@@ -152,8 +150,9 @@ export default function Register({ navigation }) {
                                     value={values.confirmPassword}
                                     secureTextEntry
                                 />
-                                {touched.confirmPassword && errors.confirmPassword && <Text>{errors.confirmPassword}</Text>}
-
+                                {touched.confirmPassword && errors.confirmPassword && (
+                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.confirmPassword}</Text>
+                                )}
 
                                 <VStack space={3} mt="16" >
                                     <TouchableOpacity style={styles.button} onPress={handleSubmit}>
@@ -171,10 +170,7 @@ export default function Register({ navigation }) {
 
 
         </View>
-
     )
-
-
 
 }
 const styles = StyleSheet.create({
