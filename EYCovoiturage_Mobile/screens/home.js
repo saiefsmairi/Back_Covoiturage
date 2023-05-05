@@ -5,6 +5,7 @@ import HomeSvg from '../components/homesvg';
 function HomeScreen() {
   return (
     <View style={styles.container}>
+
       <HomeSvg />
       <View>
         <Text style={styles.title}>Your future rides will appear here.</Text>
@@ -20,19 +21,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     padding: 20,
     justifyContent: 'space-around',
 
   },
   title: {
-    fontSize: 'xxx-large',
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#2c2c3b',
   },
   text: {
     marginTop: '3%',
-    fontSize: 'x-large',
+    fontSize: 25,
   },
 });
 

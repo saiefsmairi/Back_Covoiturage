@@ -3,9 +3,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AntDesign } from '@expo/vector-icons';
 import HomeScreen from '../screens/home';
 import RideDetails from '../screens/rideDetails';
+import ListTrips from '../screens/listTrips';
+
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import listTrips from '../screens/listTrips'
 import { Entypo } from '@expo/vector-icons';
 import IntroAddTrip from '../screens/introAddTrip';
 const Tab = createBottomTabNavigator();
@@ -37,7 +38,7 @@ function MyTabs() {
                 options={({ navigation }) => ({
                     title: 'Publish a Trip',
                     headerStyle: {
-                        backgroundColor: 'yellow',
+                        backgroundColor: '#f9f9f9',
                     },
                     headerTitleStyle: {
                         fontWeight: 'bold',
@@ -57,7 +58,7 @@ function MyTabs() {
 
             <Tab.Screen
                 name="listTrips"
-                component={listTrips}
+                component={ListTrips}
                 options={({ navigation }) => ({
                     title: 'List Trips',
                     headerStyle: {

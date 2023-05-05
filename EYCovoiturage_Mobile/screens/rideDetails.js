@@ -25,16 +25,15 @@ const RideDetails = ({ handlePress }) => {
                     backgroundColor: "gray.50",
                 }}
             >
-                <Box flex={1} >
-
+                <Box  >
                     <Stack space={3} >
                         <Stack space={2} >
                             <Image
                                 source={{ uri: 'https://images.prismic.io/shacarlacca/NmQ5ODc5NzYtNGQwYy00NzQzLWI0YzgtYWVjZWU5YzdkNmNh__10.jpg?auto=compress%2Cformat&rect=0%2C0%2C1600%2C900&w=1200&h=1200' }}
                                 style={{ width: '100%', height: 200 }}
+                                alt='car'
                             />
                         </Stack>
-
                         <Stack direction="row" alignItems="center" justifyContent="center" marginTop={'-30px'}>
                             <Box mr={4}>
                                 <Ionicons name="chatbox-ellipses-outline" size={24} color="black" />
@@ -47,6 +46,7 @@ const RideDetails = ({ handlePress }) => {
                                         uri:
                                             "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
                                     }}
+                                    alt="Trip destination2"
                                 >
                                 </Avatar>
                             </Box>
@@ -61,7 +61,8 @@ const RideDetails = ({ handlePress }) => {
                             _light={{ bg: "muted.300" }}
                             _dark={{ bg: "muted.50" }}
                         />
-                        <Stack direction="col" space={4} padding={8}  >
+
+                        <Stack space={4} padding={8}  >
                             <Heading size="sm" ml="1">
                                 Trip info
                             </Heading>
@@ -135,13 +136,13 @@ const RideDetails = ({ handlePress }) => {
                                 </Text>
                             </Box>
                         </Stack>
-
-                        <Stack space={3} mt="16" >
+                        <Stack space={3}  >
                             <TouchableOpacity style={styles.button} onPress={handlePress}>
                                 <Text style={styles.textStyle}>Send Ride Request</Text>
                             </TouchableOpacity>
                         </Stack>
                     </Stack>
+
 
                 </Box>
             </Box>

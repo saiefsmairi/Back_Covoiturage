@@ -3,11 +3,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import login from '../screens/login'
 import register from '../screens/register'
-import listTrips from '../screens/listTrips'
 import Login from '../screens/login';
 import RideDetails from '../screens/rideDetails';
 import MyTabs from './mytabs';
 import IntroAddTrip from '../screens/introAddTrip';
+import ListTrips from '../screens/listTrips';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,7 +49,7 @@ function MyStack() {
 
             <Stack.Screen
                 name="listTrips"
-                component={listTrips}
+                component={ListTrips}
                 options={{
                     title: 'Available trips',
                     headerStyle: {

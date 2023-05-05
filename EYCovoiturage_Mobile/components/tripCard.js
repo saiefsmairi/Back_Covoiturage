@@ -2,9 +2,11 @@ import React from "react";
 import { Box, Divider, Avatar, Heading, AspectRatio, Image, Text, Center, HStack, Stack, NativeBaseProvider } from "native-base";
 import { TouchableOpacity } from "react-native";
 
-const tripCard = ({ onPress }) => {
+const TripCard = ({ onPress }) => {
   return (
     <TouchableOpacity onPress={onPress}>
+
+    <Box >
       <Box mx="7" my="2" onPress={onPress}>
         <Box
           my="1"
@@ -24,7 +26,7 @@ const tripCard = ({ onPress }) => {
             backgroundColor: "gray.50",
           }}
         >
-          <Box flex={1} >
+          <Box  >
             <Stack p="4" space={3} >
               <Stack space={2} >
                 <Heading size="sm" ml="-1" >
@@ -65,9 +67,11 @@ const tripCard = ({ onPress }) => {
           </Box>
         </Box>
       </Box>
+    </Box>
+
     </TouchableOpacity>
 
   );
 };
 
-export default tripCard;
+export default TripCard;

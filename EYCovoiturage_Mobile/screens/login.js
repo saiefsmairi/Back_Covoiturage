@@ -38,88 +38,108 @@ export default function Login({ navigation }) {
     };
 
     return (
-        <View style={styles.container} >
-
-            <Center w="100%">
-                <Box safeArea p="2" w="90%" maxW="290" py="8" h="100%" >
-                    <VStack space={3} mb="10">
-
-                        <Heading mt="1" color="coolGray.600" _dark={{
-                            color: "warmGray.200"
-                        }} fontWeight="medium" size="xs">
-
-                            <Image
-                                style={styles.tinyLogo}
-                                source={{
-                                    uri: 'https://ey.co.il/wp-content/uploads/2021/11/logo-black.png',
-                                }}
-                            />
-                        </Heading>
-                        <Heading mt="1" color="coolGray.600" _dark={{
-                            color: "warmGray.200"
-                        }} fontWeight="medium" size="xs">
-                            Sign up to continue!
-                        </Heading>
-                        <TouchableOpacity onPress={handlePress}>
-                            <Heading mt="1" color="coolGray.600" _dark={{
-                                color: "warmGray.200"
-                            }} fontWeight="medium" size="xs">
-                                Don't have an account? Register now.
-                            </Heading>
-                        </TouchableOpacity>
-                    </VStack>
-
-                    <Formik
-                        initialValues={{ email: '', password: '' }}
-                        validationSchema={SigninSchema}
-                        onSubmit={async values => {
-                          //  const response = await authService.login(values);
-                          //  console.log(response);
-                            console.log(values)
-                            navigation.navigate('main');
-
-                        }}
+        <View style={styles.container}>
+          <Center w="100%">
+            <Box safeArea p="2" w="90%" maxW="290" py="8" h="100%">
+              <VStack space={3} mb="10">
+                <Heading
+                  mt="1"
+                  color="coolGray.600"
+                  _dark={{
+                    color: "warmGray.200"
+                  }}
+                  fontWeight="medium"
+                  size="xs"
+                >
+                  <Image
+                    style={styles.tinyLogo}
+                    source={{
+                      uri: "https://ey.co.il/wp-content/uploads/2021/11/logo-black.png"
+                    }}
+                  />
+                </Heading>
+                <Heading
+                  mt="1"
+                  color="coolGray.600"
+                  _dark={{
+                    color: "warmGray.200"
+                  }}
+                  fontWeight="medium"
+                  size="xs"
+                >
+                  Sign up to continue!
+                </Heading>
+                <TouchableOpacity onPress={handlePress}>
+                  <Text>
+                    <Heading
+                      mt="1"
+                      color="coolGray.600"
+                      _dark={{
+                        color: "warmGray.200"
+                      }}
+                      fontWeight="medium"
+                      size="xs"
                     >
-                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                            <View>
-
-                                <FormControl.Label>Email</FormControl.Label>
-
-                                <Input
-                                    onChangeText={handleChange('email')}
-                                    onBlur={handleBlur('email')}
-                                    value={values.email} />
-                                {touched.email && errors.email && (
-                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.email}</Text>
-                                )}
-                                <FormControl.Label>Password</FormControl.Label>
-
-                                <Input
-                                    onChangeText={handleChange('password')}
-                                    onBlur={handleBlur('password')}
-                                    value={values.password}
-                                    type={show ? "text" : "password"} InputRightElement={<Pressable onPress={() => setShow(!show)}>
-                                        <Icon as={<MaterialIcons name={show ? "visibility" : "visibility-off"} />} size={5} mr="2" color="muted.400" />
-                                    </Pressable>} />
-
-                                {touched.password && errors.password && (
-                                    <Text style={{ color: 'red', fontSize: 12 }}>{errors.password}</Text>
-                                )}
-                                <VStack space={3} mt="16" >
-                                    <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                                        <Text style={styles.textStyle}>Login</Text>
-                                    </TouchableOpacity>
-                                </VStack>
-
-                            </View>
-
-                        )}
-
-                    </Formik>
-                </Box>
-            </Center>;
+                      Don't have an account? Register now.
+                    </Heading>
+                  </Text>
+                </TouchableOpacity>
+              </VStack>
+      
+              <Formik
+                initialValues={{ email: "", password: "" }}
+                validationSchema={SigninSchema}
+                onSubmit={async values => {
+                  //  const response = await authService.login(values);
+                  //  console.log(response);
+                  console.log(values);
+                  navigation.navigate("main");
+                }}
+              >
+                {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                  <View>
+                    <FormControl.Label>Email</FormControl.Label>
+                    <Input
+                      onChangeText={handleChange("email")}
+                      onBlur={handleBlur("email")}
+                      value={values.email}
+                    />
+                    {touched.email && errors.email && (
+                      <Text style={{ color: "red", fontSize: 12 }}>{errors.email}</Text>
+                    )}
+                    <FormControl.Label>Password</FormControl.Label>
+                    <Input
+                      onChangeText={handleChange("password")}
+                      onBlur={handleBlur("password")}
+                      value={values.password}
+                      type={show ? "text" : "password"}
+                      InputRightElement={
+                        <Pressable onPress={() => setShow(!show)}>
+                          <Icon
+                            as={<MaterialIcons name={show ? "visibility" : "visibility-off"} />}
+                            size={5}
+                            mr="2"
+                            color="muted.400"
+                          />
+                        </Pressable>
+                      }
+                    />
+                    {touched.password && errors.password && (
+                      <Text style={{ color: "red", fontSize: 12 }}>{errors.password}</Text>
+                    )}
+                    <VStack space={3} mt="16">
+                      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                        <Text style={styles.textStyle}>Login</Text>
+                      </TouchableOpacity>
+                    </VStack>
+                  </View>
+                )}
+              </Formik>
+            </Box>
+          </Center>
         </View>
-    )
+      );
+      
 
 
 
