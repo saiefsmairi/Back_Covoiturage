@@ -8,6 +8,7 @@ import RideDetails from '../screens/rideDetails';
 import MyTabs from './mytabs';
 import IntroAddTrip from '../screens/introAddTrip';
 import ListTrips from '../screens/listTrips';
+import Profil from '../screens/profil';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,7 +39,7 @@ function MyStack() {
                 options={{
                     title: 'Ride Details',
                     headerStyle: {
-                        backgroundColor: 'yellow',
+                        backgroundColor: '#eede1d',
                     },
                     headerTitleStyle: {
                         fontWeight: 'bold',
@@ -65,6 +66,18 @@ function MyStack() {
             <Stack.Screen
                 name="introAddTrip"
                 component={IntroAddTrip}
+                options={{
+                    headerShown: false,
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="home" size={size} color={color} />
+                    ),
+                    tabBarLabel: 'Home',
+                }}
+            />
+
+            <Stack.Screen
+                name="profil"
+                component={Profil}
                 options={{
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (

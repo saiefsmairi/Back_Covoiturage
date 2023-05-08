@@ -9,6 +9,7 @@ import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import IntroAddTrip from '../screens/introAddTrip';
+import Profil from '../screens/profil';
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
@@ -38,7 +39,7 @@ function MyTabs() {
                 options={({ navigation }) => ({
                     title: 'Publish a Trip',
                     headerStyle: {
-                        backgroundColor: '#f9f9f9',
+                        backgroundColor: '#eede1d',
                     },
                     headerTitleStyle: {
                         fontWeight: 'bold',
@@ -62,7 +63,7 @@ function MyTabs() {
                 options={({ navigation }) => ({
                     title: 'List Trips',
                     headerStyle: {
-                        backgroundColor: 'yellow',
+                        backgroundColor: '#eede1d',
                     },
                     headerTitleStyle: {
                         fontWeight: 'bold',
@@ -79,6 +80,29 @@ function MyTabs() {
                 })}
             />
 
+            <Tab.Screen
+                name="profil"
+                component={Profil}
+                options={({ navigation }) => ({
+                    title: 'Profil',
+                    headerStyle: {
+                        backgroundColor: '#eede1d',
+                    },
+                    headerTitleStyle: {
+                        fontWeight: 'bold',
+                        color: '#2c2c3b',
+                    },
+                    headerLeft: () => (
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 15 }} />
+                        </TouchableOpacity>
+                    ),
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="user" size={size} color={color}  />
+
+                    ),
+                })}
+            />
 
 
 

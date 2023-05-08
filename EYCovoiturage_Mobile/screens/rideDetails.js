@@ -26,7 +26,7 @@ const RideDetails = ({ handlePress }) => {
                 }}
             >
                 <Box  >
-                    <Stack space={3} >
+                    <Stack space={2} >
                         <Stack space={2} >
                             <Image
                                 source={{ uri: 'https://images.prismic.io/shacarlacca/NmQ5ODc5NzYtNGQwYy00NzQzLWI0YzgtYWVjZWU5YzdkNmNh__10.jpg?auto=compress%2Cformat&rect=0%2C0%2C1600%2C900&w=1200&h=1200' }}
@@ -62,7 +62,7 @@ const RideDetails = ({ handlePress }) => {
                             _dark={{ bg: "muted.50" }}
                         />
 
-                        <Stack space={4} padding={8}  >
+                        <Stack space={1} padding={1}  >
                             <Heading size="sm" ml="1">
                                 Trip info
                             </Heading>
@@ -154,7 +154,7 @@ const RideDetails = ({ handlePress }) => {
 const styles = StyleSheet.create({
     button: {
         alignItems: "center",
-        backgroundColor: "yellow",
+        backgroundColor: "#eede1d",
         padding: 10,
     },
 

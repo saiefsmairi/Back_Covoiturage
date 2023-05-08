@@ -34,7 +34,7 @@ const TripCard = ({ onPress }) => {
                 </Heading>
                 <Text
                   fontSize="xs"
-                  _light={{ color: "violet.500" }}
+                  _light={{   color: "#2596be" }}
                   _dark={{ color: "violet.400" }}
                   fontWeight="500"
                   ml="-0.5"
@@ -54,13 +54,13 @@ const TripCard = ({ onPress }) => {
                   bg="green.500"
                   source={{
                     uri:
-                      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+                      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
                   }}
                 >
                   AJ
                 </Avatar>
                 <Text ml="4" fontWeight="bold">
-                  Alice Johnson
+                Johnson Alice 
                 </Text>
               </Stack>
             </Stack>
