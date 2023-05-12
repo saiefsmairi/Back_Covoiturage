@@ -3,18 +3,42 @@ import { StyleSheet, Text, View, Image, TextInput, ScrollView, Keyboard, Alert, 
 import { Box, Icon, Stack, Center, Input, FormControl } from "native-base";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Modal from 'react-native-modal';
-import MapView from 'react-native-maps';
 import { Badge } from 'native-base';
 import { MaterialIcons } from "@expo/vector-icons";
 import { FontAwesome } from '@expo/vector-icons';
 import { Calendar } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
-export default function IntroAddTrip() {
+
+import * as Location from 'expo-location';
+import { useNavigation } from '@react-navigation/native';
+
+export default function IntroAddTrip({ navigation, route }) {
     const [selectedDates, setSelectedDates] = React.useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [selectedTime, setSelectedTime] = useState('');
+    const [location, setLocation] = useState(null);
+
+
+
+    useEffect(() => {
+
+        async function getLocationAsync() {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                console.log('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
+        }
+        const selectedPlace = route.params?.selectedPickupPlace;
+        console.log(selectedPlace)
+        getLocationAsync();
+    }, [route.params]);
+
 
     const handleSelectDates = () => {
         setModalVisible(true);
@@ -52,14 +76,52 @@ export default function IntroAddTrip() {
 
     };
 
+
+    const [pickupLocation, setPickupLocation] = useState(null);
+    const [dropLocation, setDropLocation] = useState(null);
+    const [pickupLocationCords, setPickupLocationCords] = useState([]);
+    const [dropLocationCords, setDropLocationCords] = useState([]);
+
+
+    const displayMapsComponent = () => {
+        navigation.navigate('pickupMap', {
+            onReturn: (item) => {
+                setPickupLocation(item.properties.formatted)
+                setPickupLocationCords(item.geometry.coordinates)
+            }
+        })
+    };
+
+    
+    const displayMapsComponentDrop = () => {
+
+        navigation.navigate('dropMap', {
+            onReturn: (item) => {
+                setDropLocation(item.properties.formatted)
+                setDropLocationCords(item.geometry.coordinates)
+            }
+        })
+    };
+
+    const handlePressRouteComponent = () => {
+        navigation.navigate('routeDetails', {
+            pickupLocationCords: pickupLocationCords,
+            dropLocationCords: dropLocationCords,
+          });
+    };
+
+
     return (
         <ScrollView>
+
             <View style={styles.container}>
 
                 <Box safeArea p="2" maxW="290" h="100%">
                     <Stack space={4} w="100%" alignItems="center">
                         <Input
                             w="100%"
+                            value={pickupLocation}
+                            onTouchStart={displayMapsComponent}
                             InputLeftElement={
                                 <Icon
                                     as={<FontAwesome name="map-marker" size={24} color="black" />}
@@ -73,6 +135,8 @@ export default function IntroAddTrip() {
 
                         <Input
                             w="100%"
+                            value={dropLocation}
+                            onTouchStart={displayMapsComponentDrop}
                             InputLeftElement={
                                 <Icon
                                     as={<FontAwesome name="map-marker" size={24} color="black" />}
@@ -160,6 +224,12 @@ export default function IntroAddTrip() {
                             </View>
                         </Modal>
 
+                        <Stack space={3}  >
+                            <TouchableOpacity style={styles.button} onPress={handlePressRouteComponent}>
+                                <Text style={styles.textStyle}>Next</Text>
+                            </TouchableOpacity>
+                        </Stack>
+
                     </Stack>
 
                 </Box>
@@ -183,6 +253,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#2c2c3b",
         padding: 10,
+        width: 200
     },
     dateButtons: {
         alignItems: "center",
@@ -193,9 +264,7 @@ const styles = StyleSheet.create({
         fontWeight: 500
     },
     modal: {
-        // justifyContent: 'center',
-        //  alignItems: 'center',
-        // backgroundColor: '#fff',
+ 
         borderRadius: 10,
         borderColor: 'rgba(0, 0, 0, 0.1)',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',

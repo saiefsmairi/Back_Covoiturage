@@ -10,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import IntroAddTrip from '../screens/introAddTrip';
 import Profil from '../screens/profil';
+import SearchTrips from '../screens/searchTrips';
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
@@ -32,6 +33,24 @@ function MyTabs() {
                     tabBarLabel: 'Home',
                 }}
             />
+
+            <Tab.Screen
+                name="Search"
+                component={SearchTrips}
+                options={({ navigation }) => ({
+                    headerShown: false,
+                    headerLeft: () => (
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 15 }} />
+                        </TouchableOpacity>
+                    ),
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="search1" size={size} color={color} />
+                    ),
+                })}
+            />
+
+
 
             <Tab.Screen
                 name="introAddTrip"
@@ -98,11 +117,12 @@ function MyTabs() {
                         </TouchableOpacity>
                     ),
                     tabBarIcon: ({ color, size }) => (
-                        <AntDesign name="user" size={size} color={color}  />
+                        <AntDesign name="user" size={size} color={color} />
 
                     ),
                 })}
             />
+
 
 
 

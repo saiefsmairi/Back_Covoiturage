@@ -9,13 +9,16 @@ import MyTabs from './mytabs';
 import IntroAddTrip from '../screens/introAddTrip';
 import ListTrips from '../screens/listTrips';
 import Profil from '../screens/profil';
+import MapComponent from '../components/mapComponent';
+import MapComponentDrop from '../components/mapComponentDrop';
+import RouteDetails from '../components/routeDetails';
 
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
     return (
         <Stack.Navigator
-            initialRouteName="login"
+            initialRouteName="main"
         >
             <Stack.Screen options={{ headerShown: false }} name="main" component={MyTabs} />
             <Stack.Screen
@@ -86,7 +89,47 @@ function MyStack() {
                     tabBarLabel: 'Home',
                 }}
             />
+
+            <Stack.Screen
+                name="pickupMap"
+                component={MapComponent}
+                options={{
+                    headerShown: false,
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="home" size={size} color={color} />
+                    ),
+                    tabBarLabel: 'Map1',
+                }}
+            />
+
+            <Stack.Screen
+                name="dropMap"
+                component={MapComponentDrop}
+                options={{
+                    headerShown: false,
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="home" size={size} color={color} />
+                    ),
+                    tabBarLabel: 'Map2',
+                }}
+            />
+
+
+            <Stack.Screen
+                name="routeDetails"
+                component={RouteDetails}
+                options={{
+                    headerShown: false,
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="home" size={size} color={color} />
+                    ),
+                    tabBarLabel: 'Map3',
+                }}
+            />
+
         </Stack.Navigator>
+
+
     );
 }
 
