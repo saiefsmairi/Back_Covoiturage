@@ -21,7 +21,7 @@ const MapComponent = ({route}) => {
         setSearchQuery(query);
 
         const response = await fetch(
-            `https://api.geoapify.com/v1/geocode/autocomplete?text=${query}&apiKey=fad74474846544cfa2e35a5f60a3b11e`
+            `https://api.geoapify.com/v1/geocode/autocomplete?text=${query}&filter=countrycode:tn&apiKey=fad74474846544cfa2e35a5f60a3b11e`
         );
         const data = await response.json();
         setAutocompleteResults(data.features);
@@ -50,7 +50,7 @@ const MapComponent = ({route}) => {
 
           route.params.onReturn( item);
           navigation.goBack()
-        }, 2000); 
+        }, 4000); 
 
     };
 
@@ -116,9 +116,7 @@ const MapComponent = ({route}) => {
                             keyExtractor={(item) => item.id}
                         />
                     </Box>
-
                 </View>
-
                 <MapView
                     ref={mapRef}
                     style={{ flex: 1 }}
@@ -138,7 +136,6 @@ const MapComponent = ({route}) => {
                         />
                     )}
                 </MapView>
-
             </View>
 
         </TouchableWithoutFeedback>

@@ -16,10 +16,18 @@ builder.Services.AddScoped<ITripRepository, TripRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IRequestRideRepository, RequestRideRepository>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
 
 
-
-
+builder.Services.AddHttpClient();
 
 
 var app = builder.Build();
@@ -33,7 +41,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors();
+
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

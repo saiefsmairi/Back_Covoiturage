@@ -1,4 +1,4 @@
-﻿using Auth_Microservice.Models;
+﻿using Carpooling_Microservice.Models;
 using Carpooling_Microservice.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

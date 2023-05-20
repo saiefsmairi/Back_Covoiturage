@@ -1,24 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Carpooling_Microservice.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Carpooling_Microservice.Models
 {
-    public class RequestRide
+    public class TripDates
     {
         [Key]
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int TripDatesId { get; set; }
+        public DateTime Date { get; set; }
 
-        public int RequestRideId { get; set; }
-        public DateTime RequestDate { get; set; }
-
-        public string Status { get; set; }
-        public string PickupPoint { get; set; }
         public int TripId { get; set; }
         [JsonIgnore]
         public Trip? Trip { get; set; }
-
-
     }
 }

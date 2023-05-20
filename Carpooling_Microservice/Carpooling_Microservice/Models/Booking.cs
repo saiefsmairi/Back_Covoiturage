@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Auth_Microservice.Models
+namespace Carpooling_Microservice.Models
 {
     public class Booking
     {
@@ -15,7 +15,8 @@ namespace Auth_Microservice.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime BookingDate { get; set; }
         public string Status { get; set; }
+        public int TripId { get; set; }
+        [JsonIgnore]
         public Trip? Trip { get; set; }
-
     }
 }

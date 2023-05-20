@@ -20,8 +20,6 @@ export default function IntroAddTrip({ navigation, route }) {
     const [selectedTime, setSelectedTime] = useState('');
     const [location, setLocation] = useState(null);
 
-
-
     useEffect(() => {
 
         async function getLocationAsync() {
@@ -82,7 +80,6 @@ export default function IntroAddTrip({ navigation, route }) {
     const [pickupLocationCords, setPickupLocationCords] = useState([]);
     const [dropLocationCords, setDropLocationCords] = useState([]);
 
-
     const displayMapsComponent = () => {
         navigation.navigate('pickupMap', {
             onReturn: (item) => {
@@ -92,9 +89,8 @@ export default function IntroAddTrip({ navigation, route }) {
         })
     };
 
-    
-    const displayMapsComponentDrop = () => {
 
+    const displayMapsComponentDrop = () => {
         navigation.navigate('dropMap', {
             onReturn: (item) => {
                 setDropLocation(item.properties.formatted)
@@ -107,9 +103,13 @@ export default function IntroAddTrip({ navigation, route }) {
         navigation.navigate('routeDetails', {
             pickupLocationCords: pickupLocationCords,
             dropLocationCords: dropLocationCords,
-          });
+            selectedDates: selectedDates,
+            dropLocation: dropLocation,
+            pickupLocation: pickupLocation,
+            seatsSelected: seatsSelected,
+            selectedTime:selectedTime
+        });
     };
-
 
     return (
         <ScrollView>
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
         fontWeight: 500
     },
     modal: {
- 
+
         borderRadius: 10,
         borderColor: 'rgba(0, 0, 0, 0.1)',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
