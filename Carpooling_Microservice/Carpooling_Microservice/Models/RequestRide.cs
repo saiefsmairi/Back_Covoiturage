@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Auth_Microservice.Models
+namespace Carpooling_Microservice.Models
 {
     public class RequestRide
     {
@@ -15,8 +15,9 @@ namespace Auth_Microservice.Models
 
         public string Status { get; set; }
         public string PickupPoint { get; set; }
-
-        public Trip Trip { get; set; }
+        public int TripId { get; set; }
+        [JsonIgnore]
+        public Trip? Trip { get; set; }
 
 
     }

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Auth_Microservice.Models
+namespace Carpooling_Microservice.Models
 {
     public class Trip
     {
@@ -19,7 +19,22 @@ namespace Auth_Microservice.Models
 
         public int AvailableSeats { get; set; }
         public float Distance { get; set; }
+        public float EstimatedTime { get; set; }
+        public double PickupLatitude { get; set; }
+        public double PickupLongitude { get; set; }
+
+        public double DropLatitude { get; set; }
+        public double DropLongitude { get; set; }
+
+     
+        public TimeSpan? DepartureTime { get; set; }
+        [NotMapped]
+        public string DepartureTimeInput { get; set; }
+
         public string Type { get; set; }
+        public ICollection<TripDates>? AvailableDates { get; set; }
+
+
         public ICollection<RequestRide>? RequestRides { get; set; }
         public ICollection<Booking>? Bookings { get; set; }
 

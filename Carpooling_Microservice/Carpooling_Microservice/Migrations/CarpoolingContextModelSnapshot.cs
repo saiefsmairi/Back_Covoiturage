@@ -22,11 +22,13 @@ namespace Carpooling_Microservice.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Auth_Microservice.Models.Booking", b =>
+            modelBuilder.Entity("Carpooling_Microservice.Models.Booking", b =>
                 {
                     b.Property<int>("BookingId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingId"));
 
                     b.Property<DateTime>("BookingDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -36,16 +38,23 @@ namespace Carpooling_Microservice.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TripId")
+                        .HasColumnType("int");
+
                     b.HasKey("BookingId");
+
+                    b.HasIndex("TripId");
 
                     b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("Auth_Microservice.Models.RequestRide", b =>
+            modelBuilder.Entity("Carpooling_Microservice.Models.RequestRide", b =>
                 {
                     b.Property<int>("RequestRideId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RequestRideId"));
 
                     b.Property<string>("PickupPoint")
                         .IsRequired()
@@ -58,12 +67,17 @@ namespace Carpooling_Microservice.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TripId")
+                        .HasColumnType("int");
+
                     b.HasKey("RequestRideId");
+
+                    b.HasIndex("TripId");
 
                     b.ToTable("RequestsRides");
                 });
 
-            modelBuilder.Entity("Auth_Microservice.Models.Trip", b =>
+            modelBuilder.Entity("Carpooling_Microservice.Models.Trip", b =>
                 {
                     b.Property<int>("TripId")
                         .ValueGeneratedOnAdd()
@@ -80,12 +94,30 @@ namespace Carpooling_Microservice.Migrations
                     b.Property<DateTime>("DateFin")
                         .HasColumnType("datetime2");
 
+                    b.Property<TimeSpan?>("DepartureTime")
+                        .HasColumnType("time");
+
                     b.Property<string>("Destination")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<float>("Distance")
                         .HasColumnType("real");
+
+                    b.Property<double>("DropLatitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("DropLongitude")
+                        .HasColumnType("float");
+
+                    b.Property<float>("EstimatedTime")
+                        .HasColumnType("real");
+
+                    b.Property<double>("PickupLatitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("PickupLongitude")
+                        .HasColumnType("float");
 
                     b.Property<string>("Source")
                         .IsRequired()
@@ -100,30 +132,64 @@ namespace Carpooling_Microservice.Migrations
                     b.ToTable("Trips");
                 });
 
-            modelBuilder.Entity("Auth_Microservice.Models.Booking", b =>
+            modelBuilder.Entity("Carpooling_Microservice.Models.TripDates", b =>
                 {
-                    b.HasOne("Auth_Microservice.Models.Trip", "Trip")
+                    b.Property<int>("TripDatesId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TripDatesId"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TripId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TripDatesId");
+
+                    b.HasIndex("TripId");
+
+                    b.ToTable("TripDates");
+                });
+
+            modelBuilder.Entity("Carpooling_Microservice.Models.Booking", b =>
+                {
+                    b.HasOne("Carpooling_Microservice.Models.Trip", "Trip")
                         .WithMany("Bookings")
-                        .HasForeignKey("BookingId")
+                        .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Trip");
                 });
 
-            modelBuilder.Entity("Auth_Microservice.Models.RequestRide", b =>
+            modelBuilder.Entity("Carpooling_Microservice.Models.RequestRide", b =>
                 {
-                    b.HasOne("Auth_Microservice.Models.Trip", "Trip")
+                    b.HasOne("Carpooling_Microservice.Models.Trip", "Trip")
                         .WithMany("RequestRides")
-                        .HasForeignKey("RequestRideId")
+                        .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Trip");
                 });
 
-            modelBuilder.Entity("Auth_Microservice.Models.Trip", b =>
+            modelBuilder.Entity("Carpooling_Microservice.Models.TripDates", b =>
                 {
+                    b.HasOne("Carpooling_Microservice.Models.Trip", "Trip")
+                        .WithMany("AvailableDates")
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Trip");
+                });
+
+            modelBuilder.Entity("Carpooling_Microservice.Models.Trip", b =>
+                {
+                    b.Navigation("AvailableDates");
+
                     b.Navigation("Bookings");
 
                     b.Navigation("RequestRides");

@@ -1,4 +1,4 @@
-﻿using Auth_Microservice.Models;
+﻿using Carpooling_Microservice.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -25,14 +25,18 @@ namespace Carpooling_Microservice.DbConfig
             modelBuilder.Entity<Trip>()
            .HasMany(e => e.RequestRides)
            .WithOne(e => e.Trip)
-           .HasForeignKey(e => e.RequestRideId)
-           .HasPrincipalKey(e => e.TripId);
+           .HasForeignKey(e => e.TripId);
+
+            modelBuilder.Entity<Trip>()
+            .HasMany(e => e.AvailableDates)
+            .WithOne(e => e.Trip)
+            .HasForeignKey(e => e.TripId);
+
 
             modelBuilder.Entity<Trip>()
            .HasMany(e => e.Bookings)
            .WithOne(e => e.Trip)
-           .HasForeignKey(e => e.BookingId)
-           .HasPrincipalKey(e => e.TripId);
+           .HasForeignKey(e => e.TripId);
 
         }
     }

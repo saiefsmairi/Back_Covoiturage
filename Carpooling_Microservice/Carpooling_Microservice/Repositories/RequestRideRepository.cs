@@ -1,4 +1,4 @@
-﻿using Auth_Microservice.Models;
+﻿using Carpooling_Microservice.Models;
 using Carpooling_Microservice.DbConfig;
 
 namespace Carpooling_Microservice.Data

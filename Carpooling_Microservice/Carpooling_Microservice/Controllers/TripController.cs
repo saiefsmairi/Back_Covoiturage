@@ -1,8 +1,19 @@
-﻿using Auth_Microservice.Models;
+﻿using Carpooling_Microservice.Models;
 using Carpooling_Microservice.Data;
+using Carpooling_Microservice.DbConfig;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
+using Azure;
+using System.IO;
+using Newtonsoft.Json;
 
+using RestSharp;
+using Newtonsoft.Json.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,10 +24,14 @@ namespace Test4.Controllers
     public class TripController : ControllerBase
     {
         private readonly ITripRepository _repository;
+        private readonly CarpoolingContext _context;
+        private HttpClient _client;
 
-        public TripController(ITripRepository reposiotory)
+        public TripController(ITripRepository reposiotory, CarpoolingContext context, HttpClient client)
         {
             _repository = reposiotory;
+            _context = context;
+            _client = client;
 
         }
 
@@ -29,18 +44,57 @@ namespace Test4.Controllers
             {
                 return BadRequest();
             }
-            var trip = new Trip
-            (
-                model.Source,
-                model.Destination,
-                model.DateDebut,
-                model.DateFin,
-                model.AvailableSeats,
-                model.Distance,
-                model.Type
-            );
+       
+            string timeString = model.DepartureTimeInput;
+
+            // Use regular expression to extract hour, minute, and AM/PM indicator
+            Match match = Regex.Match(timeString, @"(\d+):(\d+)\s+([AP]M)", RegexOptions.IgnoreCase);
+            if (!match.Success)
+            {
+                Console.WriteLine("Invalid time format");
+                
+            }
+
+            int hour = int.Parse(match.Groups[1].Value);
+            int minute = int.Parse(match.Groups[2].Value);
+            string amPmIndicator = match.Groups[3].Value;
+
+            if (hour == 12)
+            {
+                // Convert 12-hour format to 24-hour format for PM times
+                if (amPmIndicator.Equals("PM", StringComparison.OrdinalIgnoreCase))
+                {
+                    hour = 12;
+                }
+                // Convert 12-hour format to 24-hour format for AM times
+                else if (amPmIndicator.Equals("AM", StringComparison.OrdinalIgnoreCase))
+                {
+                    hour = 0;
+                }
+            }
+            else if (amPmIndicator.Equals("PM", StringComparison.OrdinalIgnoreCase))
+            {
+                // Convert PM times to 24-hour format by adding 12 to the hour
+                hour += 12;
+            }
+
+            TimeSpan time = new TimeSpan(hour, minute, 0);
+
+            model.DepartureTime = time;
+
+            // Display the stored time value
+            Console.WriteLine($"Time value stored: {time}");
+
+            DateTime startDate = model.AvailableDates.Min(d => d.Date);
+            DateTime endDate = model.AvailableDates.Max(d => d.Date);
+
+
+            // set the start and end dates
+            model.DateDebut = startDate;
+            model.DateFin = endDate;
+
             var result = _repository.createTrip(model);
-            //or hedhi             var result = _repository.createTrip(trip);
+            //or hedhi  var result = _repository.createTrip(trip);
 
             _repository.SaveChanges();
             return CreatedAtAction(nameof(Get), new { id = result.TripId }, result);
@@ -86,6 +140,136 @@ namespace Test4.Controllers
             _repository.Update(model,id);
             return Ok(model);
         }
+
+
+        //AJOUT REQUEST FI TRIP
+        [HttpPost("{tripId}/request-rides")]
+        public async Task<ActionResult<RequestRide>> CreateRequestRide(int tripId, [FromBody] RequestRide requestRide)
+        {
+            var trip = await _context.Trips.FindAsync(tripId);
+
+            if (trip == null)
+            {
+                return NotFound();
+            }
+
+            requestRide.Trip = trip;
+            _context.RequestsRides.Add(requestRide);
+            await _context.SaveChangesAsync();
+
+            return Ok(trip);
+        }
+
+        //AFFICHAGE DES REQUEST POUR UN TRIP
+        [HttpGet("trips/{tripId}/requests")]
+        public ActionResult<IEnumerable<RequestRide>> GetRequestsForTrip(int tripId)
+        {
+            var trip = _context.Trips.Find(tripId);
+
+            if (trip == null)
+            {
+                return NotFound();
+            }
+
+            var requests = _context.RequestsRides.Where(r => r.TripId == tripId).ToList();
+
+            return Ok(requests);
+        }
+
+        // AFFICHER LES TRIPS BETWEEN TWO DATES WE WILL ADD DESTINATION AND NBSEATS AKBER MEN 
+        [HttpGet]
+        [Route("trips/available-on-date")]
+        public async Task<ActionResult<IEnumerable<Trip>>> GetTripsAvailableOnDate(DateTime date)
+        {
+         var availableTrips = await _context.Trips.Include(t => t.AvailableDates)
+        .Where(t =>t.DateDebut <= date && t.DateFin >= date)
+        .ToListAsync();
+         return Ok(availableTrips);
+
+        }
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> FilterTripsAsync(double userPickupLatitude, double userPickupLongitude, double userDropLatitude, double userDropLongitude)
+        {
+            var allTrips = _context.Trips.ToList();
+            double proximityThreshold = 10.0;
+            var relevantTrips = new List<Trip>();
+
+            foreach (var trip in allTrips)
+            {
+                var tripPickupCoordinates = (trip.PickupLatitude, trip.PickupLongitude);
+                var tripDropCoordinates = (trip.DropLatitude, trip.DropLongitude);
+
+                var isWithinProximity = await IsTripWithinProximity(
+                    (userPickupLatitude, userPickupLongitude),
+                    (userDropLatitude, userDropLongitude),
+                    tripPickupCoordinates,
+                    tripDropCoordinates,
+                    proximityThreshold);
+
+                if (isWithinProximity)
+                {
+                    relevantTrips.Add(trip);
+                }
+            }
+            if (relevantTrips.Count == 0)
+            {
+                return Ok("There are no trips close to your locations");
+            }
+
+            return Ok(relevantTrips);
+        }
+
+
+
+        private async Task<bool> IsTripWithinProximity(
+            (double Latitude, double Longitude) userPickupCoordinates,
+            (double Latitude, double Longitude) userDropCoordinates,
+            (double Latitude, double Longitude) tripPickupCoordinates,
+            (double Latitude, double Longitude) tripDropCoordinates,
+             double proximityThreshold)
+                {
+                    double pickupDistance = await CalculateDistance(userPickupCoordinates, tripPickupCoordinates);
+                    double dropDistance = await CalculateDistance(userDropCoordinates, tripDropCoordinates);
+                    return pickupDistance <= proximityThreshold && dropDistance <= proximityThreshold;
+                }
+
+        private async Task<double> CalculateDistance(
+        (double Latitude, double Longitude) point1,
+        (double Latitude, double Longitude) point2)
+        {
+            string apiKey = "fad74474846544cfa2e35a5f60a3b11e";
+            string apiUrl = $"https://api.geoapify.com/v1/routing?waypoints={point1.Latitude.ToString(CultureInfo.InvariantCulture)}," +
+                $"{point1.Longitude.ToString(CultureInfo.InvariantCulture)}|{point2.Latitude.ToString(CultureInfo.InvariantCulture)}," +
+                $"{point2.Longitude.ToString(CultureInfo.InvariantCulture)}&mode=drive&apiKey={apiKey}";
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(apiUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var result = JObject.Parse(content);
+                    var distanceInMeters = (double)result["features"][0]["properties"]["distance"];
+                    double distanceInKilometers = distanceInMeters / 1000;
+
+                    return distanceInKilometers;
+                }
+                else
+                {
+                   
+                    throw new Exception("Failed to calculate distance. API request failed.");
+                }
+            }
+        }
+
+
+
+
+
+
+
 
     }
 }
