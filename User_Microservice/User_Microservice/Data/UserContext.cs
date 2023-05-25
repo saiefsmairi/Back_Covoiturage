@@ -1,14 +1,14 @@
-﻿using Auth_Microservice.Models;
+﻿using User_Microservice.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 
-namespace Auth_Microservice.Data
+namespace User_Microservice.Data
 {
     public class UserContext : DbContext
 
     {
-        public DbSet<User> Users { set; get; }
+        public DbSet<Utilisateur> Users { set; get; }
         public UserContext(DbContextOptions<UserContext> opt) : base(opt)
         {
 
@@ -16,7 +16,7 @@ namespace Auth_Microservice.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>(entity => { entity.HasIndex(e => e.Email).IsUnique(); });
+            modelBuilder.Entity<Utilisateur>(entity => { entity.HasIndex(e => e.Email).IsUnique(); });
         }
     }
 }

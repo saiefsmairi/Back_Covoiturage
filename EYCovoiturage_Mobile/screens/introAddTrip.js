@@ -83,7 +83,9 @@ export default function IntroAddTrip({ navigation, route }) {
     const displayMapsComponent = () => {
         navigation.navigate('pickupMap', {
             onReturn: (item) => {
-                setPickupLocation(item.properties.formatted)
+                console.log("***/*/*/*/*/*/")
+                console.log(item.properties.address_line1)
+                setPickupLocation(item.properties.address_line1)
                 setPickupLocationCords(item.geometry.coordinates)
             }
         })
@@ -93,7 +95,9 @@ export default function IntroAddTrip({ navigation, route }) {
     const displayMapsComponentDrop = () => {
         navigation.navigate('dropMap', {
             onReturn: (item) => {
-                setDropLocation(item.properties.formatted)
+                console.log("***/*/*/*/*/*/")
+                console.log(item.properties.address_line1)
+                setDropLocation(item.properties.address_line1)
                 setDropLocationCords(item.geometry.coordinates)
             }
         })

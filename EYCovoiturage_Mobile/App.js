@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import MyStack from './routes/loginStack';
 import { NativeBaseProvider, Box } from "native-base";
+import Toast from 'react-native-toast-message';
 
 export default function App() {
 
@@ -13,6 +14,7 @@ export default function App() {
 
       <MyStack />
       </NativeBaseProvider>
+      <Toast />
 
     </NavigationContainer>
 

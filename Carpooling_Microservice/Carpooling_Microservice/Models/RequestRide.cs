@@ -12,12 +12,13 @@ namespace Carpooling_Microservice.Models
 
         public int RequestRideId { get; set; }
         public DateTime RequestDate { get; set; }
-
         public string Status { get; set; }
-        public string PickupPoint { get; set; }
         public int TripId { get; set; }
         [JsonIgnore]
         public Trip? Trip { get; set; }
+        public int PassengerId { get; set; }
+        public int DriverId { get; set; }
+
 
 
     }

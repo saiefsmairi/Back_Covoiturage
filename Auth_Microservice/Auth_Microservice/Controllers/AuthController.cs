@@ -1,11 +1,11 @@
-﻿using Auth_Microservice.Data;
-using Auth_Microservice.Dtos;
-using Auth_Microservice.Helpers;
+﻿using Auth_Microservice.Dtos;
 using Auth_Microservice.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Numerics;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -17,129 +17,68 @@ namespace Auth_Microservice.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IUserRepository _repository;
-        private readonly JwtService _jwtService;
         private readonly IConfiguration _configuration;
 
-        public AuthController(IUserRepository repository, JwtService jwtService, IConfiguration configuration)
+        public AuthController(  IConfiguration configuration)
         {
-            _repository = repository;
-            _jwtService = jwtService;
             _configuration = configuration;
         }
 
-        [HttpPost("register")]
-        public IActionResult Register(RegisterDto dto)
-        {
-            var user = new User
-            {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Adress = dto.Adress,
-                Phone = dto.Phone,
-                Email = dto.Email,
-                Role = "User",
-                Password = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-            };
 
-            return Created("success", _repository.Create(user));
-        }
 
-        [AllowAnonymous]
         [HttpPost("login")]
-        public IActionResult Login(LoginDto dto)
+        public async Task<IActionResult> VerifyUserAndLogin([FromBody] LoginDto userLogin)
         {
-            var user = _repository.GetByEmail(dto.Email);
-
-            if (user == null) return BadRequest(new { message = "Invalid Credentials" });
-
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+            // Make an API request to the User microservice to verify the user
+            using (var client = new HttpClient())
             {
-                return BadRequest(new { message = "Invalid Credentials" });
-            }
+                var userMicroserviceUrl = "https://localhost:7031/api/User/verify";
+                var requestBody = new { Email = userLogin.Email, Password = userLogin.Password };
 
-            var jwt = _jwtService.Generate(user.Id);
+                var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
 
-            Response.Cookies.Append("jwt", jwt, new CookieOptions
-            {
-                HttpOnly = true
-            });
-
-            return Ok(new
-            {
-                message = jwt
-            });
-        }
-
-        [HttpGet("user")]
-        public IActionResult User()
-        {
-            try
-            {
-                var jwt = Request.Cookies["jwt"];
-
-                var token = _jwtService.Verify(jwt);
-
-                int userId = int.Parse(token.Issuer);
-
-                var user = _repository.GetById(userId);
-
-                return Ok(user);
-            }
-            catch (Exception)
-            {
-                return Unauthorized();
-            }
-        }
-
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            Response.Cookies.Delete("jwt");
-
-            return Ok(new
-            {
-                message = "success"
-            });
-
-        }
-
-        /// <summary>
-        /// ////////////////
-        /// </summary>
-        /// 
-        /// <returns></returns>
-
-
-        [AllowAnonymous]
-        [HttpPost("login2")]
-
-        public IActionResult Login2([FromBody] LoginDto userLogin)
-        {
-            var user = _repository.GetByEmail(userLogin.Email);
-
-            if (user == null) return BadRequest(new { message = "Invalid Credentials" });
-
-            if (!BCrypt.Net.BCrypt.Verify(userLogin.Password, user.Password))
-            {
-                return BadRequest(new { message = "Invalid Credentials" });
-            }
-                var token = Generate(user);
-            var response = new
-            {
-                token = token,
-                user = new
+                HttpResponseMessage response;
+                try
                 {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Adress = user.Adress,
-                    Phone = user.Phone,
-                    Email = user.Email,
-
+                    response = client.PostAsync(userMicroserviceUrl, requestContent).Result;
                 }
-            };
-            return Ok(response);
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { message = "Error calling User microservice." });
+                }
 
+                if (response.IsSuccessStatusCode)
+                {
+                    var userResponse = await response.Content.ReadAsStringAsync();
+                    var user = JsonConvert.DeserializeObject<User>(userResponse);
+
+                    // User is valid, generate token and return the response
+                    var token = Generate(user);
+                    var responseObject = new
+                    {
+                        token = token,
+                        user = new
+                        {
+                            Id=user.Id,
+                            FirstName = user.FirstName,
+                            LastName = user.LastName,
+                            Phone = user.Phone,
+                            Email = user.Email,
+                            Adress= user.Adress,
+                        }
+                    };
+
+                    return Ok(responseObject);
+                }
+                else if (response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    return BadRequest(new { message = "Invalid Credentials" });
+                }
+                else
+                {
+                    return StatusCode(500, new { message = "Error calling User microservice." });
+                }
+            }
         }
 
 
@@ -167,6 +106,8 @@ namespace Auth_Microservice.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-   
+
+
+
     }
 }

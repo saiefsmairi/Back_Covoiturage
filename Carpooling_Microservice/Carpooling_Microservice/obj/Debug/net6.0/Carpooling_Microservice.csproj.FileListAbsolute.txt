@@ -174,3 +174,4 @@ C:\Users\saief\source\repos\PFE\Carpooling_Microservice\Carpooling_Microservice\
 C:\Users\saief\source\repos\PFE\Carpooling_Microservice\Carpooling_Microservice\obj\Debug\net6.0\ref\Carpooling_Microservice.dll
 C:\Users\saief\source\repos\PFE\Carpooling_Microservice\Carpooling_Microservice\bin\Debug\net6.0\Newtonsoft.Json.dll
 C:\Users\saief\source\repos\PFE\Carpooling_Microservice\Carpooling_Microservice\bin\Debug\net6.0\RestSharp.dll
+C:\Users\saief\source\repos\PFE\Carpooling_Microservice\Carpooling_Microservice\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

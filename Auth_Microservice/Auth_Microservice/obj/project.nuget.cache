@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "0OZM85ZhXVg/Dn5P7JgghvIIpg9VB4le3gf0An8KWBdyz36LIn8U7XX7J+VapY0+g9odhn7KbmQ+PO2MKDkVrg==",
+  "dgSpecHash": "kNT0r+f4UywBiI921Zcxj4RbqTyiPynalICeCrYXfxFARy3sC8PdhJeO0GTMU18uXeLPbDJQUsZzIPSqLBM/Sg==",
   "success": true,
   "projectFilePath": "C:\\Users\\saief\\source\\repos\\PFE\\Auth_Microservice\\Auth_Microservice\\Auth_Microservice.csproj",
   "expectedPackageFiles": [
@@ -52,6 +52,7 @@
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.win32.registry\\5.0.0\\microsoft.win32.registry.5.0.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
+    "C:\\Users\\saief\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\swashbuckle.aspnetcore\\6.2.3\\swashbuckle.aspnetcore.6.2.3.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.2.3\\swashbuckle.aspnetcore.swagger.6.2.3.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.2.3\\swashbuckle.aspnetcore.swaggergen.6.2.3.nupkg.sha512",

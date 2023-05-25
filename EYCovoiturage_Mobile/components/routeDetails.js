@@ -29,7 +29,8 @@ const RouteDetails = ({ route }) => {
         pickupLongitude: '',
         dropLatitude: '',
         dropLongitude: '',
-        departureTimeInput: ''
+        departureTimeInput: '',
+        userId:''
     });
     const pickupLocationCords = route.params.pickupLocationCords
     const dropLocationCords = route.params.dropLocationCords
@@ -42,13 +43,10 @@ const RouteDetails = ({ route }) => {
 
                 axios.get(apiUrl)
                     .then(response => {
-                        console.log("*/*/**/*/*/*/*/")
-                        console.log(response.data.features[0].properties.distance)
                         const distance = (response.data.features[0].properties.distance / 1000).toFixed(2);
                         const time = Math.round(response.data.features[0].properties.time / 60);
 
                         setDistanceAff(distance);
-
                         setEstimatedTime(time)
                         /*         const route = response.data.features[0].geometry.coordinates[0].map(coord => ({
                                     latitude: coord[1],
@@ -80,6 +78,7 @@ const RouteDetails = ({ route }) => {
         setTrip(prevTrip => ({ ...prevTrip, pickupLongitude: pickupLocationCords[0] }));
         setTrip(prevTrip => ({ ...prevTrip, dropLatitude: dropLocationCords[1] }));
         setTrip(prevTrip => ({ ...prevTrip, dropLongitude: dropLocationCords[0] }));
+        setTrip(prevTrip => ({ ...prevTrip, userId: 2 }));
 
     }, []);
 
@@ -87,9 +86,10 @@ const RouteDetails = ({ route }) => {
     const handleCreateTrip = () => {
         console.log("handlecreatetrip")
         console.log(trip)
-        axios.post("https://0244-197-0-237-70.ngrok-free.app/api/Trip", trip)
+        axios.post("https://e1e1-102-159-39-35.ngrok-free.app/api/Trip", trip)
             .then((response) => {
                 console.log("Trip created successfully!", response.data);
+                navigation.navigate('listTrips');
             })
             .catch((error) => {
                 console.error(error.response.data);

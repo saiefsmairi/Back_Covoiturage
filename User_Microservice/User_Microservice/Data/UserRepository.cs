@@ -1,6 +1,7 @@
-﻿using Auth_Microservice.Models;
+﻿
+using User_Microservice.Models;
 
-namespace Auth_Microservice.Data
+namespace User_Microservice.Data
 {
     public class UserRepository : IUserRepository
     {
@@ -11,7 +12,7 @@ namespace Auth_Microservice.Data
             _context = context;
         }
 
-        public User Create(User user)
+        public Utilisateur Create(Utilisateur user)
         {
             _context.Users.Add(user);
             user.Id = _context.SaveChanges();
@@ -19,14 +20,14 @@ namespace Auth_Microservice.Data
             return user;
         }
 
-        public User GetByEmail(string email)
+        public Utilisateur GetByEmail(string email)
         {
             return _context.Users.FirstOrDefault(u => u.Email == email);
         }
 
 
 
-        public User GetById(int id)
+        public Utilisateur GetById(int id)
         {
             return _context.Users.FirstOrDefault(u => u.Id == id);
         }

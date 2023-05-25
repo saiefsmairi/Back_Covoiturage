@@ -14,6 +14,9 @@ using Newtonsoft.Json;
 
 using RestSharp;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Auth_Microservice.Dtos;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -35,16 +38,38 @@ namespace Test4.Controllers
 
         }
 
+        private async Task<UserDto> GetUserFromUserMicroservice(int userId)
+        {
+            var response = await _client.GetAsync($"https://localhost:7031/api/User/{userId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var userResponse = await  response.Content.ReadAsStringAsync();
+                var user = JsonConvert.DeserializeObject<UserDto>(userResponse);
+
+
+                return user;
+            }
+
+            return null;
+        }
+
 
         // POST api/<TripController>
         [HttpPost]
-        public ActionResult<Trip> Post([FromBody] Trip model)
+        public async Task<IActionResult> Post([FromBody] Trip model)
         {
             if (model == null)
             {
                 return BadRequest();
             }
-       
+
+           var user = await GetUserFromUserMicroservice(model.UserId);
+           if (user == null)
+            {
+               return BadRequest("Invalid UserId");
+           }
+
+
             string timeString = model.DepartureTimeInput;
 
             // Use regular expression to extract hour, minute, and AM/PM indicator
@@ -82,8 +107,6 @@ namespace Test4.Controllers
 
             model.DepartureTime = time;
 
-            // Display the stored time value
-            Console.WriteLine($"Time value stored: {time}");
 
             DateTime startDate = model.AvailableDates.Min(d => d.Date);
             DateTime endDate = model.AvailableDates.Max(d => d.Date);
@@ -97,7 +120,12 @@ namespace Test4.Controllers
             //or hedhi  var result = _repository.createTrip(trip);
 
             _repository.SaveChanges();
-            return CreatedAtAction(nameof(Get), new { id = result.TripId }, result);
+            var tripWithUser = new
+            {
+                Trip = result,
+                User = user
+            };
+            return Ok(tripWithUser);
         }
 
 
@@ -152,7 +180,7 @@ namespace Test4.Controllers
             {
                 return NotFound();
             }
-
+            requestRide.RequestDate = DateTime.Now;
             requestRide.Trip = trip;
             _context.RequestsRides.Add(requestRide);
             await _context.SaveChangesAsync();
@@ -264,7 +292,15 @@ namespace Test4.Controllers
             }
         }
 
+        //ay method nheboha tkoun validé b token hedha kifeh:
+        [HttpGet("currentUser")]
+        [Authorize]
+        public IActionResult GetCurrentUserApi()
+        {
+        
 
+            return Ok(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+        }
 
 
 
