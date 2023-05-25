@@ -2,6 +2,7 @@
 using Carpooling_Microservice.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Carpooling_Microservice.DbConfig;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,13 +11,20 @@ namespace Test4.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
+
     public class RequestRideController : ControllerBase
     {
         private readonly IRequestRideRepository _repository;
+        private readonly CarpoolingContext _context;
+        private HttpClient _client;
 
-        public RequestRideController(IRequestRideRepository reposiotory)
+
+        public RequestRideController(IRequestRideRepository reposiotory, CarpoolingContext context, HttpClient client)
         {
             _repository = reposiotory;
+            _context = context;
+            _client = client;
 
         }
 
@@ -62,6 +70,45 @@ namespace Test4.Controllers
 
             }
             return NotFound();
+        }
+
+        // GET Request ride par DriverId
+
+        [HttpGet("requests/{DriverId}")]
+        public async Task<ActionResult<IEnumerable<RequestRide>>> GetRequestRideByUser(int DriverId)
+        {
+            var requestRides = await _context.RequestsRides.Include(rr => rr.Trip).Where(t => t.DriverId == DriverId&&t.Status=="Pending").ToListAsync();
+
+            var requestRidesWithTrip = requestRides.Select(rr => new
+            {
+                rr.RequestRideId,
+                rr.RequestDate,
+                rr.Status,
+                rr.Trip.Source,
+                rr.Trip.Destination,
+                rr.PassengerId,
+                rr.DriverId
+            });
+
+            return Ok(requestRidesWithTrip);
+        }
+
+        [HttpPut("requests/{requestRideId}/status")]
+        public async Task<ActionResult<RequestRide>> UpdateRequestRideStatus(int requestRideId, [FromBody] string status)
+        {
+            var requestRide = await _context.RequestsRides.FindAsync(requestRideId);
+
+            if (requestRide == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status property
+            requestRide.Status = status;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(requestRide);
         }
 
 

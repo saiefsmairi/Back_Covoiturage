@@ -34,6 +34,7 @@ namespace Carpooling_Microservice.Models
         public string Type { get; set; }
         public ICollection<TripDates>? AvailableDates { get; set; }
 
+        public int UserId { get; set; }
 
         public ICollection<RequestRide>? RequestRides { get; set; }
         public ICollection<Booking>? Bookings { get; set; }

@@ -4,13 +4,14 @@ import { AntDesign } from '@expo/vector-icons';
 import HomeScreen from '../screens/home';
 import RideDetails from '../screens/rideDetails';
 import ListTrips from '../screens/listTrips';
-
+import { FontAwesome5 } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import IntroAddTrip from '../screens/introAddTrip';
 import Profil from '../screens/profil';
 import SearchTrips from '../screens/searchTrips';
+import RequestRidesList from '../screens/requestRidesList';
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
@@ -19,7 +20,6 @@ function MyTabs() {
             screenOptions={{
                 tabBarActiveTintColor: '#2196F3',
                 tabBarInactiveTintColor: 'black',
-
             }}>
 
             <Tab.Screen
@@ -58,10 +58,9 @@ function MyTabs() {
                 options={({ navigation }) => ({
                     title: 'Publish a Trip',
                     headerStyle: {
-                        backgroundColor: '#eede1d',
+                        backgroundColor: '#ffe600',
                     },
                     headerTitleStyle: {
-                        fontWeight: 'bold',
                         color: '#2c2c3b',
                     },
                     headerLeft: () => (
@@ -76,11 +75,12 @@ function MyTabs() {
                 })}
             />
 
-            <Tab.Screen
+            {/*        <Tab.Screen
                 name="listTrips"
                 component={ListTrips}
                 options={({ navigation }) => ({
                     title: 'List Trips',
+
                     headerStyle: {
                         backgroundColor: '#eede1d',
                     },
@@ -98,17 +98,41 @@ function MyTabs() {
                     ),
                 })}
             />
+ */}
 
+
+
+            <Tab.Screen
+                name="requestRidesList"
+                component={RequestRidesList}
+                options={({ navigation }) => ({
+                    title: 'Requests',
+
+                    headerStyle: {
+                        backgroundColor: '#ffe600',
+                    },
+                    headerTitleStyle: {
+                        color: '#2c2c3b',
+                    },
+                    headerLeft: () => (
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 15 }} />
+                        </TouchableOpacity>
+                    ),
+                    tabBarIcon: ({ color, size }) => (
+                        <FontAwesome5 name="list-alt" size={size} color={color} />
+                    ),
+                })}
+            />
             <Tab.Screen
                 name="profil"
                 component={Profil}
                 options={({ navigation }) => ({
                     title: 'Profil',
                     headerStyle: {
-                        backgroundColor: '#eede1d',
+                        backgroundColor: '#ffe600',
                     },
                     headerTitleStyle: {
-                        fontWeight: 'bold',
                         color: '#2c2c3b',
                     },
                     headerLeft: () => (
@@ -122,9 +146,6 @@ function MyTabs() {
                     ),
                 })}
             />
-
-
-
 
         </Tab.Navigator>
     );

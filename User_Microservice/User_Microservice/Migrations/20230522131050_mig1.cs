@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace Auth_Microservice.Migrations
+namespace User_Microservice.Migrations
 {
     /// <inheritdoc />
-    public partial class mig : Migration
+    public partial class mig1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -38,7 +38,9 @@ namespace JwtApp.Controllers
         [HttpGet("Public")]
         public IActionResult Public()
         {
-            return Ok("Hi, you're on public property");
+            var currentUser = GetCurrentUser();
+
+            return Ok($"Hi {currentUser.Email}, you are a {currentUser.Role} Public API" );
         }
 
 

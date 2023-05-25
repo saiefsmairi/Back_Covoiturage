@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "6crsIDPUzn3ekVPCdBr6qFaO0nAX1bLLGeWJ5RvXW05wuaj2uw9dz6QHgNaQr1SkznSvdvbNVsdPY8jWwijr9Q==",
+  "dgSpecHash": "TPMySBGjExRZBoLmKWydqQTXZFQJhJK+68+l6tuehiubKNNRu8qv+D62fechAwyX5BQx4poxD5W4l1Ug+K003Q==",
   "success": true,
   "projectFilePath": "C:\\Users\\saief\\source\\repos\\PFE\\Carpooling_Microservice\\Carpooling_Microservice\\Carpooling_Microservice.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\saief\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
+    "C:\\Users\\saief\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\6.0.16\\microsoft.aspnetcore.authentication.jwtbearer.6.0.16.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.aspnetcore.cors\\2.2.0\\microsoft.aspnetcore.cors.2.2.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.aspnetcore.http.abstractions\\2.2.0\\microsoft.aspnetcore.http.abstractions.2.2.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.aspnetcore.http.extensions\\2.2.0\\microsoft.aspnetcore.http.extensions.2.2.0.nupkg.sha512",
