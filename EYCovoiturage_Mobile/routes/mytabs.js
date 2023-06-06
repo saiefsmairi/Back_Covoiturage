@@ -57,6 +57,7 @@ function MyTabs() {
                 component={IntroAddTrip}
                 options={({ navigation }) => ({
                     title: 'Publish a Trip',
+
                     headerStyle: {
                         backgroundColor: '#ffe600',
                     },
@@ -74,8 +75,8 @@ function MyTabs() {
                     tabBarLabel: 'Publish',
                 })}
             />
-
-            {/*        <Tab.Screen
+{/* 
+            <Tab.Screen
                 name="listTrips"
                 component={ListTrips}
                 options={({ navigation }) => ({
@@ -98,8 +99,8 @@ function MyTabs() {
                     ),
                 })}
             />
- */}
 
+ */}
 
 
             <Tab.Screen

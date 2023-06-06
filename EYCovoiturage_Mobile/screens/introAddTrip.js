@@ -116,7 +116,7 @@ export default function IntroAddTrip({ navigation, route }) {
     };
 
     return (
-        <ScrollView>
+        <ScrollView style={{backgroundColor:'white'}}>
 
             <View style={styles.container}>
 
@@ -247,6 +247,8 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: 'white', // Set the background color to white
+
     },
     container2: {
         alignItems: 'center',

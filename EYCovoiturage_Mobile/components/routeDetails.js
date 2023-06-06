@@ -30,7 +30,7 @@ const RouteDetails = ({ route }) => {
         dropLatitude: '',
         dropLongitude: '',
         departureTimeInput: '',
-        userId:''
+        userId: ''
     });
     const pickupLocationCords = route.params.pickupLocationCords
     const dropLocationCords = route.params.dropLocationCords
@@ -84,16 +84,19 @@ const RouteDetails = ({ route }) => {
 
 
     const handleCreateTrip = () => {
-        console.log("handlecreatetrip")
-        console.log(trip)
-        axios.post("https://e1e1-102-159-39-35.ngrok-free.app/api/Trip", trip)
-            .then((response) => {
-                console.log("Trip created successfully!", response.data);
-                navigation.navigate('listTrips');
-            })
-            .catch((error) => {
-                console.error(error.response.data);
-            });
+        navigation.navigate('finalAddTrip', {
+            trip
+        });
+
+        /*    console.log(trip)
+           axios.post("https://cc55-102-159-105-67.ngrok-free.app/api/Trip", trip)
+               .then((response) => {
+                   console.log("Trip created successfully!", response.data);
+                   navigation.navigate('listTrips');
+               })
+               .catch((error) => {
+                   console.error(error.response.data);
+               }); */
     };
 
     return (
@@ -132,7 +135,7 @@ const RouteDetails = ({ route }) => {
                 <Text style={styles.cardText}>Estimated time: {estimatedTime} Min</Text>
                 <Stack   >
                     <TouchableOpacity style={styles.button} onPress={handleCreateTrip}>
-                        <Text style={styles.textStyle}>Create Trip</Text>
+                        <Text style={styles.textStyle}>Proceed</Text>
                     </TouchableOpacity>
                 </Stack>
             </View>

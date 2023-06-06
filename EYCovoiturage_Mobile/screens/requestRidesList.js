@@ -16,7 +16,7 @@ export default function RequestRidesList({ }) {
     const [requestRide, setRequestRide] = useState([]);
     const fetchRideRequests = async () => {
         try {
-            const response = await axios.get(`https://197d-145-62-80-62.ngrok-free.app/api/RequestRide/requests/2`);
+            const response = await axios.get(`https://cc55-102-159-105-67.ngrok-free.app/api/RequestRide/requests/2`);
             console.log("////REQUESTSTS///")
             console.log(response.data)
             setRequestRide(response.data)
@@ -25,14 +25,14 @@ export default function RequestRidesList({ }) {
         }
     };
     useEffect(() => {
-        //fetch request for user who is logging in ! for test i will put static value w baad taw nekhou mel local storage
+        //fetch request for user (driver) who is logging in ! for test i will put static value w baad taw nekhou mel local storage
         fetchRideRequests();
     }, []);
 
 
     const handleDeleteRequest = async (requestRideId, status) => {
         try {
-            const response = await axios.put(`https://197d-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
+            const response = await axios.put(`https://cc55-102-159-105-67.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -59,7 +59,7 @@ export default function RequestRidesList({ }) {
 
     const handleAcceptRequest = async (requestRideId, status) => {
         try {
-            const response = await axios.put(`https://197d-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
+            const response = await axios.put(`https://cc55-102-159-105-67.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
                 headers: {
                     'Content-Type': 'application/json',
                 },

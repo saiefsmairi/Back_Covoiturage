@@ -80,9 +80,9 @@ export default function Login({ navigation }) {
             initialValues={{ email: "", password: "" }}
             validationSchema={SigninSchema}
             onSubmit={async values => {
-              //  const response = await authService.login(values);
-              //  console.log(response);
-              console.log(values);
+               const response = await authService.login(values);
+              // console.log(response);
+       
               navigation.navigate("main");
             }}
           >

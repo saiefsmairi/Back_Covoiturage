@@ -8,5 +8,7 @@ namespace User_Microservice.Data
         Utilisateur Create(Utilisateur user);
         Utilisateur GetByEmail(string email);
         Utilisateur GetById(int id);
+        public void UpdateUser(Utilisateur user);
+
     }
 }

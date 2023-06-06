@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from "axios";
 import Toast from 'react-native-toast-message';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const RideDetails = ({ handlePress, route }) => {
     const [trip, setTrip] = useState('');
@@ -17,46 +18,46 @@ const RideDetails = ({ handlePress, route }) => {
 
         const fetchTrips = async () => {
             try {
-              const response = await axios.get('https://5075-145-62-80-62.ngrok-free.app/api/User/2');
-              console.log(response.data)
-              setUser(response.data)
+                const response = await axios.get('https://1318-102-159-105-67.ngrok-free.app/api/User/2');
+                console.log(response.data)
+                setUser(response.data)
             } catch (error) {
-              console.log('Error fetching trips:', error);
+                console.log('Error fetching trips:', error);
             }
-          };
-      
-          fetchTrips();
+        };
 
-      
+        fetchTrips();
+
+
     }, []);
 
     const requestRide = {
         "status": "Pending",
         "tripId": trip.tripId,
-        "driverId":trip.userId,
+        "driverId": trip.userId,
         "passengerId": 1,
-      };
+    };
 
-      
+
     const createRequestRide = async () => {
         console.log("pressed")
         try {
-          const response = await axios.post(`https://197d-145-62-80-62.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
-          console.log(response.data)
-          Toast.show({
-            type: 'success',
-            text1: 'Success',
-            text2: 'Your request has been sent.',
-          });
-          return response.data;
+            const response = await axios.post(`https://cc55-102-159-105-67.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
+            console.log(response.data)
+            Toast.show({
+                type: 'success',
+                text1: 'Success',
+                text2: 'Your request has been sent.',
+            });
+            return response.data;
         } catch (error) {
-          // Handle error
-          console.log('Error creating request ride:', error);
-          throw error;
+            // Handle error
+            console.log('Error creating request ride:', error);
+            throw error;
         }
-      };
+    };
 
-      
+
     return (
         <ScrollView>
             <Box mx="7" my="2" >
@@ -208,9 +209,30 @@ const RideDetails = ({ handlePress, route }) => {
                                 </Stack>
                             </Stack>
 
-                            <Stack direction="row" alignItems="center" justifyContent="center">
-                                <Box mr={4} style={styles.card}>
-                                    <Ionicons name="fast-food-outline" size={24} color="black" />
+                            <Stack direction="row" alignItems="center" justifyContent="center" space={5}>
+                                <Box style={styles.card}>
+                                    {trip.smoke ? (
+                                        <FontAwesome5 name="smoking" size={24} color="black" />
+                                    ) : (
+                                        <MaterialIcons name="smoke-free" size={24} color="black" />
+                                    )}
+                                    <Text
+                                        fontSize="xs"
+                                        _light={{ color: "muted.600" }}
+                                        _dark={{ color: "violet.400" }}
+                                        fontWeight="500"
+                                        ml="-0.5"
+                                        mt="-1"
+                                    >
+                                        Smoke
+                                    </Text>
+                                </Box>
+
+                                <Box style={styles.card}>
+                                    {trip.food ? (
+                                        <Ionicons name="fast-food-outline" size={24} color="black" />
+                                    ) : (
+                                        <MaterialIcons name="no-food" size={24} color="black" />)}
                                     <Text
                                         fontSize="xs"
                                         _light={{ color: "muted.600" }}
@@ -223,8 +245,13 @@ const RideDetails = ({ handlePress, route }) => {
                                     </Text>
                                 </Box>
 
-                                <Box mr={4} style={styles.card}>
-                                    <Ionicons name="musical-notes-outline" size={24} color="black" />
+
+                                <Box style={styles.card}>
+                                    {trip.music ? (
+                                        <Ionicons name="musical-notes-outline" size={24} color="black" />
+                                    ) : (
+                                        <MaterialCommunityIcons name="music-off" size={24} color="black" />
+                                    )}
                                     <Text
                                         fontSize="xs"
                                         _light={{ color: "muted.600" }}

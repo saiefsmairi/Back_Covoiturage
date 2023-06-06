@@ -4,6 +4,7 @@ using Carpooling_Microservice.DbConfig;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Carpooling_Microservice.Migrations
 {
     [DbContext(typeof(CarpoolingContext))]
-    partial class CarpoolingContextModelSnapshot : ModelSnapshot
+    [Migration("20230527130847_mig14")]
+    partial class mig14
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -119,20 +122,11 @@ namespace Carpooling_Microservice.Migrations
                     b.Property<float>("EstimatedTime")
                         .HasColumnType("real");
 
-                    b.Property<bool>("Food")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Music")
-                        .HasColumnType("bit");
-
                     b.Property<double>("PickupLatitude")
                         .HasColumnType("float");
 
                     b.Property<double>("PickupLongitude")
                         .HasColumnType("float");
-
-                    b.Property<bool>("Smoke")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Source")
                         .IsRequired()
