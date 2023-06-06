@@ -31,5 +31,11 @@ namespace User_Microservice.Data
         {
             return _context.Users.FirstOrDefault(u => u.Id == id);
         }
+
+        public void UpdateUser(Utilisateur user)
+        {
+            _context.Users.Update(user);
+            _context.SaveChanges();
+        }
     }
 }

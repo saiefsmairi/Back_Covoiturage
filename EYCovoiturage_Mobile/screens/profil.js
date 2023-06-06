@@ -1,20 +1,151 @@
-import React from "react";
-import { Avatar, Box, Divider, Stack } from "native-base";
+import React, { useState } from "react";
+import { Avatar, Box, Divider, Stack, Spinner } from "native-base";
 import { Button, Modal, FormControl, Input, Center, NativeBaseProvider } from "native-base";
-
-import TripCard from "../components/tripCard";
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Profil({ navigation }) {
     const [showModal, setShowModal] = React.useState(false);
+    const [showModalCar, setShowModalCar] = React.useState(false);
+
+    const [profileImage, setProfileImage] = useState('');
+    const [carImage, setcarImage] = useState('');
+    const [user, setUser] = useState(null);
+    const [userStorage, setUserStorage] = useState('');
+    const [selectedCarbrand, setSelectedCarbrand] = useState("");
+
+    const [loadingUser, setLoadingUser] = React.useState(false);
+
     const [formData, setFormData] = React.useState({
         firstName: '',
         lastName: '',
         phone: '',
-        address: '',
+        adress: '',
         email: '',
     });
+
+    React.useEffect(() => {
+        const getData = async (key) => {
+            try {
+                const value = await AsyncStorage.getItem('user');
+                if (value !== null) {
+                    setUserStorage(JSON.parse(value))
+                    return value;
+                } else {
+                    return null;
+                }
+            } catch (error) {
+                return null;
+            }
+        };
+        getData();
+
+        const getUserById = async (userId) => {
+            setLoadingUser(true);
+            try {
+                const value = await AsyncStorage.getItem('user');
+                var userId = JSON.parse(value).id
+                const response = await axios.get(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}`);
+                setUser(response.data)
+                const { firstName, lastName, email, phone, adress } = response.data;
+                setFormData({
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    adress,
+                });
+            } catch (error) {
+                console.log('Error fetching user:', error);
+            }
+            setLoadingUser(false);
+
+        };
+
+        const getProfileImage = async (userId) => {
+            const value = await AsyncStorage.getItem('user');
+            var userId = JSON.parse(value).id
+            try {
+                const response = await axios.get(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}/profileImage`);
+                const base64Image = response.data;
+                setProfileImage(base64Image);
+            } catch (error) {
+                console.log('Error retrieving profile image:', error);
+            }
+        };
+        getUserById();
+        getProfileImage();
+
+    }, [profileImage]);
+
+
+    React.useEffect(() => {
+        const getCarInfo = async (userId) => {
+            const value = await AsyncStorage.getItem('user');
+            var userId = JSON.parse(value).id
+            try {
+                const response = await axios.get(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}/carImage`);
+                const base64Image = response.data.base64Image;
+                setSelectedCarbrand(response.data.carBrand)
+                setcarImage(base64Image)
+            } catch (error) {
+                console.log('Error retrieving car image:', error);
+            }
+        };
+        getCarInfo(); // Fetch car image separately
+    }, []);
+
+
+
+    const handleProfilePhotoSelect = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            console.log('Permission denied');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 1,
+            allowsEditing: true
+        });
+        if (!result.canceled) {
+            try {
+                const formData = new FormData();
+                formData.append('profilePhoto', {
+                    uri: result.assets[0].uri,
+                    name: 'profile_photo.jpg',
+                    type: 'image/jpeg',
+                });
+
+                const value = await AsyncStorage.getItem('user');
+                var userId = JSON.parse(value).id
+
+                const response = await axios.put(
+                    `https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}/upload`,
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                );
+                //lvaleur eli west set profileimg doesnt make any diff we just do set so it calls the function in the useEffect
+                setProfileImage(result.assets[0].uri);
+
+                console.log('Profile photo uploaded successfully:', response.data);
+            } catch (error) {
+                console.log('Error uploading profile photo:', error);
+            }
+        }
+        else {
+            alert('You did not select any image.');
+        }
+    };
 
     const handleChange = (name, value) => {
         setFormData({
@@ -23,10 +154,26 @@ export default function Profil({ navigation }) {
         });
     };
 
-    const handleSubmit = () => {
-        console.log(formData);
+    const handleSubmit = async () => {
+        try {
+            const response = await axios.put(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userStorage.id}`, formData);
+            const updatedUser = response.data;
+            await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+            setUserStorage(updatedUser);
+            setShowModal(false); // Close the modal after submitting the form
+        } catch (error) {
+            console.log('Error updating user:', error);
+        }
         setShowModal(false);
     };
+
+
+    //car add
+    const displayCarInfoComponent = () => {
+        navigation.navigate('addCarInfo')
+    };
+
+
     return (
         <ScrollView>
             <Stack direction="column" my={2} mx={4} space={4} >
@@ -63,14 +210,10 @@ export default function Profil({ navigation }) {
 
 
                             <FormControl>
-                                <FormControl.Label>Address</FormControl.Label>
-                                <Input value={formData.address}
-                                    onChangeText={(value) => handleChange('address', value)} />
+                                <FormControl.Label>Adress</FormControl.Label>
+                                <Input value={formData.adress}
+                                    onChangeText={(value) => handleChange('adress', value)} />
                             </FormControl>
-
-
-
-
 
                         </Modal.Body>
                         <Modal.Footer>
@@ -93,23 +236,34 @@ export default function Profil({ navigation }) {
                         fontWeight="500"
                         style={[{ flexShrink: 1 }, styles.TitleStyle]}
                     >
-                         Johnson Alice 
+                        {userStorage && userStorage.firstName ? userStorage.firstName : ''} {''}
+                        {userStorage && userStorage.lastName ? userStorage.lastName : ''}
                     </Text>
-                    <Avatar
-                        bg="green.500"
-                        style={{ width: 100, height: 100 }}
-                        source={{
-                            uri:
-                                "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
-                        }}
-                    >
-                        AJ
-                    </Avatar>
+
+                    {loadingUser || !user ? (
+                        <Spinner color="red.500" />
+                    ) : (
+                        !user.image ? (
+                            <Avatar bg="cyan.500" size="2xl">
+                                RS
+                            </Avatar>
+                        ) : (
+                            profileImage ? (
+                                <Image source={{ uri: `data:image/jpeg;base64,${profileImage}` }} style={{ width: 100, height: 100, borderRadius: 50 }} />
+                            ) : (
+                                <Spinner color="red.500" />
+
+                            )
+                        )
+                    )}
                 </Stack>
                 <Stack space={4}>
-                    <Text style={styles.textStyle}>
-                        Modifier la photo de profil
-                    </Text>
+                    <TouchableOpacity onPress={handleProfilePhotoSelect}>
+                        <Text style={styles.textStyle}>
+                            Modifier la photo de profil
+                        </Text>
+                    </TouchableOpacity>
+
                     <TouchableOpacity onPress={() => setShowModal(true)}>
                         <Text style={styles.textStyle} >
                             Modifier les informations personnelles
@@ -176,12 +330,34 @@ export default function Profil({ navigation }) {
                         Vehicule
                     </Text>
 
-                    <Stack direction="row" space={2}   >
-                        <AntDesign name="pluscircleo" size={24} color="#2596be" />
-                        <Text style={styles.textStyle} >
-                            Add new vehicule
-                        </Text>
+                    <Stack direction="row" space={5}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+                            <Text>{selectedCarbrand}</Text>
+                            {carImage ? (
+                                <Image source={{ uri: `data:image/jpeg;base64,${carImage}` }} style={{ width: 50, height: 50,marginLeft:10 }} />
+                            ) : (
+                                <Spinner color="red.500" />
+                            )}
+                        </View>
                     </Stack>
+
+
+                    {carImage || selectedCarbrand ? (
+                        <Stack direction="row" space={2}>
+                            <AntDesign name="edit" size={24} color="#2596be" />
+                            <TouchableOpacity onPress={displayCarInfoComponent}>
+                                <Text style={styles.textStyle}>Update Vehicule</Text>
+                            </TouchableOpacity>
+                        </Stack>
+                    ) : (
+                        <Stack direction="row" space={2}>
+                            <AntDesign name="pluscircleo" size={24} color="#2596be" />
+                            <TouchableOpacity onPress={displayCarInfoComponent}>
+                                <Text style={styles.textStyle}>Add Vehicule</Text>
+                            </TouchableOpacity>
+                        </Stack>
+                    )}
+
                 </Stack>
             </Stack>
 

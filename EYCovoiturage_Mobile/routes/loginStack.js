@@ -12,6 +12,9 @@ import Profil from '../screens/profil';
 import MapComponent from '../components/mapComponent';
 import MapComponentDrop from '../components/mapComponentDrop';
 import RouteDetails from '../components/routeDetails';
+import FinalAddTrip from '../screens/finalAddtrip';
+import CarInfo from '../screens/carInfo';
+import UploadCarImage from '../screens/uploadCarImage';
 
 const Stack = createNativeStackNavigator();
 
@@ -70,7 +73,27 @@ function MyStack() {
                 name="introAddTrip"
                 component={IntroAddTrip}
                 options={{
+                    contentStyle: {
+                        backgroundColor: '#FFFFFF'
+                    },
                     headerShown: false,
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="home" size={size} color={color} />
+                    ),
+                    tabBarLabel: 'Home',
+                }}
+            />
+
+            <Stack.Screen
+                name="finalAddTrip"
+                component={FinalAddTrip}
+                options={{
+                    contentStyle: {
+                        backgroundColor: '#FFFFFF'
+                    },
+                    headerShown: true,
+                    headerTitle: '',
+                    headerShadowVisible: false,
                     tabBarIcon: ({ color, size }) => (
                         <AntDesign name="home" size={size} color={color} />
                     ),
@@ -127,8 +150,29 @@ function MyStack() {
                 }}
             />
 
-       
+            <Stack.Screen
+                name="addCarInfo"
+                component={CarInfo}
+                options={{
+                    headerShown: false,
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="home" size={size} color={color} />
+                    ),
+                    tabBarLabel: 'Map3',
+                }}
+            />
 
+            <Stack.Screen
+                name="uploadcarimg"
+                component={UploadCarImage}
+                options={{
+                    headerShown: false,
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="home" size={size} color={color} />
+                    ),
+                    tabBarLabel: 'Map3',
+                }}
+            />
         </Stack.Navigator>
 
 

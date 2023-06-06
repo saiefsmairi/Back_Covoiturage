@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "TPMySBGjExRZBoLmKWydqQTXZFQJhJK+68+l6tuehiubKNNRu8qv+D62fechAwyX5BQx4poxD5W4l1Ug+K003Q==",
+  "dgSpecHash": "XJ4oBa8Tlcvgb/11G/jHyZp3Al21j+AUWp3IMGGz4JkhG/9yp0xz2NsdvsiBGDa3ya7AcZfK8aXhARMDYYeaNw==",
   "success": true,
   "projectFilePath": "C:\\Users\\saief\\source\\repos\\PFE\\Carpooling_Microservice\\Carpooling_Microservice\\Carpooling_Microservice.csproj",
   "expectedPackageFiles": [
@@ -52,6 +52,7 @@
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\saief\\.nuget\\packages\\qrcoder\\1.4.1\\qrcoder.1.4.1.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\restsharp\\110.2.0\\restsharp.110.2.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\swashbuckle.aspnetcore\\6.2.3\\swashbuckle.aspnetcore.6.2.3.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.2.3\\swashbuckle.aspnetcore.swagger.6.2.3.nupkg.sha512",

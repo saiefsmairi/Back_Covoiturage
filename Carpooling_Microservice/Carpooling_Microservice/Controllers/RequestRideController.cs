@@ -3,7 +3,11 @@ using Carpooling_Microservice.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Carpooling_Microservice.DbConfig;
-
+using QRCoder;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using Newtonsoft.Json;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -126,6 +130,30 @@ namespace Test4.Controllers
         {
             _repository.Update(model,id);
             return Ok(model);
+        }
+
+        [HttpGet("generate")]
+        public IActionResult GenerateQRCode(string driverId, string tripId)
+        {
+            var data = new
+            {
+                DriverId = driverId,
+                TripId = tripId
+            };
+
+            string jsonData = JsonConvert.SerializeObject(data);
+
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(jsonData, QRCodeGenerator.ECCLevel.Q);
+            QRCode qrCode = new QRCode(qrCodeData);
+
+            Bitmap qrCodeImage = qrCode.GetGraphic(20);
+            using (MemoryStream stream = new MemoryStream())
+            {
+                qrCodeImage.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                byte[] qrCodeBytes = stream.ToArray();
+                return File(qrCodeBytes, "image/png");
+            }
         }
 
     }

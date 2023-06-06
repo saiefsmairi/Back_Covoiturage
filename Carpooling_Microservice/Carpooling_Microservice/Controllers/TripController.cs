@@ -204,6 +204,30 @@ namespace Test4.Controllers
             return Ok(requests);
         }
 
+
+        // TRAJAA LES TRIPS ACCEPTEE POUR UN PASSENGER
+        [HttpGet("passengers/{passengerId}/trips/accepted")]
+        public IActionResult GetAcceptedTripsForPassenger(int passengerId)
+        {
+            var acceptedTrips = _context.RequestsRides
+                .Include(rr => rr.Trip)
+                .Where(rr => rr.PassengerId == passengerId && rr.Status == "accepted")
+                .Select(rr => rr.Trip)
+                .ToList();
+
+            return Ok(acceptedTrips);
+        }
+
+        // TRAJAA LES TRIPS ELI AAMALHOM UN USER
+        [HttpGet("user/{userId}/trips")]
+        public ActionResult<IEnumerable<Trip>> GetTripsForUser(int userId)
+        {
+            var trips = _context.Trips.Where(t => t.UserId == userId).ToList();
+            return Ok(trips);
+        }
+
+
+
         // AFFICHER LES TRIPS BETWEEN TWO DATES WE WILL ADD DESTINATION AND NBSEATS AKBER MEN 
         [HttpGet]
         [Route("trips/available-on-date")]

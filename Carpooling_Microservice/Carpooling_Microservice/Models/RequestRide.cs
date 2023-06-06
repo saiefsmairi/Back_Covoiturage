@@ -18,8 +18,5 @@ namespace Carpooling_Microservice.Models
         public Trip? Trip { get; set; }
         public int PassengerId { get; set; }
         public int DriverId { get; set; }
-
-
-
     }
 }

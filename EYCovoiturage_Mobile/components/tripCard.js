@@ -35,7 +35,7 @@ const TripCard = ({ onPress, trip }) => {
               backgroundColor: "gray.50",
             }}
           >
-            <Box  >
+            <Box>
               <Stack p="3" space={1} >
 
                 <Stack direction="row" alignItems="center"  >

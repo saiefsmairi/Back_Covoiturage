@@ -16,7 +16,10 @@ namespace User_Microservice.Models
         public string Phone { get; set; }
         public string Adress { get; set; }
         public string? Image { get; set; }
-        public string? Hascar { get; set; }
+        public bool? Hascar { get; set; }
+        public string? CarImg { get; set; }
+        public string? CarBrand { get; set; }
+
         public string Email { get; set; }
         public string Role { get; set; }
         public string Password { get; set; }

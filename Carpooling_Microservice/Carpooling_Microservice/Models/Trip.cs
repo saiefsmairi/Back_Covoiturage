@@ -25,8 +25,13 @@ namespace Carpooling_Microservice.Models
 
         public double DropLatitude { get; set; }
         public double DropLongitude { get; set; }
+        public string Description { get; set; }
 
-     
+        public bool Food { get; set; }
+        public bool Smoke { get; set; }
+        public bool Music { get; set; }
+
+
         public TimeSpan? DepartureTime { get; set; }
         [NotMapped]
         public string DepartureTimeInput { get; set; }
