@@ -47,13 +47,16 @@ namespace Carpooling_Microservice.Data
 
             {
                 model.RequestRideId = existingEntity.RequestRideId;
-                // Update the properties of the existing entity with the values from the model
                 _context.Entry(existingEntity).CurrentValues.SetValues(model);
-
-                // Save the changes to the database
                 _context.SaveChanges();
 
             }
+        }
+
+        public RequestRide GetRequestRideByUserAndTrip(int PassengerId, int tripId)
+        {
+            return _context.RequestsRides
+                .FirstOrDefault(rr => rr.PassengerId == PassengerId && rr.TripId == tripId);
         }
     }
 }

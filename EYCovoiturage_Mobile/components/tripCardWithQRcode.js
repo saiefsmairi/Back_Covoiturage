@@ -18,7 +18,7 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
 
     const handleQRCodeIconPress = async (tripId) => {
         try {
-            fetch(`https://cc55-102-159-105-67.ngrok-free.app/api/RequestRide/generate?driverId=1&tripId=${tripId}`)
+            fetch(`https://6e65-197-2-231-204.ngrok-free.app/api/RequestRide/generate?driverId=1&tripId=${tripId}`)
                 .then(response => {
                     if (response.ok) {
                         return response.blob();

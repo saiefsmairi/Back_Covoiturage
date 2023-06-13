@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Newtonsoft.Json;
+using Auth_Microservice.Dtos;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -41,12 +42,14 @@ namespace Test4.Controllers
             {
                 return BadRequest();
             }
-     /*       var RequestRide = new RequestRide
-            (
-                model.Source,
-                model.Destination,
- 
-            );*/
+
+            // Check if the passenger has already sent a request ride for the given trip
+            var existingRequest = _repository.GetRequestRideByUserAndTrip(model.PassengerId, model.TripId);
+            if (existingRequest != null)
+            {
+                return Conflict("passenger has already sent a request ride for this trip.");
+            }
+
             var result = _repository.createRequestRide(model);
             _repository.SaveChanges();
             return CreatedAtAction(nameof(Get), new { id = result.RequestRideId }, result);
@@ -75,6 +78,21 @@ namespace Test4.Controllers
             }
             return NotFound();
         }
+        private async Task<UserDto> GetUserFromUserMicroservice(int userId)
+        {
+            var response = await _client.GetAsync($"https://localhost:7031/api/User/{userId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var userResponse = await response.Content.ReadAsStringAsync();
+                var user = JsonConvert.DeserializeObject<UserDto>(userResponse);
+
+
+                return user;
+            }
+
+            return null;
+        }
+
 
         // GET Request ride par DriverId
 
@@ -91,10 +109,34 @@ namespace Test4.Controllers
                 rr.Trip.Source,
                 rr.Trip.Destination,
                 rr.PassengerId,
-                rr.DriverId
+                rr.DriverId,
+                
             });
 
-            return Ok(requestRidesWithTrip);
+            var requestsWithUsers = new List<object>();
+
+            foreach (var requestRide in requestRidesWithTrip)
+            {
+                var passenger = await GetUserFromUserMicroservice(requestRide.PassengerId);
+                var driver = await GetUserFromUserMicroservice(requestRide.DriverId);
+
+                var requestWithUser = new
+                {
+                    RequestRideId = requestRide.RequestRideId,
+                    RequestDate = requestRide.RequestDate,
+                    Status = requestRide.Status,
+                    Source = requestRide.Source,
+                    Destination = requestRide.Destination,
+                    PassengerId = requestRide.PassengerId,
+                    DriverId = requestRide.DriverId,
+                    Driver = driver,
+                    Passenger = passenger
+                };
+
+                requestsWithUsers.Add(requestWithUser);
+            }
+
+            return Ok(requestsWithUsers);
         }
 
         [HttpPut("requests/{requestRideId}/status")]
@@ -106,7 +148,12 @@ namespace Test4.Controllers
             {
                 return NotFound();
             }
-
+            if (status == "Accepted")
+            {
+                var trip = await _context.Trips.FindAsync(requestRide.TripId);
+                    trip.AvailableSeats--;
+                    await _context.SaveChangesAsync();
+            }
             // Update the status property
             requestRide.Status = status;
 

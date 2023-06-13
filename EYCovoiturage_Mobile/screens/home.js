@@ -10,6 +10,7 @@ import axios from "axios";
 import { TabView, TabBar } from 'react-native-tab-view';
 import TripCardWithQRcode from '../components/tripCardWithQRcode';
 import TripCardBooked from '../components/tripCardBooked';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 function HomeScreen({ navigation }) {
@@ -25,60 +26,65 @@ function HomeScreen({ navigation }) {
     { key: 'published', title: 'Published' },
   ]);
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const value = await AsyncStorage.getItem('user');
-        if (value !== null) {
-          console.log('Data retrieved successfully:', value);
-          return value;
-        } else {
-          console.log('Data not found.');
+  useFocusEffect(
+    React.useCallback(() => {
+      const getData = async () => {
+        try {
+          const value = await AsyncStorage.getItem('user');
+          if (value !== null) {
+            return value;
+          } else {
+            console.log('Data not found.');
+            return null;
+          }
+        } catch (error) {
+          console.log('Error retrieving data:', error);
           return null;
         }
-      } catch (error) {
-        console.log('Error retrieving data:', error);
-        return null;
-      }
-    };
+      };
 
-    const fetchAceeptedTripsForPassengers = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get('https://cc55-102-159-105-67.ngrok-free.app/api/Trip/passengers/1/trips/accepted');
-        console.log(response.data);
-        setTrips(response.data);
-      } catch (error) {
-        console.log('Error fetching trips:', error);
-      } finally {
-        setIsLoading(false);
-        setRefreshing(false);
-      }
-    };
+      const fetchAceeptedTripsForPassengers = async () => {
+        try {
+          const value = await AsyncStorage.getItem('user');
+          var userId = JSON.parse(value).id
+          setIsLoading(true);
+          const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+          setTrips(response.data);
+        } catch (error) {
+          console.log('Error fetching trips:', error);
+        } finally {
+          setIsLoading(false);
+          setRefreshing(false);
+        }
+      };
 
-    const fetchPublishedTripsForDrivers = async () => {
-      try {
-        const response = await axios.get('https://cc55-102-159-105-67.ngrok-free.app/api/Trip/user/2/trips');
-        setTripsPublished(response.data);
-      } catch (error) {
-        console.log('Error fetching trips ForDrivers:', error);
-      } finally {
-
-      }
-    };
-    fetchAceeptedTripsForPassengers();
-    fetchPublishedTripsForDrivers();
-    getData();
-
-    
-  }, []);
+      const fetchPublishedTripsForDrivers = async () => {
+        try {
+          const value = await AsyncStorage.getItem('user');
+          var userId = JSON.parse(value).id
+          const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/user/${userId}/trips`);
+          setTripsPublished(response.data);
+        } catch (error) {
+          console.log('Error fetching trips ForDrivers:', error);
+        } finally {
+        }
+      };
+      fetchAceeptedTripsForPassengers();
+      fetchPublishedTripsForDrivers();
+      getData();
+    }, [])
+  );
 
   const onRefresh = async () => {
     console.log("on refresh pressed");
     setRefreshing(true);
     try {
-      const response = await axios.get('https://cc55-102-159-105-67.ngrok-free.app/api/Trip/passengers/1/trips/accepted');
+      const value = await AsyncStorage.getItem('user');
+      var userId = JSON.parse(value).id
+      const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+      const response2 = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/user/${userId}/trips`);
       setTrips(response.data);
+      setTripsPublished(response2.data);
     } catch (error) {
       console.log('Error fetching trips:', error);
     } finally {
@@ -87,7 +93,6 @@ function HomeScreen({ navigation }) {
   };
 
   const handlePress = (trip) => {
-    console.log("pressed button");
     navigation.navigate('rideDetails', {
       trip
     });
@@ -102,10 +107,26 @@ function HomeScreen({ navigation }) {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
           >
-            
-            {!isLoading && trips.map((trip, index) => (
-              <TripCardBooked key={index} onPress={() => handlePress(trip)} trip={trip} />
-            ))}
+            {trips.length === 0 ? (
+              <View style={styles.container}>
+                <HomeSvg />
+                <View>
+                  <Text style={styles.title}>Your future rides will appear here.</Text>
+                  <Text style={styles.text} >
+                    Find the perfect Trip among thousands of destinations .
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              isLoading ? (
+                <Text>Loading trips...</Text>
+              ) : (
+                trips.map((trip, index) => (
+                  <TripCardBooked key={index} onPress={() => handlePress(trip)} trip={trip} />
+                ))
+              )
+            )}
+
           </ScrollView>
         );
       case 'published':
@@ -115,9 +136,29 @@ function HomeScreen({ navigation }) {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
           >
-            {!isLoading && tripsPublished.map((trip, index) => (
-              <TripCardWithQRcode key={index} onPress={() => handlePress(trip)} trip={trip} />
-            ))}
+
+            {tripsPublished.length === 0 ? (
+              <View style={styles.container}>
+                <HomeSvg />
+                <View>
+                  <Text style={styles.title}>Your future rides will appear here.</Text>
+                  <Text style={styles.text} >
+                  Share Rides, Share Smiles. Create Carpooling Trips and Build Connections.
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              isLoading ? (
+                <Text>Loading trips...</Text>
+              ) : (
+                tripsPublished.map((trip, index) => (
+                  <TripCardWithQRcode key={index} onPress={() => handlePress(trip)} trip={trip} />
+                ))
+              )
+            )}
+
+
+
           </ScrollView>
         );
       default:

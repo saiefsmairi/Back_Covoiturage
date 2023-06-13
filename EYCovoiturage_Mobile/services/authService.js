@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Register user
 const register = async (userData) => {
-  const response = await axios.post("https://1318-102-159-105-67.ngrok-free.app/api/User/register", userData)
+  const response = await axios.post("https://6e65-197-2-231-204.ngrok-free.app/api/User/register", userData)
 
   /*  if (response.data) {
      localStorage.setItem('user', JSON.stringify(response.data))
@@ -16,7 +16,7 @@ const register = async (userData) => {
 // Login user
 const login = async (userData) => {
   try {
-    const response = await axios.post("https://31c3-102-159-105-67.ngrok-free.app/api/Auth/login", userData);
+    const response = await axios.post("https://6e65-197-2-231-204.ngrok-free.app/api/Auth/login", userData);
     console.log(response.data.user);
 
     if (response.data) {

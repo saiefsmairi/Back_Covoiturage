@@ -17,9 +17,7 @@ export default function Profil({ navigation }) {
     const [user, setUser] = useState(null);
     const [userStorage, setUserStorage] = useState('');
     const [selectedCarbrand, setSelectedCarbrand] = useState("");
-
     const [loadingUser, setLoadingUser] = React.useState(false);
-
     const [formData, setFormData] = React.useState({
         firstName: '',
         lastName: '',
@@ -49,7 +47,7 @@ export default function Profil({ navigation }) {
             try {
                 const value = await AsyncStorage.getItem('user');
                 var userId = JSON.parse(value).id
-                const response = await axios.get(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}`);
+                const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${userId}`);
                 setUser(response.data)
                 const { firstName, lastName, email, phone, adress } = response.data;
                 setFormData({
@@ -70,11 +68,15 @@ export default function Profil({ navigation }) {
             const value = await AsyncStorage.getItem('user');
             var userId = JSON.parse(value).id
             try {
-                const response = await axios.get(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}/profileImage`);
+                const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
             } catch (error) {
-                console.log('Error retrieving profile image:', error);
+                if (error.response && error.response.status === 404) {
+                    console.log('User does not have an image');
+                } else {
+                    console.log('Error retrieving profile image:', error);
+                }
             }
         };
         getUserById();
@@ -88,12 +90,16 @@ export default function Profil({ navigation }) {
             const value = await AsyncStorage.getItem('user');
             var userId = JSON.parse(value).id
             try {
-                const response = await axios.get(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}/carImage`);
+                const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${userId}/carImage`);
                 const base64Image = response.data.base64Image;
                 setSelectedCarbrand(response.data.carBrand)
                 setcarImage(base64Image)
             } catch (error) {
-                console.log('Error retrieving car image:', error);
+                if (error.response && error.response.status === 404) {
+                    console.log('User does not have a car image');
+                } else {
+                    console.log('Error retrieving car image:', error);
+                }
             }
         };
         getCarInfo(); // Fetch car image separately
@@ -126,7 +132,7 @@ export default function Profil({ navigation }) {
                 var userId = JSON.parse(value).id
 
                 const response = await axios.put(
-                    `https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}/upload`,
+                    `https://6e65-197-2-231-204.ngrok-free.app/api/User/${userId}/upload`,
                     formData,
                     {
                         headers: {
@@ -156,7 +162,7 @@ export default function Profil({ navigation }) {
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.put(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userStorage.id}`, formData);
+            const response = await axios.put(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${userStorage.id}`, formData);
             const updatedUser = response.data;
             await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
             setUserStorage(updatedUser);
@@ -300,23 +306,6 @@ export default function Profil({ navigation }) {
                     _dark={{ bg: "muted.50" }}
                 />
 
-                <Stack space={4}>
-                    <Text fontWeight="bold" style={styles.TitleStyle}>
-                        About you
-                    </Text>
-                    <Stack direction="row" space={2}   >
-                        <AntDesign name="pluscircleo" size={24} color="#2596be" />
-                        <Text style={styles.textStyle}>
-                            Add bio
-                        </Text>
-                    </Stack>
-                    <Stack direction="row" space={2}   >
-                        <AntDesign name="pluscircleo" size={24} color="#2596be" />
-                        <Text style={styles.textStyle}>
-                            Add préférences
-                        </Text>
-                    </Stack>
-                </Stack>
 
                 <Divider
                     w="100%"
@@ -331,10 +320,10 @@ export default function Profil({ navigation }) {
                     </Text>
 
                     <Stack direction="row" space={5}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center',marginRight: 100 }}>
                             <Text>{selectedCarbrand}</Text>
                             {carImage ? (
-                                <Image source={{ uri: `data:image/jpeg;base64,${carImage}` }} style={{ width: 50, height: 50,marginLeft:10 }} />
+                                <Image source={{ uri: `data:image/jpeg;base64,${carImage}` }} style={{ width: "90%", height: 100, marginLeft: 10  }} />
                             ) : (
                                 <Spinner color="red.500" />
                             )}

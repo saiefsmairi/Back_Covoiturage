@@ -97,7 +97,7 @@ export default function SearchTrips({ navigation }) {
 
 
     const handlePressSearchTrip = async () => {
-
+      
         navigation.navigate('listTrips', {
             userPickupLatitude: pickupLocationCords[1],
             userPickupLongitude: pickupLocationCords[0],

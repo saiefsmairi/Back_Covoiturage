@@ -7,43 +7,104 @@ import { MaterialIcons } from '@expo/vector-icons';
 import axios from "axios";
 import Toast from 'react-native-toast-message';
 import { FontAwesome5 } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RideDetails = ({ handlePress, route }) => {
     const [trip, setTrip] = useState('');
     const [user, setUser] = useState('');
+    const [isRequestSent, setIsRequestSent] = useState(false);
+    const [isRequestCreated, setIsRequestCreated] = useState(false);
+    const [userStorage, setUserStorage] = useState('');
+    const [profileImage, setProfileImage] = useState('');
+    const [carImage, setcarImage] = useState('');
 
     useEffect(() => {
-        console.log(route.params.trip)
-        setTrip(route.params.trip)
+        console.log("*/*/*/*/")
 
-        const fetchTrips = async () => {
+        console.log(route.params.trip.trip.tripId)
+        setTrip(route.params.trip.trip);
+        setUser(route.params.trip.user)
+
+        const getCarInfo = async (userId) => {
             try {
-                const response = await axios.get('https://1318-102-159-105-67.ngrok-free.app/api/User/2');
-                console.log(response.data)
-                setUser(response.data)
+                const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${route.params.trip.trip.userId}/carImage`);
+                const base64Image = response.data.base64Image;
+                setcarImage(base64Image)
+            } catch (error) {
+                if (error.response && error.response.status === 404) {
+                    console.log('User does not have a car image');
+                } else {
+                    console.log('Error retrieving car image:', error);
+                }
+            }
+        };
+        getCarInfo(); // Fetch car image separately
+        const getProfileImage = async () => {
+            try {
+                const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${route.params.trip.trip.userId}/profileImage`);
+                const base64Image = response.data;
+                setProfileImage(base64Image);
+
+            } catch (error) {
+                if (error.response && error.response.status === 404) {
+                    console.log('User does not have an image');
+                } else {
+                    console.log('Error retrieving profile image:', error);
+                }
+            }
+        };
+        getProfileImage();
+
+        const getData = async (key) => {
+            try {
+                const value = await AsyncStorage.getItem('user');
+                if (value !== null) {
+                    setUserStorage(JSON.parse(value))
+                    return value;
+                } else {
+                    return null;
+                }
+            } catch (error) {
+                return null;
+            }
+        };
+        getData();
+        const fetchData = async () => {
+            try {
+                const value = await AsyncStorage.getItem('user');
+                var userId = JSON.parse(value).id
+                const userResponse = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${userId}`);
+                const checkRequestExists = async () => {
+                    try {
+                        const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/${route.params.trip.trip.tripId}/users/${userResponse.data.id}/check-request`);
+                        console.log(response.data);
+                        setIsRequestSent(response.data);
+                    } catch (error) {
+                        console.log('Error checking request:', error);
+                    }
+                };
+
+                checkRequestExists();
             } catch (error) {
                 console.log('Error fetching trips:', error);
             }
         };
 
-        fetchTrips();
-
-
-    }, []);
+        fetchData();
+    }, [isRequestCreated]);
 
     const requestRide = {
         "status": "Pending",
         "tripId": trip.tripId,
         "driverId": trip.userId,
-        "passengerId": 1,
+        "passengerId": userStorage.id,
     };
 
-
     const createRequestRide = async () => {
-        console.log("pressed")
         try {
-            const response = await axios.post(`https://cc55-102-159-105-67.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
+            const response = await axios.post(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
             console.log(response.data)
+            setIsRequestCreated(true);
             Toast.show({
                 type: 'success',
                 text1: 'Success',
@@ -51,7 +112,6 @@ const RideDetails = ({ handlePress, route }) => {
             });
             return response.data;
         } catch (error) {
-            // Handle error
             console.log('Error creating request ride:', error);
             throw error;
         }
@@ -80,27 +140,28 @@ const RideDetails = ({ handlePress, route }) => {
                     <Box  >
                         <Stack space={2} >
                             <Stack space={2} >
-                                <Image
-                                    source={{ uri: 'https://images.prismic.io/shacarlacca/NmQ5ODc5NzYtNGQwYy00NzQzLWI0YzgtYWVjZWU5YzdkNmNh__10.jpg?auto=compress%2Cformat&rect=0%2C0%2C1600%2C900&w=1200&h=1200' }}
-                                    style={{ width: '100%', height: 120 }}
-                                    alt='car'
-                                />
+
+                                {carImage ? (
+                                    <Image source={{ uri: `data:image/jpeg;base64,${carImage}` }} style={{ width: '100%', height: 120 }}
+                                        alt='car' />
+                                ) : (
+                                    <Heading size="sm" ml="1">
+                                       
+                                    </Heading>
+                                )}
                             </Stack>
                             <Stack direction="row" alignItems="center" justifyContent="center" marginTop={'-30px'}>
                                 <Box mr={4}>
                                     <Ionicons name="chatbox-ellipses-outline" size={24} color="black" />
                                 </Box>
                                 <Box >
-                                    <Avatar
-                                        size="xl"
-                                        bg="green.500"
-                                        source={{
-                                            uri:
-                                                "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
-                                        }}
-                                        alt="Trip destination2"
-                                    >
-                                    </Avatar>
+                                    {profileImage ? (
+                                        <Image source={{ uri: `data:image/jpeg;base64,${profileImage}` }} style={{ width: 100, height: 100, borderRadius: 50 }} alt="driverimg" />
+                                    ) : (
+                                        <Avatar bg="cyan.500" size="xl">
+                                            RS
+                                        </Avatar>
+                                    )}
                                 </Box>
                                 <Box ml={4}>
                                     <AntDesign name="phone" size={24} color="black" />
@@ -264,11 +325,16 @@ const RideDetails = ({ handlePress, route }) => {
                                     </Text>
                                 </Box>
                             </Stack>
-                            <Stack space={3}  >
-                                <TouchableOpacity style={styles.button} onPress={createRequestRide}>
+                            <Stack space={3}>
+                                <TouchableOpacity
+                                    style={[styles.button, { opacity: isRequestSent ? 0.5 : 1 }]}
+                                    onPress={createRequestRide}
+                                    disabled={isRequestSent}
+                                >
                                     <Text style={styles.textStyle}>Send Ride Request</Text>
                                 </TouchableOpacity>
                             </Stack>
+
                         </Stack>
 
 

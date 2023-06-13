@@ -17,6 +17,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Auth_Microservice.Dtos;
+using Carpooling_Microservice.Dtos;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -55,7 +56,7 @@ namespace Test4.Controllers
 
 
         // POST api/<TripController>
-        [HttpPost]
+        [HttpPost("addTrip")]
         public async Task<IActionResult> Post([FromBody] Trip model)
         {
             if (model == null)
@@ -131,7 +132,7 @@ namespace Test4.Controllers
 
 
         // GET: api/<TripController>
-        [HttpGet]
+        [HttpGet("all")]
         public ActionResult<IEnumerable<Trip>> Get()
         {
             var result = _repository.GetTrips();
@@ -169,6 +170,17 @@ namespace Test4.Controllers
             return Ok(model);
         }
 
+        //CHECK IF THE PASSENGER HAS ALDREADY SENT A REQUEST FOR A SPECIFIC TRIP
+        [HttpGet("{tripId}/users/{passengerId}/check-request")]
+        public async Task<ActionResult<bool>> CheckRequestExists(int tripId, int passengerId)
+        {
+            var requestExists = await _context.RequestsRides
+                .AnyAsync(rr => rr.TripId == tripId && rr.PassengerId == passengerId);
+
+            return Ok(requestExists);
+        }
+
+
 
         //AJOUT REQUEST FI TRIP
         [HttpPost("{tripId}/request-rides")]
@@ -180,6 +192,14 @@ namespace Test4.Controllers
             {
                 return NotFound();
             }
+            var existingRequest = await _context.RequestsRides
+              .FirstOrDefaultAsync(rr => rr.TripId == tripId && rr.PassengerId == requestRide.PassengerId);
+
+            if (existingRequest != null)
+            {
+                return Conflict("User has already sent a request ride for this trip.");
+            }
+
             requestRide.RequestDate = DateTime.Now;
             requestRide.Trip = trip;
             _context.RequestsRides.Add(requestRide);
@@ -188,7 +208,7 @@ namespace Test4.Controllers
             return Ok(trip);
         }
 
-        //AFFICHAGE DES REQUEST POUR UN TRIP
+        //AFFICHAGE DES REQUESTS POUR UN TRIP
         [HttpGet("trips/{tripId}/requests")]
         public ActionResult<IEnumerable<RequestRide>> GetRequestsForTrip(int tripId)
         {
@@ -205,20 +225,41 @@ namespace Test4.Controllers
         }
 
 
-        // TRAJAA LES TRIPS ACCEPTEE POUR UN PASSENGER
+        // TRAJAA LES TRIPS et requestId ACCEPTEE POUR UN PASSENGER
+
         [HttpGet("passengers/{passengerId}/trips/accepted")]
-        public IActionResult GetAcceptedTripsForPassenger(int passengerId)
+        public async Task<IActionResult> GetAcceptedTripsForPassenger(int passengerId)
         {
-            var acceptedTrips = _context.RequestsRides
+            var acceptedTrips = await _context.RequestsRides
                 .Include(rr => rr.Trip)
                 .Where(rr => rr.PassengerId == passengerId && rr.Status == "accepted")
-                .Select(rr => rr.Trip)
-                .ToList();
+                .Select(rr => new { Trip = rr.Trip, RequestId = rr.RequestRideId, UserId = rr.Trip.UserId })
+                .ToListAsync();
 
-            return Ok(acceptedTrips);
+            var tripWithUsers = new List<object>();
+
+            foreach (var acceptedTrip in acceptedTrips)
+            {
+                var user = await GetUserFromUserMicroservice(acceptedTrip.UserId);
+                var tripWithUser = new
+                {
+                    Trip = acceptedTrip.Trip,
+                    RequestId = acceptedTrip.RequestId,
+                    UserId = acceptedTrip.UserId,
+                    CreatedBy = user
+                };
+
+                tripWithUsers.Add(tripWithUser);
+            }
+
+            return Ok(tripWithUsers);
         }
 
-        // TRAJAA LES TRIPS ELI AAMALHOM UN USER
+
+
+
+
+        // TRAJAA LES TRIPS ELI AAMALHOM (creation) UN USER
         [HttpGet("user/{userId}/trips")]
         public ActionResult<IEnumerable<Trip>> GetTripsForUser(int userId)
         {
@@ -244,8 +285,9 @@ namespace Test4.Controllers
         public async Task<IActionResult> FilterTripsAsync(double userPickupLatitude, double userPickupLongitude, double userDropLatitude, double userDropLongitude)
         {
             var allTrips = _context.Trips.ToList();
+
             double proximityThreshold = 10.0;
-            var relevantTrips = new List<Trip>();
+            var relevantTrips = new List<TripWithUser>();
 
             foreach (var trip in allTrips)
             {
@@ -261,13 +303,17 @@ namespace Test4.Controllers
 
                 if (isWithinProximity)
                 {
-                    relevantTrips.Add(trip);
+                    var user = await GetUserFromUserMicroservice(trip.UserId);
+                    relevantTrips.Add(new TripWithUser
+                    {
+                        Trip = trip,
+                        User = user
+                    });
                 }
+        
+
             }
-            if (relevantTrips.Count == 0)
-            {
-                return Ok("There are no trips close to your locations");
-            }
+
 
             return Ok(relevantTrips);
         }

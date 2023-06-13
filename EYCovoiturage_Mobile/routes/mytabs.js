@@ -75,7 +75,7 @@ function MyTabs() {
                     tabBarLabel: 'Publish',
                 })}
             />
-{/* 
+ {/* 
             <Tab.Screen
                 name="listTrips"
                 component={ListTrips}
@@ -100,7 +100,7 @@ function MyTabs() {
                 })}
             />
 
- */}
+  */}
 
 
             <Tab.Screen
