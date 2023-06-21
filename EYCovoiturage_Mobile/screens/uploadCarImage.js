@@ -26,7 +26,7 @@ export default function UploadCarImage({ navigation, route }) {
 
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 1,
+            quality: 0.5,
             allowsEditing: true
         });
         if (!result.canceled) {
@@ -43,14 +43,14 @@ export default function UploadCarImage({ navigation, route }) {
                 var userId = JSON.parse(value).id
 
                 const response = await axios.put(
-                    `https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}/uploadCar`,
+                    `https://4183-145-62-80-62.ngrok-free.app/api/User/${userId}/uploadCar`,
                     formData,
                     {
                         headers: {
                             'Content-Type': 'multipart/form-data',
                         },
                         params: {
-                            CarBrand: CarBrand, // Pass carModel as a query parameter
+                            CarBrand: CarBrand, 
                         },
                     }
                 );
@@ -67,7 +67,8 @@ export default function UploadCarImage({ navigation, route }) {
     };
 
     const backToProfil = () => {
-        navigation.navigate('profil')
+      
+        navigation.replace('main', { screen: 'profil' })
     };
 
 

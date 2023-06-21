@@ -52,7 +52,7 @@ const MapComponentDrop = ({route}) => {
         
           route.params.onReturn( item);
           navigation.goBack()
-        }, 4000); 
+        }, 3000); 
 
     };
 

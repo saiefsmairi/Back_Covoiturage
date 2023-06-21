@@ -9,12 +9,14 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RouteDetails = ({ route }) => {
 
     const mapRef = useRef(null);
     const [routeCoordinates, setRouteCoordinates] = useState([]);
     const navigation = useNavigation();
+    const [userStorage, setUserStorage] = useState('');
     const [distanceAff, setDistanceAff] = useState(null);
     const [estimatedTime, setEstimatedTime] = useState(null);
     const [trip, setTrip] = useState({
@@ -35,8 +37,27 @@ const RouteDetails = ({ route }) => {
     const pickupLocationCords = route.params.pickupLocationCords
     const dropLocationCords = route.params.dropLocationCords
     const TripDepartureTime = route.params.selectedTime
+    React.useEffect(() => {
+        const getData = async () => {
+            try {
+                const value = await AsyncStorage.getItem('user');
+                if (value !== null) {
+                    const user = JSON.parse(value);
+                    setUserStorage(user);
+                } else {
+                    // Handle case when user data is not available
+                }
+            } catch (error) {
+                // Handle error while retrieving user data
+            }
+        };
+
+        getData();
+    }, []);
 
     React.useEffect(() => {
+
+
         const fetchData = async () => {
             try {
                 const apiUrl = `https://api.geoapify.com/v1/routing?waypoints=${pickupLocationCords[1]},${pickupLocationCords[0]}|${dropLocationCords[1]},${dropLocationCords[0]}&mode=drive&apiKey=fad74474846544cfa2e35a5f60a3b11e`;
@@ -78,9 +99,9 @@ const RouteDetails = ({ route }) => {
         setTrip(prevTrip => ({ ...prevTrip, pickupLongitude: pickupLocationCords[0] }));
         setTrip(prevTrip => ({ ...prevTrip, dropLatitude: dropLocationCords[1] }));
         setTrip(prevTrip => ({ ...prevTrip, dropLongitude: dropLocationCords[0] }));
-        setTrip(prevTrip => ({ ...prevTrip, userId: 2 }));
+        setTrip(prevTrip => ({ ...prevTrip, userId: userStorage.id }));
 
-    }, []);
+    }, [userStorage]);
 
 
     const handleCreateTrip = () => {

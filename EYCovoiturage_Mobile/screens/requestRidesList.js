@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TripCard from "../components/tripCard";
-import { View, StyleSheet, Text, ScrollViewProps, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, StyleSheet, Text, ScrollViewProps, TouchableOpacity, ActivityIndicator, Image, RefreshControl } from 'react-native';
 import axios from "axios";
 import { NativeBaseProvider, Box, Pressable, Heading, IconButton, Icon, HStack, Avatar, VStack, Spacer, Center, ScrollView } from 'native-base';
 import Toast from 'react-native-toast-message';
@@ -10,29 +10,97 @@ import { MaterialIcons, Ionicons, Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import HomeSvg from "../components/homesvg";
 import Orderride from "../components/orderridesvg";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import UserAvatar from 'react-native-user-avatar';
 
 export default function RequestRidesList({ }) {
     const [isLoading, setIsLoading] = useState(false);
     const [requestRide, setRequestRide] = useState([]);
+    const [profileImage, setProfileImage] = useState('');
+    const [isHiddenItemVisible, setIsHiddenItemVisible] = useState(true); // State variable for hidden item visibility
+    const [refreshing, setRefreshing] = useState(false);
+
     const fetchRideRequests = async () => {
         try {
-            const response = await axios.get(`https://cc55-102-159-105-67.ngrok-free.app/api/RequestRide/requests/2`);
-            console.log("////REQUESTSTS///")
-            console.log(response.data)
-            setRequestRide(response.data)
+            const value = await AsyncStorage.getItem('user');
+            var userId = JSON.parse(value).id;
+            const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${userId}`);
+            const requestRidesWithProfileImage = [];
+
+            for (const requestRide of response.data) {
+                const { passengerId } = requestRide;
+
+                try {
+                    const imageResponse = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${passengerId}/profileImage`);
+                    const base64Image = imageResponse.data;
+                    requestRide.passenger.image = base64Image;
+                } catch (error) {
+                    if (error.response && error.response.status === 404) {
+                        console.log(`User with ID ${passengerId} does not have an image`);
+                    } else {
+                        console.log(`Error retrieving profile image for user with ID ${passengerId}:`, error);
+                    }
+                }
+                requestRidesWithProfileImage.push(requestRide);
+
+            }
+            console.log(requestRidesWithProfileImage)
+            setRequestRide(requestRidesWithProfileImage);
         } catch (error) {
             console.log('Error fetching trips:', error);
         }
     };
-    useEffect(() => {
-        //fetch request for user (driver) who is logging in ! for test i will put static value w baad taw nekhou mel local storage
-        fetchRideRequests();
-    }, []);
+
+
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchRideRequests();
+
+        }, [])
+    );
+
+
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        try {
+            const value = await AsyncStorage.getItem('user');
+            var userId = JSON.parse(value).id;
+            const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${userId}`);
+            const requestRidesWithProfileImage = [];
+
+            for (const requestRide of response.data) {
+                const { passengerId } = requestRide;
+
+                try {
+                    const imageResponse = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${passengerId}/profileImage`);
+                    const base64Image = imageResponse.data;
+                    requestRide.passenger.image = base64Image;
+                    requestRidesWithProfileImage.push(requestRide);
+                } catch (error) {
+                    if (error.response && error.response.status === 404) {
+                        console.log(`User with ID ${passengerId} does not have an image`);
+                    } else {
+                        console.log(`Error retrieving profile image for user with ID ${passengerId}:`, error);
+                    }
+                }
+            }
+            console.log(requestRidesWithProfileImage)
+            setRequestRide(requestRidesWithProfileImage);
+        } catch (error) {
+            console.log('Error fetching trips:', error);
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
 
 
     const handleDeleteRequest = async (requestRideId, status) => {
+        setIsHiddenItemVisible(false);
+
         try {
-            const response = await axios.put(`https://cc55-102-159-105-67.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
+            const response = await axios.put(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -40,14 +108,16 @@ export default function RequestRidesList({ }) {
             setIsLoading(true);
             setTimeout(() => {
                 setIsLoading(false);
-                // Perform the logic to accept the request
             }, 2000);
             Toast.show({
                 type: 'success',
                 text1: 'Success',
                 text2: 'The request has been declined.',
             });
+            setRequestRide(prevState => prevState.filter(request => request.requestRideId !== requestRideId));
+
             fetchRideRequests();
+            setIsHiddenItemVisible(true);
 
             return response.data;
         } catch (error) {
@@ -58,8 +128,11 @@ export default function RequestRidesList({ }) {
 
 
     const handleAcceptRequest = async (requestRideId, status) => {
+        setIsHiddenItemVisible(false);
+
+        console.log(requestRideId)
         try {
-            const response = await axios.put(`https://cc55-102-159-105-67.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
+            const response = await axios.put(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -70,9 +143,13 @@ export default function RequestRidesList({ }) {
                 text2: 'The ride request has been accepted successfully. A new booking is created :)',
 
             });
+            setRequestRide(prevState => prevState.filter(request => request.requestRideId !== requestRideId));
+
             fetchRideRequests();
+            setIsHiddenItemVisible(true);
 
             return response.data;
+
         } catch (error) {
             console.error('Error updating ride request status:', error);
             throw error;
@@ -85,52 +162,83 @@ export default function RequestRidesList({ }) {
     const renderItem = ({
         item,
         index
-    }) => <Box>
-            <Pressable onPress={() => console.log('You touched me')} _dark={{ bg: 'coolGray.800' }} _light={{ bg: 'white' }}>
-                <Box pl="4" pr="5" py="3">
+    }) => <Box refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
+            <Pressable onPress={() => console.log(isHiddenItemVisible)} _dark={{ bg: 'coolGray.800' }} _light={{ bg: 'white' }}>
+                <Box pl="1" pr="5" py="3">
                     <HStack alignItems="center" space={3}>
-                        <Avatar size="48px" source={{ uri: "https://miro.medium.com/max/1400/0*0fClPmIScV5pTLoE.jpg" }} />
+
+                        {item.passenger.image ? (
+                            <Image
+                                source={{ uri: `data:image/jpeg;base64,${item.passenger.image}` }}
+                                style={{ width: 50, height: 50, borderRadius: 50 }}
+                                alt="driverimg"
+                            />
+                        ) : (
+                            <UserAvatar size={40} name={item.passenger.firstName} bgColor="#2596be" />
+
+                        )}
                         <VStack>
                             <Text color="coolGray.800" _dark={{ color: 'warmGray.50' }} bold>
-                                saif smairi
+                                {item.passenger.firstName} {item.passenger.lastName}
                             </Text>
                             <Text color="coolGray.600" _dark={{ color: 'warmGray.200' }} numberOfLines={null}>
-                                Trip: source To destination
+                                {item.source} To {item.destination}
                             </Text>
                         </VStack>
                         <Spacer />
                         <Text fontSize="xs" color="coolGray.800" _dark={{ color: 'warmGray.50' }} alignSelf="flex-start">
-                            12.30 pm
+                            12.30
                         </Text>
                     </HStack>
                 </Box>
             </Pressable>
         </Box>
 
-    const renderHiddenItem = ({ item }) => (
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
+    const renderHiddenItem = ({ item }) => {
 
-            <Pressable w="70" cursor="pointer" bg="green.500" justifyContent="center" onPress={() => handleAcceptRequest(item.requestRideId, "Accepted")} _pressed={{
-                opacity: 0.5
-            }}>
-                <VStack alignItems="center" space={2}>
+        if (!isHiddenItemVisible) {
+            return null;
+        }
 
-                    <AntDesign name="checkcircle" size={24} color="white" />
-                </VStack>
-            </Pressable>
-            <Pressable w="70" cursor="pointer" bg="red.500" justifyContent="center" onPress={() => handleDeleteRequest(item.requestRideId, "Declined")} _pressed={{
-                opacity: 0.5
-            }}>
-                <VStack alignItems="center" space={2}>
-                    <Entypo name="circle-with-cross" size={24} color="white" />
+        return (
+            // Render the hidden item
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
+                {/* Accept button */}
+                <Pressable
+                    w="70"
+                    cursor="pointer"
+                    bg="green.500"
+                    justifyContent="center"
+                    onPress={() => handleAcceptRequest(item.requestRideId, 'Accepted')}
+                    _pressed={{ opacity: 0.5 }}
+                >
+                    <VStack alignItems="center" space={2}>
+                        <AntDesign name="checkcircle" size={24} color="white" />
+                    </VStack>
+                </Pressable>
 
-                </VStack>
-            </Pressable>
-        </View>
-    );
+                {/* Delete button */}
+                <Pressable
+                    w="70"
+                    cursor="pointer"
+                    bg="red.500"
+                    justifyContent="center"
+                    onPress={() => handleDeleteRequest(item.requestRideId, 'Declined')}
+                    _pressed={{ opacity: 0.5 }}
+                >
+                    <VStack alignItems="center" space={2}>
+                        <Entypo name="circle-with-cross" size={24} color="white" />
+                    </VStack>
+                </Pressable>
+            </View>
+        );
+    };
+
 
     return (
-        <View>
+        <View >
             {requestRide.length === 0 ? (
                 <View style={styles.container}>
                     <HomeSvg />

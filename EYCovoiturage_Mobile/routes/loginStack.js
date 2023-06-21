@@ -60,7 +60,7 @@ function MyStack() {
                 options={{
                     title: 'Available trips',
                     headerStyle: {
-                        backgroundColor: 'yellow',
+                        backgroundColor: '#eede1d',
                     },
                     headerTitleStyle: {
                         fontWeight: 'bold',
@@ -105,7 +105,12 @@ function MyStack() {
                 name="profil"
                 component={Profil}
                 options={{
-                    headerShown: false,
+                    headerStyle: {
+                        backgroundColor: '#ffe600',
+                    },
+                    headerTitleStyle: {
+                        color: '#2c2c3b',
+                    },
                     tabBarIcon: ({ color, size }) => (
                         <AntDesign name="home" size={size} color={color} />
                     ),
@@ -166,7 +171,9 @@ function MyStack() {
                 name="uploadcarimg"
                 component={UploadCarImage}
                 options={{
-                    headerShown: false,
+                    headerShown: true,
+                    headerTitle: 'Upload car image',
+
                     tabBarIcon: ({ color, size }) => (
                         <AntDesign name="home" size={size} color={color} />
                     ),

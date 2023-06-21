@@ -17,6 +17,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Auth_Microservice.Dtos;
+using Carpooling_Microservice.Dtos;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -55,7 +56,7 @@ namespace Test4.Controllers
 
 
         // POST api/<TripController>
-        [HttpPost]
+        [HttpPost("addTrip")]
         public async Task<IActionResult> Post([FromBody] Trip model)
         {
             if (model == null)
@@ -68,49 +69,13 @@ namespace Test4.Controllers
             {
                return BadRequest("Invalid UserId");
            }
+      
+            TimeSpan time1 = TimeSpan.Parse(model.DepartureTimeInput);
 
-
-            string timeString = model.DepartureTimeInput;
-
-            // Use regular expression to extract hour, minute, and AM/PM indicator
-            Match match = Regex.Match(timeString, @"(\d+):(\d+)\s+([AP]M)", RegexOptions.IgnoreCase);
-            if (!match.Success)
-            {
-                Console.WriteLine("Invalid time format");
-                
-            }
-
-            int hour = int.Parse(match.Groups[1].Value);
-            int minute = int.Parse(match.Groups[2].Value);
-            string amPmIndicator = match.Groups[3].Value;
-
-            if (hour == 12)
-            {
-                // Convert 12-hour format to 24-hour format for PM times
-                if (amPmIndicator.Equals("PM", StringComparison.OrdinalIgnoreCase))
-                {
-                    hour = 12;
-                }
-                // Convert 12-hour format to 24-hour format for AM times
-                else if (amPmIndicator.Equals("AM", StringComparison.OrdinalIgnoreCase))
-                {
-                    hour = 0;
-                }
-            }
-            else if (amPmIndicator.Equals("PM", StringComparison.OrdinalIgnoreCase))
-            {
-                // Convert PM times to 24-hour format by adding 12 to the hour
-                hour += 12;
-            }
-
-            TimeSpan time = new TimeSpan(hour, minute, 0);
-
-            model.DepartureTime = time;
-
+            model.DepartureTime = time1;
 
             DateTime startDate = model.AvailableDates.Min(d => d.Date);
             DateTime endDate = model.AvailableDates.Max(d => d.Date);
-
 
             // set the start and end dates
             model.DateDebut = startDate;
@@ -131,7 +96,7 @@ namespace Test4.Controllers
 
 
         // GET: api/<TripController>
-        [HttpGet]
+        [HttpGet("all")]
         public ActionResult<IEnumerable<Trip>> Get()
         {
             var result = _repository.GetTrips();
@@ -169,6 +134,17 @@ namespace Test4.Controllers
             return Ok(model);
         }
 
+        //CHECK IF THE PASSENGER HAS ALDREADY SENT A REQUEST FOR A SPECIFIC TRIP
+        [HttpGet("{tripId}/users/{passengerId}/check-request")]
+        public async Task<ActionResult<bool>> CheckRequestExists(int tripId, int passengerId)
+        {
+            var requestExists = await _context.RequestsRides
+                .AnyAsync(rr => rr.TripId == tripId && rr.PassengerId == passengerId);
+
+            return Ok(requestExists);
+        }
+
+
 
         //AJOUT REQUEST FI TRIP
         [HttpPost("{tripId}/request-rides")]
@@ -180,6 +156,14 @@ namespace Test4.Controllers
             {
                 return NotFound();
             }
+            var existingRequest = await _context.RequestsRides
+              .FirstOrDefaultAsync(rr => rr.TripId == tripId && rr.PassengerId == requestRide.PassengerId);
+
+            if (existingRequest != null)
+            {
+                return Conflict("User has already sent a request ride for this trip.");
+            }
+
             requestRide.RequestDate = DateTime.Now;
             requestRide.Trip = trip;
             _context.RequestsRides.Add(requestRide);
@@ -188,7 +172,7 @@ namespace Test4.Controllers
             return Ok(trip);
         }
 
-        //AFFICHAGE DES REQUEST POUR UN TRIP
+        //AFFICHAGE DES REQUESTS POUR UN TRIP
         [HttpGet("trips/{tripId}/requests")]
         public ActionResult<IEnumerable<RequestRide>> GetRequestsForTrip(int tripId)
         {
@@ -205,26 +189,87 @@ namespace Test4.Controllers
         }
 
 
-        // TRAJAA LES TRIPS ACCEPTEE POUR UN PASSENGER
+        // TRAJAA LES TRIPS et requestId ACCEPTEE et booked POUR UN PASSENGER eli bech ykounou fel home
         [HttpGet("passengers/{passengerId}/trips/accepted")]
-        public IActionResult GetAcceptedTripsForPassenger(int passengerId)
+        public async Task<IActionResult> GetAcceptedTripsForPassenger(int passengerId)
         {
-            var acceptedTrips = _context.RequestsRides
+            var acceptedTrips = await _context.RequestsRides
                 .Include(rr => rr.Trip)
-                .Where(rr => rr.PassengerId == passengerId && rr.Status == "accepted")
-                .Select(rr => rr.Trip)
-                .ToList();
+                .Where(rr => rr.PassengerId == passengerId && (rr.Status == "Accepted" || rr.Status == "Booked"))
+                .Select(rr => new { Trip = rr.Trip, RequestId = rr.RequestRideId, TripStatus = rr.TripStatus, UserId = rr.Trip.UserId })
+                .OrderBy(rr => rr.Trip.DepartureTime)
+                .ToListAsync();
 
-            return Ok(acceptedTrips);
+            var tripWithUsers = new List<object>();
+
+            foreach (var acceptedTrip in acceptedTrips)
+            {
+                var user = await GetUserFromUserMicroservice(acceptedTrip.UserId);
+                var tripWithUser = new
+                {
+                    Trip = acceptedTrip.Trip,
+                    RequestId = acceptedTrip.RequestId,
+                    TripStatus=acceptedTrip.TripStatus,
+                    UserId = acceptedTrip.UserId,
+                    CreatedBy = user
+                };
+
+                tripWithUsers.Add(tripWithUser);
+            }
+
+            return Ok(tripWithUsers);
         }
 
-        // TRAJAA LES TRIPS ELI AAMALHOM UN USER
+        // TRAJAA LES TRIPS ELI AAMALHOM (creation) UN USER (driver) fel home
         [HttpGet("user/{userId}/trips")]
         public ActionResult<IEnumerable<Trip>> GetTripsForUser(int userId)
         {
             var trips = _context.Trips.Where(t => t.UserId == userId).ToList();
             return Ok(trips);
         }
+
+
+
+        // TRAJAA LES TRIPS BOOKED POUR UN PASSENGER
+        [HttpGet("passengers/{passengerId}/trips/booked")]
+        public async Task<IActionResult> GetBookedTripsForPassenger(int passengerId)
+        {
+            var acceptedTrips = await _context.RequestsRides
+                .Include(rr => rr.Trip)
+                .Where(rr => rr.PassengerId == passengerId && rr.Status == "Booked")
+                .Select(rr => rr.Trip)
+                .ToListAsync();
+
+            return Ok(acceptedTrips);
+        }
+
+
+
+        [HttpGet("driver/{userId}/createdtripsWithPassengerCount")]
+        public ActionResult<IEnumerable<TripWithPassengerCountDto>> GetCreatedTripsForDriverWithPassengerCount(int userId)
+        {
+            var trips = _context.Trips
+                .Include(t => t.RequestRides)
+                .Where(t => t.UserId == userId)
+                .ToList();
+
+            var tripList = new List<TripWithPassengerCountDto>();
+
+            foreach (var trip in trips)
+            {
+                var tripData = new TripWithPassengerCountDto
+                {
+                    Trip = trip,
+                    PassengerCount = trip.RequestRides.Count(rr => rr.Status == "Booked")
+                };
+
+                tripList.Add(tripData);
+            }
+
+            return Ok(tripList);
+        }
+
+
 
 
 
@@ -241,11 +286,22 @@ namespace Test4.Controllers
         }
 
         [HttpGet("filter")]
-        public async Task<IActionResult> FilterTripsAsync(double userPickupLatitude, double userPickupLongitude, double userDropLatitude, double userDropLongitude)
+        public async Task<IActionResult> FilterTripsAsync(double userPickupLatitude, double userPickupLongitude, double userDropLatitude, double userDropLongitude, int range)
         {
-            var allTrips = _context.Trips.ToList();
-            double proximityThreshold = 10.0;
-            var relevantTrips = new List<Trip>();
+            double proximityThreshold=0;
+           // var allTrips = _context.Trips.Where(t => t.AvailableSeats > 0&t.UserId!=userId).ToList();
+            var allTrips = _context.Trips.Where(t => t.AvailableSeats > 0).ToList();
+
+            if(range==0)
+            {
+                 proximityThreshold = 1;
+            }
+            else if(range != 0)
+            {
+                proximityThreshold = range;
+            }
+
+            var relevantTrips = new List<TripWithUser>();
 
             foreach (var trip in allTrips)
             {
@@ -261,18 +317,17 @@ namespace Test4.Controllers
 
                 if (isWithinProximity)
                 {
-                    relevantTrips.Add(trip);
+                    var user = await GetUserFromUserMicroservice(trip.UserId);
+                    relevantTrips.Add(new TripWithUser
+                    {
+                        Trip = trip,
+                        User = user
+                    });
                 }
             }
-            if (relevantTrips.Count == 0)
-            {
-                return Ok("There are no trips close to your locations");
-            }
 
-            return Ok(relevantTrips);
+            return Ok(relevantTrips.OrderBy(t => t.Trip.DepartureTime));
         }
-
-
 
         private async Task<bool> IsTripWithinProximity(
             (double Latitude, double Longitude) userPickupCoordinates,

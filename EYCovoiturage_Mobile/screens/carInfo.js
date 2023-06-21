@@ -45,7 +45,7 @@ export default function CarInfo({ navigation }) {
 
     const displayUploadCarImageComponent = () => {
         console.log("test")
-        navigation.navigate('uploadcarimg', {
+        navigation.replace('uploadcarimg', {
             CarBrand: selectedCarbrand
         })
     };

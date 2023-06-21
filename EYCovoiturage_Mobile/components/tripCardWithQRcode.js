@@ -18,7 +18,7 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
 
     const handleQRCodeIconPress = async (tripId) => {
         try {
-            fetch(`https://cc55-102-159-105-67.ngrok-free.app/api/RequestRide/generate?driverId=1&tripId=${tripId}`)
+            fetch(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/generate?driverId=1&tripId=${tripId}`)
                 .then(response => {
                     if (response.ok) {
                         return response.blob();
@@ -137,7 +137,9 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
                             >
                                 Cancel
                             </Button>
-                            <Button>Save</Button>
+                            <Button variant="ghost"
+                                colorScheme="blueGray"
+                                onPress={() => setShowModal(false)}>Save</Button>
                         </Button.Group>
                     </Modal.Footer>
                 </Modal.Content>

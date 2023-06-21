@@ -56,7 +56,9 @@ export default function IntroAddTrip({ navigation, route }) {
     };
 
     const handleConfirm = (date) => {
-        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' , hour12: false});
+
+        console.log(time)
         setSelectedTime(time);
         hideDatePicker();
     };
@@ -160,6 +162,7 @@ export default function IntroAddTrip({ navigation, route }) {
                                 mode="time"
                                 onConfirm={handleConfirm}
                                 onCancel={hideDatePicker}
+                                is24Hour={true} 
                             />
                         </View>
                         <View style={{ alignItems: "center" }} >

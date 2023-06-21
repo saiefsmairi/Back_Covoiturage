@@ -72,6 +72,9 @@ namespace Carpooling_Microservice.Migrations
                     b.Property<int>("TripId")
                         .HasColumnType("int");
 
+                    b.Property<string>("TripStatus")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("RequestRideId");
 
                     b.HasIndex("TripId");

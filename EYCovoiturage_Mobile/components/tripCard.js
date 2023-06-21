@@ -1,16 +1,38 @@
 import React from "react";
 import { Box, Divider, Avatar, Heading, AspectRatio, Image, Text, Center, HStack, Stack, NativeBaseProvider, View } from "native-base";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, StyleSheet } from "react-native";
 import { Entypo } from '@expo/vector-icons';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
+import { Ionicons, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import UserAvatar from 'react-native-user-avatar';
+
 const TripCard = ({ onPress, trip }) => {
+  const formattedDepartureTime = moment(trip.trip.departureTime, "HH:mm:ss").format("HH:mm");
+  const departureTime = moment(trip.trip.departureTime, 'HH:mm:ss');
+  const estimatedTime = trip.trip.estimatedTime;
+  const arrivalTime = departureTime.add(estimatedTime, 'minutes');
+  const [profileImage, setProfileImage] = useState('');
 
   React.useEffect(() => {
-
-    console.log(trip.source)
+    const getProfileImage = async () => {
+      try {
+        const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
+        const base64Image = response.data;
+        setProfileImage(base64Image);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.log('User does not have an image');
+        } else {
+          console.log('Error retrieving profile image:', error);
+        }
+      }
+    };
+    getProfileImage();
 
   }, []);
-  const { source, destination } = trip;
 
   return (
     <TouchableOpacity onPress={onPress}>
@@ -37,9 +59,19 @@ const TripCard = ({ onPress, trip }) => {
           >
             <Box>
               <Stack p="3" space={1} >
+                <Stack direction="row" justifyContent={"flex-end"}>
+                  <Text
+                    fontSize="xs"
+                    fontWeight="400"
+                    color="gray.500"
+                    textAlign="right"
+                  >
+                    {trip.trip.availableSeats}  Seats left
+                  </Text>
+                </Stack>
 
-                <Stack direction="row" alignItems="center"  >
-                  <Stack space={2}  >
+                <Stack direction="row" alignItems="center">
+                  <Stack space={2}>
                     <Text
                       fontSize="sm"
                       _light={{ color: "#2e2e38" }}
@@ -48,7 +80,7 @@ const TripCard = ({ onPress, trip }) => {
                       ml="-0.5"
                       mt="-1"
                     >
-                      09:00 AM
+                      {formattedDepartureTime}
                     </Text>
                     <Text
                       fontSize="sm"
@@ -58,7 +90,7 @@ const TripCard = ({ onPress, trip }) => {
                       ml="-0.5"
                       mt="-1"
                     >
-                      22:00 PM
+                      {arrivalTime.format('HH:mm')}
                     </Text>
                   </Stack>
 
@@ -75,7 +107,7 @@ const TripCard = ({ onPress, trip }) => {
                       mt="-1"
                       style={{ flexWrap: 'wrap', width: '100%' }}
                     >
-                      {trip.source}
+                      &#x200E; {trip.trip.source}
                     </Text>
                     <Text
                       fontSize="sm"
@@ -86,11 +118,12 @@ const TripCard = ({ onPress, trip }) => {
                       mt="-1"
                       style={{ flexWrap: 'wrap', width: '100%' }}
                     >
-                      {destination}
+                      &#x200E; {trip.trip.destination}
                     </Text>
                   </Stack>
 
                 </Stack>
+
 
                 <Divider
                   w="100%"
@@ -99,19 +132,17 @@ const TripCard = ({ onPress, trip }) => {
                   _dark={{ bg: "muted.50" }}
                 />
                 <Stack direction="row" alignItems="center">
-                  <Avatar
-                    bg="green.500"
-                    source={{
-                      uri:
-                        "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
-                    }}
-                  >
-                    AJ
-                  </Avatar>
+                  {profileImage ? (
+                    <Image source={{ uri: `data:image/jpeg;base64,${profileImage}` }} style={{ width: 50, height: 50, borderRadius: 50 }} alt="driverimg" />
+                  ) : (
+                    <UserAvatar size={40} name={trip.user.firstName} bgColor="#2596be" style={{ marginRight: 10 }} />
+
+                  )}
                   <Text ml="4" fontWeight="bold">
-                    Johnson Alice
+                    {trip.user.firstName} {trip.user.lastName}
                   </Text>
                 </Stack>
+
               </Stack>
             </Box>
           </Box>
@@ -122,5 +153,6 @@ const TripCard = ({ onPress, trip }) => {
 
   );
 };
+
 
 export default TripCard;

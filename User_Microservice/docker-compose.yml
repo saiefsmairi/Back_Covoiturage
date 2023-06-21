@@ -1,0 +1,31 @@
+version: '3.4'
+networks:
+  usermicroserviceapp:
+
+services:
+  usermicroservicedb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+     - 1433:1433
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "mrAhmad123#"
+    networks:
+     - usermicroserviceapp
+    
+
+  user_microservice:
+    container_name: user-microservice
+    image: ${DOCKER_REGISTRY-}usermicroservice
+    build:
+      context: .
+      dockerfile: User_Microservice\Dockerfile
+    ports:
+      -  8001:80
+    depends_on:
+      - usermicroservicedb
+    networks:
+      - usermicroserviceapp
+
+
+

@@ -75,7 +75,7 @@ function MyTabs() {
                     tabBarLabel: 'Publish',
                 })}
             />
-{/* 
+ {/* 
             <Tab.Screen
                 name="listTrips"
                 component={ListTrips}
@@ -100,7 +100,7 @@ function MyTabs() {
                 })}
             />
 
- */}
+  */}
 
 
             <Tab.Screen
@@ -130,9 +130,6 @@ function MyTabs() {
                 component={Profil}
                 options={({ navigation }) => ({
                     title: 'Profil',
-                    headerStyle: {
-                        backgroundColor: '#ffe600',
-                    },
                     headerTitleStyle: {
                         color: '#2c2c3b',
                     },

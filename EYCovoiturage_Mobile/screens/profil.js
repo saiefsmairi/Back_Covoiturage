@@ -7,6 +7,7 @@ import { Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import UserAvatar from 'react-native-user-avatar';
 
 export default function Profil({ navigation }) {
     const [showModal, setShowModal] = React.useState(false);
@@ -17,8 +18,9 @@ export default function Profil({ navigation }) {
     const [user, setUser] = useState(null);
     const [userStorage, setUserStorage] = useState('');
     const [selectedCarbrand, setSelectedCarbrand] = useState("");
-
     const [loadingUser, setLoadingUser] = React.useState(false);
+    const [loadingCar, setLoadingcar] = React.useState(false);
+    const [TotalPoints, setTotalPoints] = React.useState('');
 
     const [formData, setFormData] = React.useState({
         firstName: '',
@@ -49,7 +51,7 @@ export default function Profil({ navigation }) {
             try {
                 const value = await AsyncStorage.getItem('user');
                 var userId = JSON.parse(value).id
-                const response = await axios.get(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}`);
+                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${userId}`);
                 setUser(response.data)
                 const { firstName, lastName, email, phone, adress } = response.data;
                 setFormData({
@@ -70,11 +72,15 @@ export default function Profil({ navigation }) {
             const value = await AsyncStorage.getItem('user');
             var userId = JSON.parse(value).id
             try {
-                const response = await axios.get(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}/profileImage`);
+                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
             } catch (error) {
-                console.log('Error retrieving profile image:', error);
+                if (error.response && error.response.status === 404) {
+                    console.log('User does not have an image');
+                } else {
+                    console.log('Error retrieving profile image:', error);
+                }
             }
         };
         getUserById();
@@ -85,18 +91,38 @@ export default function Profil({ navigation }) {
 
     React.useEffect(() => {
         const getCarInfo = async (userId) => {
+            setLoadingcar(true);
+
             const value = await AsyncStorage.getItem('user');
             var userId = JSON.parse(value).id
             try {
-                const response = await axios.get(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}/carImage`);
+                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${userId}/carImage`);
                 const base64Image = response.data.base64Image;
                 setSelectedCarbrand(response.data.carBrand)
                 setcarImage(base64Image)
             } catch (error) {
-                console.log('Error retrieving car image:', error);
+                if (error.response && error.response.status === 404) {
+                    console.log('User does not have a car image');
+                } else {
+                    console.log('Error retrieving car image:', error);
+                }
+            }
+            setLoadingcar(false);
+
+        };
+        getCarInfo();
+
+        const getTotalpoints = async (userId) => {
+            const value = await AsyncStorage.getItem('user');
+            var userId = JSON.parse(value).id
+            try {
+                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/users/${userId}/TotalPoints`);
+                setTotalPoints(response.data)
+            } catch (error) {
+                console.log('Error retrieving total user points:', error);
             }
         };
-        getCarInfo(); // Fetch car image separately
+        getTotalpoints(); 
     }, []);
 
 
@@ -126,7 +152,7 @@ export default function Profil({ navigation }) {
                 var userId = JSON.parse(value).id
 
                 const response = await axios.put(
-                    `https://1318-102-159-105-67.ngrok-free.app/api/User/${userId}/upload`,
+                    `https://4183-145-62-80-62.ngrok-free.app/api/User/${userId}/upload`,
                     formData,
                     {
                         headers: {
@@ -156,7 +182,7 @@ export default function Profil({ navigation }) {
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.put(`https://1318-102-159-105-67.ngrok-free.app/api/User/${userStorage.id}`, formData);
+            const response = await axios.put(`https://4183-145-62-80-62.ngrok-free.app/api/User/${userStorage.id}`, formData);
             const updatedUser = response.data;
             await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
             setUserStorage(updatedUser);
@@ -230,7 +256,7 @@ export default function Profil({ navigation }) {
                         </Modal.Footer>
                     </Modal.Content>
                 </Modal>
-                <Stack direction="row" alignItems="center" space={2} justifyContent="space-between">
+                {/*               <Stack direction="row" alignItems="center" space={2} justifyContent="space-between">
                     <Text
                         fontSize="3xl"
                         fontWeight="500"
@@ -244,9 +270,8 @@ export default function Profil({ navigation }) {
                         <Spinner color="red.500" />
                     ) : (
                         !user.image ? (
-                            <Avatar bg="cyan.500" size="2xl">
-                                RS
-                            </Avatar>
+                            <UserAvatar size={100} name={userStorage.firstName} bgColor="#2596be" />
+
                         ) : (
                             profileImage ? (
                                 <Image source={{ uri: `data:image/jpeg;base64,${profileImage}` }} style={{ width: 100, height: 100, borderRadius: 50 }} />
@@ -256,17 +281,54 @@ export default function Profil({ navigation }) {
                             )
                         )
                     )}
+                </Stack> */}
+
+
+                <Stack space={2} direction="column" style={styles.container1} >
+                    <View style={styles.imageContainer}>
+                        {loadingUser || !user ? (
+                            <Spinner color="red.500" />
+                        ) : (
+                            !user.image ? (
+                                <UserAvatar size={100} name={userStorage.firstName} bgColor="#2596be" />
+                            ) : (
+                                profileImage ? (
+                                    <Image source={{ uri: `data:image/jpeg;base64,${profileImage}` }} style={styles.userImage} />
+                                ) : (
+                                    <Spinner color="red.500" />
+
+                                )
+                            )
+                        )}
+                    </View>
+                    <View style={styles.usernameContainer}>
+                        <Text style={styles.username}> {userStorage && userStorage.firstName ? userStorage.firstName : ''} {''}
+                            {userStorage && userStorage.lastName ? userStorage.lastName : ''}</Text>
+                    </View>
+                    <Stack space={4} direction="row" alignItems="center" >
+                        <Image source={require('../assets/reward2.gif')} style={{ width: 50, height: 50 }} />
+                        <Stack  direction="column" >
+                            <Text style={styles.pointsText}>
+                                {TotalPoints} Points
+                            </Text>
+                            <Text style={styles.rewardText}>
+                                My reward points
+                            </Text>
+                        </Stack>
+                    </Stack>
                 </Stack>
-                <Stack space={4}>
+
+
+                <Stack space={4}  >
                     <TouchableOpacity onPress={handleProfilePhotoSelect}>
                         <Text style={styles.textStyle}>
-                            Modifier la photo de profil
+                           Update your profil image
                         </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => setShowModal(true)}>
                         <Text style={styles.textStyle} >
-                            Modifier les informations personnelles
+                        Update your profil informations
                         </Text>
                     </TouchableOpacity>
                 </Stack>
@@ -300,63 +362,43 @@ export default function Profil({ navigation }) {
                     _dark={{ bg: "muted.50" }}
                 />
 
-                <Stack space={4}>
-                    <Text fontWeight="bold" style={styles.TitleStyle}>
-                        About you
-                    </Text>
-                    <Stack direction="row" space={2}   >
-                        <AntDesign name="pluscircleo" size={24} color="#2596be" />
-                        <Text style={styles.textStyle}>
-                            Add bio
-                        </Text>
-                    </Stack>
-                    <Stack direction="row" space={2}   >
-                        <AntDesign name="pluscircleo" size={24} color="#2596be" />
-                        <Text style={styles.textStyle}>
-                            Add préférences
-                        </Text>
-                    </Stack>
-                </Stack>
-
-                <Divider
-                    w="100%"
-                    alignSelf={'center'}
-                    _light={{ bg: "muted.300" }}
-                    _dark={{ bg: "muted.50" }}
-                />
 
                 <Stack space={4}>
                     <Text fontWeight="bold" style={styles.TitleStyle}>
                         Vehicule
                     </Text>
 
+
                     <Stack direction="row" space={5}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 100 }}>
                             <Text>{selectedCarbrand}</Text>
-                            {carImage ? (
-                                <Image source={{ uri: `data:image/jpeg;base64,${carImage}` }} style={{ width: 50, height: 50,marginLeft:10 }} />
-                            ) : (
+                            {loadingCar ? (
                                 <Spinner color="red.500" />
+                            ) : carImage && selectedCarbrand ? (
+
+                                <Stack direction="row" alignItems="center">
+                                    <Image
+                                        source={{ uri: `data:image/jpeg;base64,${carImage}` }}
+                                        style={{ width: '70%', height: 100, marginLeft: 10 }}
+                                    />
+                                    <Stack direction="row" alignItems="center">
+                                        <TouchableOpacity onPress={displayCarInfoComponent}>
+                                            <AntDesign name="edit" size={24} color="#2596be" />
+
+                                        </TouchableOpacity>
+                                    </Stack>
+                                </Stack>
+
+                            ) : (
+                                <TouchableOpacity onPress={displayCarInfoComponent}>
+                                    <Text style={styles.textStyle}>Add Vehicle</Text>
+                                </TouchableOpacity>
                             )}
                         </View>
                     </Stack>
 
 
-                    {carImage || selectedCarbrand ? (
-                        <Stack direction="row" space={2}>
-                            <AntDesign name="edit" size={24} color="#2596be" />
-                            <TouchableOpacity onPress={displayCarInfoComponent}>
-                                <Text style={styles.textStyle}>Update Vehicule</Text>
-                            </TouchableOpacity>
-                        </Stack>
-                    ) : (
-                        <Stack direction="row" space={2}>
-                            <AntDesign name="pluscircleo" size={24} color="#2596be" />
-                            <TouchableOpacity onPress={displayCarInfoComponent}>
-                                <Text style={styles.textStyle}>Add Vehicule</Text>
-                            </TouchableOpacity>
-                        </Stack>
-                    )}
+
 
                 </Stack>
             </Stack>
@@ -380,12 +422,52 @@ const styles = StyleSheet.create({
     },
     textStyle: {
         color: "#2596be",
-
-
+    },
+    rewardText: {
+        color: "grey",
+        fontSize: 12
+    },
+    pointsText: {
+        color: "#2c2c3b",
+        fontWeight: 'bold',
+        fontSize: 15
     },
     TitleStyle: {
         color: "#2c2c3b",
         fontWeight: 500,
         fontSize: 20
+    },
+    container1: {
+        marginTop: 30,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.4,
+        shadowRadius: 4,
+        elevation: 5,
+        padding: 10,
+        alignItems: 'center',
+    },
+    imageContainer: {
+        position: 'absolute',
+        top: -50, // Adjust this value as per your requirement
+        backgroundColor: 'transparent',
+
+    },
+    userImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        borderWidth: 2,
+        borderColor: 'white',
+    },
+    usernameContainer: {
+        marginTop: 30, // Adjust this value as per your requirement
+    },
+    username: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
 });

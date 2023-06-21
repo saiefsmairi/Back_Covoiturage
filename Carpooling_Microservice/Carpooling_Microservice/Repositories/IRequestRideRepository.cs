@@ -13,6 +13,8 @@ namespace Carpooling_Microservice.Data
         void Update(RequestRide model, int id);
 
         void deleteRequestRide(int id);
+        RequestRide GetRequestRideByUserAndTrip(int PassengerId, int tripId);
+
     }
 }
 
