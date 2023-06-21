@@ -4,6 +4,7 @@ using Carpooling_Microservice.DbConfig;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Carpooling_Microservice.Migrations
 {
     [DbContext(typeof(CarpoolingContext))]
-    partial class CarpoolingContextModelSnapshot : ModelSnapshot
+    [Migration("20230619102445_mig48")]
+    partial class mig48
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,6 +76,7 @@ namespace Carpooling_Microservice.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("TripStatus")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("RequestRideId");

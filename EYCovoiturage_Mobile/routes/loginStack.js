@@ -60,7 +60,7 @@ function MyStack() {
                 options={{
                     title: 'Available trips',
                     headerStyle: {
-                        backgroundColor: 'yellow',
+                        backgroundColor: '#eede1d',
                     },
                     headerTitleStyle: {
                         fontWeight: 'bold',

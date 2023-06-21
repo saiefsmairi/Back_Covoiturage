@@ -8,33 +8,34 @@ import { Feather } from 'react-native-vector-icons';
 import axios from 'axios';
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import UserAvatar from 'react-native-user-avatar';
 
 
-const TripCardBooked = ({ trip }) => {
+const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
     const [showScanner, setShowScanner] = useState(false);
     const [hasPermission, setHasPermission] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedTripId, setSelectedTripId] = useState(null);
     const [scannedTripId, setScannedTripId] = useState(null);
     const [matchedTrip, setMatchedTrip] = useState(null);
-    const [userId, setUserId] = useState(trip.userId);
     const formattedDepartureTime = moment(trip.trip.departureTime, "HH:mm:ss").format("HH:mm");
     const departureTime = moment(trip.trip.departureTime, 'HH:mm:ss');
     const estimatedTime = trip.trip.estimatedTime;
     const arrivalTime = departureTime.add(estimatedTime, 'minutes');
     const [profileImage, setProfileImage] = useState('');
-    useEffect(() => {
 
+    useEffect(() => {
         (async () => {
             const { status } = await BarCodeScanner.requestPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
 
+        console.log(trip.createdBy)
+
         const getProfileImage = async () => {
-            const value = await AsyncStorage.getItem('user');
-            var userId = JSON.parse(value).id
+
             try {
-                const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${userId}/profileImage`);
+                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
             } catch (error) {
@@ -49,7 +50,10 @@ const TripCardBooked = ({ trip }) => {
 
     }, []);
 
+
     const handleScanQRCode = (tripId) => {
+        console.log("selectedTripId")
+        console.log(tripId)
         setSelectedTripId(tripId)
         setShowScanner(true);
     };
@@ -58,18 +62,11 @@ const TripCardBooked = ({ trip }) => {
         setIsLoading(true);
         const parsedData = JSON.parse(data);
         const scannedtripId = parsedData.TripId;
-        /*         console.log("scannedTripId")
-                console.log(scannedtripId)
-                console.log("selectedTripId")
-                console.log(selectedTripId)
-                console.log("reqqqq")
-                console.log(trip.requestId)
-         */
         setTimeout(() => {
             if (scannedtripId == selectedTripId) {
                 console.log('Trip started');
                 setMatchedTrip(true);
-                handleMatchQrcode(trip.requestId, "Confirmed")
+                handleMatchQrcode(trip.requestId, "Booked")
 
             } else {
                 console.log('Scanned trip does not match the selected trip');
@@ -91,12 +88,15 @@ const TripCardBooked = ({ trip }) => {
     };
 
     const handleMatchQrcode = async (requestRideId, status) => {
+        console.log(requestRideId)
+        console.log(status)
         try {
-            const response = await axios.put(`https://6e65-197-2-231-204.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
+            const response = await axios.put(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
+            fetchAcceptedTrips();
             return response.data;
         } catch (error) {
             console.error('Error updating ride request status:', error);
@@ -104,9 +104,8 @@ const TripCardBooked = ({ trip }) => {
         }
     };
 
-
     return (
-        <TouchableOpacity onPress={handleScanQRCode}>
+        <TouchableOpacity >
             <Box>
                 <Box mx="7" my="2">
                     <Box
@@ -138,15 +137,16 @@ const TripCardBooked = ({ trip }) => {
 
                                     />
                                     <Badge
-                                        colorScheme="success"
+                                        colorScheme={trip.tripStatus === 'UPCOMING' ? 'success' : 'info'}
                                         alignSelf="center"
                                         variant="subtle"
                                         position="absolute"
                                         top={0}
                                         right={0}
                                     >
-                                        UPCOMING
+                                        {trip.tripStatus}
                                     </Badge>
+
                                 </Stack>
 
 
@@ -187,7 +187,7 @@ const TripCardBooked = ({ trip }) => {
                                             mt="-1"
                                             style={{ flexWrap: 'wrap', width: '100%' }}
                                         >
-                                            {trip.trip.source}
+                                             &#x200E;  {trip.trip.source}
                                         </Text>
                                         <Text
                                             fontSize="sm"
@@ -198,7 +198,7 @@ const TripCardBooked = ({ trip }) => {
                                             mt="-1"
                                             style={{ flexWrap: 'wrap', width: '100%' }}
                                         >
-                                            {trip.trip.destination}
+                                            &#x200E;   {trip.trip.destination}
                                         </Text>
                                     </Stack>
                                 </Stack>
@@ -213,10 +213,8 @@ const TripCardBooked = ({ trip }) => {
                                     {profileImage ? (
                                         <Image source={{ uri: `data:image/jpeg;base64,${profileImage}` }} style={{ width: 50, height: 50, borderRadius: 50, marginRight: 10 }} alt="driverimg" />
                                     ) : (
-                                        <Avatar bg="cyan.500" size="sm">
-                                            {trip.createdBy && trip.createdBy.firstName.toUpperCase()}
+                                        <UserAvatar size={40} name={trip.createdBy.firstName} bgColor="#2596be" style={{ marginRight: 10 }} />
 
-                                        </Avatar>
                                     )}
                                     <Text ml="4" fontWeight="bold">
                                         {trip.createdBy && trip.createdBy.firstName} {trip.createdBy && trip.createdBy.lastName}

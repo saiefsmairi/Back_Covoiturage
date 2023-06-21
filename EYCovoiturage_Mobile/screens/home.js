@@ -48,7 +48,7 @@ function HomeScreen({ navigation }) {
           const value = await AsyncStorage.getItem('user');
           var userId = JSON.parse(value).id
           setIsLoading(true);
-          const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+          const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
           setTrips(response.data);
         } catch (error) {
           console.log('Error fetching trips:', error);
@@ -62,7 +62,7 @@ function HomeScreen({ navigation }) {
         try {
           const value = await AsyncStorage.getItem('user');
           var userId = JSON.parse(value).id
-          const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/user/${userId}/trips`);
+          const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/Trip/user/${userId}/trips`);
           setTripsPublished(response.data);
         } catch (error) {
           console.log('Error fetching trips ForDrivers:', error);
@@ -81,8 +81,8 @@ function HomeScreen({ navigation }) {
     try {
       const value = await AsyncStorage.getItem('user');
       var userId = JSON.parse(value).id
-      const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
-      const response2 = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/user/${userId}/trips`);
+      const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+      const response2 = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/Trip/user/${userId}/trips`);
       setTrips(response.data);
       setTripsPublished(response2.data);
     } catch (error) {
@@ -96,6 +96,22 @@ function HomeScreen({ navigation }) {
     navigation.navigate('rideDetails', {
       trip
     });
+  };
+
+  //i pass this function to the child component so if trip status of the request ride changes to started it call this function to get the lastest data 
+  const fetchAceeptedTripsForPassengers = async () => {
+    try {
+      const value = await AsyncStorage.getItem('user');
+      var userId = JSON.parse(value).id
+      setIsLoading(true);
+      const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+      setTrips(response.data);
+    } catch (error) {
+      console.log('Error fetching trips:', error);
+    } finally {
+      setIsLoading(false);
+      setRefreshing(false);
+    }
   };
 
   const renderScene = ({ route }) => {
@@ -122,7 +138,8 @@ function HomeScreen({ navigation }) {
                 <Text>Loading trips...</Text>
               ) : (
                 trips.map((trip, index) => (
-                  <TripCardBooked key={index} onPress={() => handlePress(trip)} trip={trip} />
+                  <TripCardBooked key={index} onPress={() => handlePress(trip)} trip={trip}     fetchAcceptedTrips={fetchAceeptedTripsForPassengers}
+                  />
                 ))
               )
             )}
@@ -152,7 +169,7 @@ function HomeScreen({ navigation }) {
                 <Text>Loading trips...</Text>
               ) : (
                 tripsPublished.map((trip, index) => (
-                  <TripCardWithQRcode key={index} onPress={() => handlePress(trip)} trip={trip} />
+                  <TripCardWithQRcode key={index} onPress={() => handlePress(trip)} trip={trip}  />
                 ))
               )
             )}

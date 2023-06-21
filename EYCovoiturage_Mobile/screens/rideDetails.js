@@ -27,7 +27,7 @@ const RideDetails = ({ handlePress, route }) => {
 
         const getCarInfo = async (userId) => {
             try {
-                const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${route.params.trip.trip.userId}/carImage`);
+                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${route.params.trip.trip.userId}/carImage`);
                 const base64Image = response.data.base64Image;
                 setcarImage(base64Image)
             } catch (error) {
@@ -41,7 +41,7 @@ const RideDetails = ({ handlePress, route }) => {
         getCarInfo(); // Fetch car image separately
         const getProfileImage = async () => {
             try {
-                const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${route.params.trip.trip.userId}/profileImage`);
+                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${route.params.trip.trip.userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
 
@@ -73,10 +73,10 @@ const RideDetails = ({ handlePress, route }) => {
             try {
                 const value = await AsyncStorage.getItem('user');
                 var userId = JSON.parse(value).id
-                const userResponse = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/User/${userId}`);
+                const userResponse = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${userId}`);
                 const checkRequestExists = async () => {
                     try {
-                        const response = await axios.get(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/${route.params.trip.trip.tripId}/users/${userResponse.data.id}/check-request`);
+                        const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/Trip/${route.params.trip.trip.tripId}/users/${userResponse.data.id}/check-request`);
                         console.log(response.data);
                         setIsRequestSent(response.data);
                     } catch (error) {
@@ -101,8 +101,10 @@ const RideDetails = ({ handlePress, route }) => {
     };
 
     const createRequestRide = async () => {
-        try {
-            const response = await axios.post(`https://6e65-197-2-231-204.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
+        console.log(requestRide);
+
+         try {
+            const response = await axios.post(`https://4183-145-62-80-62.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
             console.log(response.data)
             setIsRequestCreated(true);
             Toast.show({
@@ -114,7 +116,7 @@ const RideDetails = ({ handlePress, route }) => {
         } catch (error) {
             console.log('Error creating request ride:', error);
             throw error;
-        }
+        } 
     };
 
 

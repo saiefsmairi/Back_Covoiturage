@@ -11,6 +11,7 @@ using User_Microservice.Data;
 using User_Microservice.DTO;
 using Auth_Microservice.Dtos;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace User.Controllers
 {
@@ -20,13 +21,14 @@ namespace User.Controllers
     {
         private readonly IUserRepository _repository;
         private readonly UserContext _context;
+        private HttpClient _client;
 
-        public UserController(IUserRepository reposiotory, UserContext context)
+
+        public UserController(IUserRepository reposiotory, UserContext context, HttpClient client)
         {
             _repository = reposiotory;
             _context = context;
-          
-
+            _client = client;
         }
 
         [HttpPost("register")]
@@ -197,6 +199,43 @@ namespace User.Controllers
             };
             return Ok(carInfos);
         }
+
+
+        /// calcul total points 
+
+        [HttpGet("users/{userId}/TotalPoints")]
+        public async Task<IActionResult> GetPointsForBookedTripsByPassenger(int userId)
+        {
+            var bookedTripsResponse = await _client.GetAsync($"https://localhost:7095/api/Trip/passengers/{userId}/trips/booked");
+            var createdTripsResponse = await _client.GetAsync($"https://localhost:7095/api/Trip/driver/{userId}/createdtripsWithPassengerCount");
+
+            if (bookedTripsResponse.IsSuccessStatusCode && createdTripsResponse.IsSuccessStatusCode)
+            {
+                var bookedTripsResponseContent = await bookedTripsResponse.Content.ReadAsStringAsync();
+                var createdTripsResponseContent = await createdTripsResponse.Content.ReadAsStringAsync();
+
+                var bookedTrips = JsonConvert.DeserializeObject<List<TripDto>>(bookedTripsResponseContent);
+                var createdTrips = JsonConvert.DeserializeObject<List<TripWithPassengerCountDto>>(createdTripsResponseContent);
+
+                int totalPoints = 0;
+
+                foreach (var trip in bookedTrips)
+                {
+                    int tripPoints = (int)(trip.Distance * 150);
+                    totalPoints += tripPoints;
+                }
+                foreach (var createdTrip in createdTrips)
+                {
+                    int tripPoints = (int)(createdTrip.Trip.Distance * createdTrip.PassengerCount*150);
+                    totalPoints += tripPoints;
+                }
+
+                return Ok(totalPoints);
+            }
+
+            return NotFound();
+        }
+
 
 
 

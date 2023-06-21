@@ -153,10 +153,16 @@ namespace Test4.Controllers
                 var trip = await _context.Trips.FindAsync(requestRide.TripId);
                     trip.AvailableSeats--;
                     await _context.SaveChangesAsync();
+                requestRide.TripStatus = "UPCOMING";
+
+            }
+            else if (status == "Booked")
+            {
+                requestRide.TripStatus = "STARTED";
             }
             // Update the status property
             requestRide.Status = status;
-
+           
             await _context.SaveChangesAsync();
 
             return Ok(requestRide);

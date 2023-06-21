@@ -130,9 +130,6 @@ function MyTabs() {
                 component={Profil}
                 options={({ navigation }) => ({
                     title: 'Profil',
-                    headerStyle: {
-                        backgroundColor: '#ffe600',
-                    },
                     headerTitleStyle: {
                         color: '#2c2c3b',
                     },
