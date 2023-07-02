@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Auth_Microservice.Dtos;
 using Carpooling_Microservice.Dtos;
+using Carpooling_Microservice.NotificationsConfig;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -30,14 +31,49 @@ namespace Test4.Controllers
         private readonly ITripRepository _repository;
         private readonly CarpoolingContext _context;
         private HttpClient _client;
+        private readonly PushApiClient _pushApiClient;
 
         public TripController(ITripRepository reposiotory, CarpoolingContext context, HttpClient client)
         {
             _repository = reposiotory;
             _context = context;
             _client = client;
-
+            _pushApiClient = new PushApiClient();
         }
+
+        [HttpPost("send-push-notification")]
+        public async Task<IActionResult> SendPushNotification(string Devicetoken, string title, string message)
+        {
+            var pushTicketReq = new PushTicketRequest()
+            {
+                PushTo = new List<string>() { Devicetoken },
+                PushBadgeCount = 7,
+                PushTitle = title,
+                PushBody = message,
+                PushSound = "default",
+                PushData = new Dictionary<string, object>()
+                    {
+                        { "screen", "requestRidesList" },
+                    },
+            };
+
+            try
+            {   var result = await _pushApiClient.PushSendAsync(pushTicketReq);
+                if (result?.PushTicketErrors?.Count() > 0)
+                {
+                    foreach (var error in result.PushTicketErrors)
+                    {
+                        Console.WriteLine($"Error: {error.ErrorCode} - {error.ErrorMessage}");
+                    }
+                }
+                return Ok("Push notification sent successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to send push notification: {ex.Message}");
+            }
+        }
+
 
         private async Task<UserDto> GetUserFromUserMicroservice(int userId)
         {
@@ -53,6 +89,7 @@ namespace Test4.Controllers
 
             return null;
         }
+
 
 
         // POST api/<TripController>
@@ -106,13 +143,12 @@ namespace Test4.Controllers
 
         // GET api/<TripController>/5
         [HttpGet("{id}")]
-        public ActionResult<Trip> Get(int id)
+        public async Task<ActionResult<Trip>> GetAsync(int id)
         {
-            var result = _repository.GetTrip(id);
-            if (result != null)
+            var availableTrips = await _context.Trips.Include(t => t.AvailableDates).FirstOrDefaultAsync(t => t.TripId == id);
+            if (availableTrips != null)
             {
-                return Ok(result);
-
+                return Ok(availableTrips);
             }
             return NotFound();
         }
@@ -167,6 +203,10 @@ namespace Test4.Controllers
             requestRide.RequestDate = DateTime.Now;
             requestRide.Trip = trip;
             _context.RequestsRides.Add(requestRide);
+            var user = await GetUserFromUserMicroservice(requestRide.DriverId);
+            //Sendnotification
+            string message = "You received a new ride request ";
+            SendPushNotification(user.DeviceToken, "New ride request", message);
             await _context.SaveChangesAsync();
 
             return Ok(trip);
@@ -195,7 +235,7 @@ namespace Test4.Controllers
         {
             var acceptedTrips = await _context.RequestsRides
                 .Include(rr => rr.Trip)
-                .Where(rr => rr.PassengerId == passengerId && (rr.Status == "Accepted" || rr.Status == "Booked"))
+                .Where(rr => rr.PassengerId == passengerId && (rr.Status == "Accepted" || rr.Status == "Booked"||rr.Status == "Cancelled"))
                 .Select(rr => new { Trip = rr.Trip, RequestId = rr.RequestRideId, TripStatus = rr.TripStatus, UserId = rr.Trip.UserId })
                 .OrderBy(rr => rr.Trip.DepartureTime)
                 .ToListAsync();
@@ -276,23 +316,27 @@ namespace Test4.Controllers
         // AFFICHER LES TRIPS BETWEEN TWO DATES WE WILL ADD DESTINATION AND NBSEATS AKBER MEN 
         [HttpGet]
         [Route("trips/available-on-date")]
-        public async Task<ActionResult<IEnumerable<Trip>>> GetTripsAvailableOnDate(DateTime date)
+        public async Task<ActionResult<IEnumerable<Trip>>> GetTripsAvailableOnDate(DateTime selectedDate)
         {
-         var availableTrips = await _context.Trips.Include(t => t.AvailableDates)
-        .Where(t =>t.DateDebut <= date && t.DateFin >= date)
-        .ToListAsync();
-         return Ok(availableTrips);
+            var allTrips = _context.Trips
+            .Where(t =>  t.AvailableDates.Any(d => d.Date == selectedDate))
+            .Include(t => t.AvailableDates)
+            .ToList();
+            return Ok(allTrips);
 
         }
 
         [HttpGet("filter")]
-        public async Task<IActionResult> FilterTripsAsync(double userPickupLatitude, double userPickupLongitude, double userDropLatitude, double userDropLongitude, int range)
+        public async Task<IActionResult> FilterTripsAsync(double userPickupLatitude, double userPickupLongitude, double userDropLatitude, double userDropLongitude, int range, DateTime selectedDate)
         {
             double proximityThreshold=0;
            // var allTrips = _context.Trips.Where(t => t.AvailableSeats > 0&t.UserId!=userId).ToList();
-            var allTrips = _context.Trips.Where(t => t.AvailableSeats > 0).ToList();
+            var allTrips = _context.Trips
+            .Where(t => t.AvailableSeats > 0 && t.AvailableDates.Any(d => d.Date == selectedDate))
+            .Include(t => t.AvailableDates)
+            .ToList();
 
-            if(range==0)
+            if (range==0)
             {
                  proximityThreshold = 1;
             }

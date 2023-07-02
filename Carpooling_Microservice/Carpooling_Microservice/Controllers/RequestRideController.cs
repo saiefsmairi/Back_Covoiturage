@@ -9,6 +9,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using Newtonsoft.Json;
 using Auth_Microservice.Dtos;
+using Carpooling_Microservice.Dtos;
+using Carpooling_Microservice.NotificationsConfig;
+using System.Text;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,6 +26,7 @@ namespace Test4.Controllers
         private readonly IRequestRideRepository _repository;
         private readonly CarpoolingContext _context;
         private HttpClient _client;
+        private readonly PushApiClient _pushApiClient;
 
 
         public RequestRideController(IRequestRideRepository reposiotory, CarpoolingContext context, HttpClient client)
@@ -30,6 +34,7 @@ namespace Test4.Controllers
             _repository = reposiotory;
             _context = context;
             _client = client;
+            _pushApiClient = new PushApiClient();
 
         }
 
@@ -94,7 +99,7 @@ namespace Test4.Controllers
         }
 
 
-        // GET Request ride par DriverId
+        // GET Request ride par DriverId 
 
         [HttpGet("requests/{DriverId}")]
         public async Task<ActionResult<IEnumerable<RequestRide>>> GetRequestRideByUser(int DriverId)
@@ -139,8 +144,81 @@ namespace Test4.Controllers
             return Ok(requestsWithUsers);
         }
 
+        [HttpGet("{requestRideId}/CheckDeadlineCancel")]
+        public IActionResult CheckDeadlineForCancelRequestRide(int requestRideId)
+        {
+            var requestRide = _context.RequestsRides
+                .Include(r => r.Trip)
+                .SingleOrDefault(r => r.RequestRideId == requestRideId);
+            if (requestRide == null)
+            {
+                return NotFound();
+            }
+            TimeSpan departureTime = (TimeSpan)requestRide.Trip.DepartureTime;
+            TimeSpan currentTime = DateTime.Now.TimeOfDay;
+            TimeSpan cancelTime = departureTime.Subtract(TimeSpan.FromMinutes(15));
+
+            if (currentTime >= cancelTime)
+            {
+                return Conflict("Cancellation is not allowed after the cancellation deadline.");
+            }
+   
+            return Ok("Reservation cancelled succesfully");
+        }
+
+        [HttpPut("{requestRideId}/cancel")]
+        public async Task<IActionResult> CancelRequestRideAsync(int requestRideId)
+        {
+            var requestRide = _context.RequestsRides
+                .Include(r => r.Trip)
+                .SingleOrDefault(r => r.RequestRideId == requestRideId);
+
+            TimeSpan departureTime = (TimeSpan)requestRide.Trip.DepartureTime;
+            TimeSpan currentTime = DateTime.Now.TimeOfDay;
+            TimeSpan cancelTime = departureTime.Subtract(TimeSpan.FromMinutes(15));
+
+            if (currentTime >= cancelTime)
+            {
+                try
+                {
+                    requestRide.Status = "CANCELLED";
+                    requestRide.TripStatus = "CANCELLED";
+                    requestRide.Trip.AvailableSeats--;
+                    var userId = requestRide.PassengerId;
+                    var pointsToDeduct = 100; 
+                    var updatePointsUrl = $"https://localhost:7031/api/User/users/{userId}/points";
+                    var payload = JsonConvert.SerializeObject(pointsToDeduct);
+                    using (var httpClient = new HttpClient())
+                    {
+                        var content = new StringContent(payload, Encoding.UTF8, "application/json");
+                        var response = await httpClient.PutAsync(updatePointsUrl, content);
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            return BadRequest("Error calling update points method from user microservice0");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest("Error calling update points method from user microservice1");
+
+                }
+            }
+            else
+            {
+                requestRide.Status = "CANCELLED";
+                requestRide.TripStatus = "CANCELLED";
+                requestRide.Trip.AvailableSeats--;
+            }
+
+            _context.SaveChanges();
+            return Ok("Reservation cancelled succesfully");
+        }
+
+
         [HttpPut("requests/{requestRideId}/status")]
-        public async Task<ActionResult<RequestRide>> UpdateRequestRideStatus(int requestRideId, [FromBody] string status)
+        public async Task<ActionResult<RequestRide>> UpdateRequestRideStatus(int requestRideId, [FromBody] UpdateRequestRideStatusDto requestData)
         {
             var requestRide = await _context.RequestsRides.FindAsync(requestRideId);
 
@@ -148,24 +226,75 @@ namespace Test4.Controllers
             {
                 return NotFound();
             }
-            if (status == "Accepted")
+            if (requestData.status == "Accepted")
             {
                 var trip = await _context.Trips.FindAsync(requestRide.TripId);
                     trip.AvailableSeats--;
                     await _context.SaveChangesAsync();
                 requestRide.TripStatus = "UPCOMING";
+                //Sendnotification
+                string message = $"Trip from {requestRide.Trip.Source} to {requestRide.Trip.Destination} is confirmed ";
+                SendPushNotification(requestData.deviceToken,"Ride request accepted", message);
 
             }
-            else if (status == "Booked")
+            else if (requestData.status == "Declined")
+            {
+                //Sendnotification
+                string message = $"Trip from {requestRide.Trip.Source} to {requestRide.Trip.Destination} is declined ";
+                SendPushNotification(requestData.deviceToken, "Ride request declined", message);
+
+            }
+            else if (requestData.status == "Booked")
             {
                 requestRide.TripStatus = "STARTED";
             }
             // Update the status property
-            requestRide.Status = status;
+            requestRide.Status = requestData.status;
            
             await _context.SaveChangesAsync();
 
             return Ok(requestRide);
+        }
+
+        [HttpPost("send-push-notification")]
+        public async Task<IActionResult> SendPushNotification(string Devicetoken,string title,string message)
+        {
+            // Create the push ticket request
+            var pushTicketReq = new PushTicketRequest()
+            {
+                PushTo = new List<string>() { Devicetoken },
+                PushBadgeCount = 7,
+                PushTitle = title,
+                PushBody = message,
+                PushSound = "default",
+                PushData = new Dictionary<string, object>()
+                    {
+                        { "screen", "main" }, 
+                    },
+            };
+
+            try
+            {
+                // Send the push notification
+                var result = await _pushApiClient.PushSendAsync(pushTicketReq);
+
+                if (result?.PushTicketErrors?.Count() > 0)
+                {
+                    // Handle errors if any
+                    foreach (var error in result.PushTicketErrors)
+                    {
+                        Console.WriteLine($"Error: {error.ErrorCode} - {error.ErrorMessage}");
+                    }
+                }
+
+                // Return a success response
+                return Ok("Push notification sent successfully.");
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions that occur during the push notification sending process
+                return BadRequest($"Failed to send push notification: {ex.Message}");
+            }
         }
 
 

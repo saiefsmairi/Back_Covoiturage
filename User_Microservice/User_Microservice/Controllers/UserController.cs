@@ -34,6 +34,13 @@ namespace User.Controllers
         [HttpPost("register")]
         public IActionResult Register(RegisterDto dto)
         {
+            var existingUser = _repository.GetByEmail(dto.Email);
+
+            if (existingUser != null)
+            {
+                return BadRequest("Email already exists");
+            }
+
             var user = new Utilisateur
             {
                 FirstName = dto.FirstName,
@@ -43,6 +50,8 @@ namespace User.Controllers
                 Email = dto.Email,
                 Hascar = false,
                 Role = "User",
+                AllowsNotifications = false,
+                DeviceToken=null,
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password)
             };
 
@@ -62,6 +71,26 @@ namespace User.Controllers
 
             return Ok(user);
         }
+
+        [HttpPut("{id}/UserNotif")]
+        public IActionResult UpdateUserAllowNotif(int id, [FromBody] UpdateUserForNotifDTO updateUserDto)
+        {
+            var user = _repository.GetById(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.DeviceToken = updateUserDto.DeviceToken;
+            user.AllowsNotifications = updateUserDto.AllowsNotifications;
+
+            _repository.UpdateUser(user);
+
+            return Ok();
+        }
+
+
+
 
         [HttpGet("{id}")]
         public IActionResult GetUserById(int id)
@@ -105,6 +134,7 @@ namespace User.Controllers
             };
             return Ok(updatedUserDto); 
         }
+
 
 
         [HttpPut("{userId}/upload")]
@@ -229,11 +259,29 @@ namespace User.Controllers
                     int tripPoints = (int)(createdTrip.Trip.Distance * createdTrip.PassengerCount*150);
                     totalPoints += tripPoints;
                 }
-
+                var user = _repository.GetById(userId);
+                user.Points = totalPoints;
+                _context.SaveChanges();
                 return Ok(totalPoints);
             }
 
             return NotFound();
+        }
+
+        [HttpPut("users/{userId}/points")]
+        public IActionResult UpdateUserPoints(int userId, [FromBody] int points)
+        {
+            var user = _repository.GetById(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.Points = user.Points-points;
+            _context.SaveChanges();
+
+            return Ok(user);
         }
 
 

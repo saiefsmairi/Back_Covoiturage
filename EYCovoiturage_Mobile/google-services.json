@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "345671327330",
+    "project_id": "pfeing-41653",
+    "storage_bucket": "pfeing-41653.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345671327330:android:53b09306b3ddd92713bb3b",
+        "android_client_info": {
+          "package_name": "com.ey.covoiturage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "345671327330-ao39rbr8eeljr4q1756jkjccua9qqf03.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYM9VlPx-Ao_Ho-IfsXzLhaYy-0Xeip_U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "345671327330-ao39rbr8eeljr4q1756jkjccua9qqf03.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

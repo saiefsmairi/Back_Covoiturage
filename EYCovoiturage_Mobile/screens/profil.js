@@ -8,6 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserAvatar from 'react-native-user-avatar';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Profil({ navigation }) {
     const [showModal, setShowModal] = React.useState(false);
@@ -51,7 +52,9 @@ export default function Profil({ navigation }) {
             try {
                 const value = await AsyncStorage.getItem('user');
                 var userId = JSON.parse(value).id
-                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${userId}`);
+                const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${userId}`);
+                console.log("asba")
+                console.log(response.data)
                 setUser(response.data)
                 const { firstName, lastName, email, phone, adress } = response.data;
                 setFormData({
@@ -72,7 +75,7 @@ export default function Profil({ navigation }) {
             const value = await AsyncStorage.getItem('user');
             var userId = JSON.parse(value).id
             try {
-                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${userId}/profileImage`);
+                const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
             } catch (error) {
@@ -89,6 +92,39 @@ export default function Profil({ navigation }) {
     }, [profileImage]);
 
 
+    useFocusEffect(
+        React.useCallback(() => {
+            
+        const getUserById = async (userId) => {
+            setLoadingUser(true);
+            try {
+                const value = await AsyncStorage.getItem('user');
+                var userId = JSON.parse(value).id
+                const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${userId}`);
+                console.log("asba")
+                console.log(response.data)
+                setUser(response.data)
+                const { firstName, lastName, email, phone, adress } = response.data;
+                setFormData({
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    adress,
+                });
+            } catch (error) {
+                console.log('Error fetching user:', error);
+            }
+            setLoadingUser(false);
+
+        };
+        getUserById();
+
+        }, [])
+
+    );
+
+
     React.useEffect(() => {
         const getCarInfo = async (userId) => {
             setLoadingcar(true);
@@ -96,7 +132,7 @@ export default function Profil({ navigation }) {
             const value = await AsyncStorage.getItem('user');
             var userId = JSON.parse(value).id
             try {
-                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${userId}/carImage`);
+                const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${userId}/carImage`);
                 const base64Image = response.data.base64Image;
                 setSelectedCarbrand(response.data.carBrand)
                 setcarImage(base64Image)
@@ -116,7 +152,7 @@ export default function Profil({ navigation }) {
             const value = await AsyncStorage.getItem('user');
             var userId = JSON.parse(value).id
             try {
-                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/users/${userId}/TotalPoints`);
+                const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/users/${userId}/TotalPoints`);
                 setTotalPoints(response.data)
             } catch (error) {
                 console.log('Error retrieving total user points:', error);
@@ -152,7 +188,7 @@ export default function Profil({ navigation }) {
                 var userId = JSON.parse(value).id
 
                 const response = await axios.put(
-                    `https://4183-145-62-80-62.ngrok-free.app/api/User/${userId}/upload`,
+                    `https://ac9d-41-62-206-48.ngrok-free.app/api/User/${userId}/upload`,
                     formData,
                     {
                         headers: {
@@ -182,7 +218,7 @@ export default function Profil({ navigation }) {
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.put(`https://4183-145-62-80-62.ngrok-free.app/api/User/${userStorage.id}`, formData);
+            const response = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${userStorage.id}`, formData);
             const updatedUser = response.data;
             await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
             setUserStorage(updatedUser);
@@ -309,7 +345,7 @@ export default function Profil({ navigation }) {
                         <Image source={require('../assets/reward2.gif')} style={{ width: 50, height: 50 }} />
                         <Stack  direction="column" >
                             <Text style={styles.pointsText}>
-                                {TotalPoints} Points
+                                {user?.points} Points
                             </Text>
                             <Text style={styles.rewardText}>
                                 My reward points

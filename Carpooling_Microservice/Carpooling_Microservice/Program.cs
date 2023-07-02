@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Carpooling_Microservice.NotificationsConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddDbContext<CarpoolingContext>
 builder.Services.AddScoped<ITripRepository, TripRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IRequestRideRepository, RequestRideRepository>();
+builder.Services.AddSingleton<PushApiClient>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
           .AddJwtBearer(options => {
@@ -64,6 +66,11 @@ app.UseCors();
 //app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRouting();
+//app.UseEndpoints(endpoints =>
+//{
+   // endpoints.MapHub<NotificationHub>("/api/trip/notificationhub");
+//});
 
 app.MapControllers();
 

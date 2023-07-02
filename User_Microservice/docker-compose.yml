@@ -1,4 +1,5 @@
 version: '3.4'
+
 networks:
   usermicroserviceapp:
 
@@ -6,13 +7,19 @@ services:
   usermicroservicedb:
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
-     - 1433:1433
+      - 1433:1433
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "mrAhmad123#"
     networks:
-     - usermicroserviceapp
-    
+      - usermicroserviceapp
+    command: >
+      sh -c "
+      /opt/mssql/bin/sqlservr & sleep 20s;
+      /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'mrAhmad123#' -Q 'CREATE DATABASE [dba]';
+      sleep 10s;
+      sleep infinity
+      "
 
   user_microservice:
     container_name: user-microservice
@@ -21,11 +28,9 @@ services:
       context: .
       dockerfile: User_Microservice\Dockerfile
     ports:
-      -  8001:80
+      - 8001:80
     depends_on:
       - usermicroservicedb
+ 
     networks:
       - usermicroserviceapp
-
-
-

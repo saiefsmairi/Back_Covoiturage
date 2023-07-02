@@ -34,10 +34,16 @@ namespace User_Microservice.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("AllowsNotifications")
+                        .HasColumnType("bit");
+
                     b.Property<string>("CarBrand")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CarImg")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeviceToken")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -65,6 +71,9 @@ namespace User_Microservice.Migrations
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
 
                     b.Property<string>("Role")
                         .IsRequired()

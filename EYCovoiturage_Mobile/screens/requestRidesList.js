@@ -24,14 +24,14 @@ export default function RequestRidesList({ }) {
         try {
             const value = await AsyncStorage.getItem('user');
             var userId = JSON.parse(value).id;
-            const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${userId}`);
+            const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/requests/${userId}`);
             const requestRidesWithProfileImage = [];
 
             for (const requestRide of response.data) {
                 const { passengerId } = requestRide;
 
                 try {
-                    const imageResponse = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${passengerId}/profileImage`);
+                    const imageResponse = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${passengerId}/profileImage`);
                     const base64Image = imageResponse.data;
                     requestRide.passenger.image = base64Image;
                 } catch (error) {
@@ -44,7 +44,6 @@ export default function RequestRidesList({ }) {
                 requestRidesWithProfileImage.push(requestRide);
 
             }
-            console.log(requestRidesWithProfileImage)
             setRequestRide(requestRidesWithProfileImage);
         } catch (error) {
             console.log('Error fetching trips:', error);
@@ -57,8 +56,8 @@ export default function RequestRidesList({ }) {
             fetchRideRequests();
 
         }, [])
-    );
 
+    );
 
 
     const onRefresh = async () => {
@@ -66,14 +65,14 @@ export default function RequestRidesList({ }) {
         try {
             const value = await AsyncStorage.getItem('user');
             var userId = JSON.parse(value).id;
-            const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${userId}`);
+            const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/requests/${userId}`);
             const requestRidesWithProfileImage = [];
 
             for (const requestRide of response.data) {
                 const { passengerId } = requestRide;
 
                 try {
-                    const imageResponse = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${passengerId}/profileImage`);
+                    const imageResponse = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${passengerId}/profileImage`);
                     const base64Image = imageResponse.data;
                     requestRide.passenger.image = base64Image;
                     requestRidesWithProfileImage.push(requestRide);
@@ -94,13 +93,15 @@ export default function RequestRidesList({ }) {
         }
     };
 
-
-
-    const handleDeleteRequest = async (requestRideId, status) => {
+    const handleDeleteRequest = async (requestRide, status) => {
         setIsHiddenItemVisible(false);
-
+        const requestData = {
+            status: status,
+            deviceToken: requestRide.passenger.deviceToken
+        };
         try {
-            const response = await axios.put(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
+            const response = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/requests/${requestRide.requestRideId}/status`,
+                requestData, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -114,7 +115,7 @@ export default function RequestRidesList({ }) {
                 text1: 'Success',
                 text2: 'The request has been declined.',
             });
-            setRequestRide(prevState => prevState.filter(request => request.requestRideId !== requestRideId));
+            setRequestRide(prevState => prevState.filter(request => request.requestRideId !== requestRide.requestRideId));
 
             fetchRideRequests();
             setIsHiddenItemVisible(true);
@@ -127,12 +128,16 @@ export default function RequestRidesList({ }) {
     };
 
 
-    const handleAcceptRequest = async (requestRideId, status) => {
-        setIsHiddenItemVisible(false);
-
-        console.log(requestRideId)
+    const handleAcceptRequest = async (requestRide, status) => {
+        //setIsHiddenItemVisible(false);
+        const requestData = {
+            status: status,
+            deviceToken: requestRide.passenger.deviceToken
+        };
+        console.log(requestData)
         try {
-            const response = await axios.put(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
+            const response = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/requests/${requestRide.requestRideId}/status`,
+                requestData, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -143,7 +148,7 @@ export default function RequestRidesList({ }) {
                 text2: 'The ride request has been accepted successfully. A new booking is created :)',
 
             });
-            setRequestRide(prevState => prevState.filter(request => request.requestRideId !== requestRideId));
+            setRequestRide(prevState => prevState.filter(request => request.requestRideId !== requestRide.requestRideId));
 
             fetchRideRequests();
             setIsHiddenItemVisible(true);
@@ -211,7 +216,7 @@ export default function RequestRidesList({ }) {
                     cursor="pointer"
                     bg="green.500"
                     justifyContent="center"
-                    onPress={() => handleAcceptRequest(item.requestRideId, 'Accepted')}
+                    onPress={() => handleAcceptRequest(item, 'Accepted')}
                     _pressed={{ opacity: 0.5 }}
                 >
                     <VStack alignItems="center" space={2}>
@@ -225,7 +230,7 @@ export default function RequestRidesList({ }) {
                     cursor="pointer"
                     bg="red.500"
                     justifyContent="center"
-                    onPress={() => handleDeleteRequest(item.requestRideId, 'Declined')}
+                    onPress={() => handleDeleteRequest(item, 'Declined')}
                     _pressed={{ opacity: 0.5 }}
                 >
                     <VStack alignItems="center" space={2}>

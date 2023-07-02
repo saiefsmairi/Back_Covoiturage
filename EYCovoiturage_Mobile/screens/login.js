@@ -7,6 +7,7 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import authService from "../services/authService";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useNotifications } from '../hooks/useNotifications';
 
 
 export default function Login({ navigation }) {
@@ -25,6 +26,7 @@ export default function Login({ navigation }) {
 
   });
 
+  const { registerForPushNotificationsAsync, handleNotificationResponse } = useNotifications();
 
   useEffect(() => {
     /*   getDataFromStorage().then((val) => {
@@ -80,10 +82,24 @@ export default function Login({ navigation }) {
             initialValues={{ email: "", password: "" }}
             validationSchema={SigninSchema}
             onSubmit={async values => {
-               const response = await authService.login(values);
-              // console.log(response);
-       
-              navigation.navigate("main");
+              const DeviceToken = await registerForPushNotificationsAsync();
+              if (DeviceToken) {
+                console.log('1111')
+                values.DeviceToken = DeviceToken;
+                values.AllowsNotifications = true;
+                const response = await authService.login(values);
+                if (response){
+                  navigation.navigate("main");
+                }              }
+              else {
+                console.log('2222')
+                const response = await authService.loginemulator(values);
+                if (response){
+                  navigation.navigate("main");
+                }
+              }
+
+
             }}
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (

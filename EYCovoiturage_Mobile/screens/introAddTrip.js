@@ -116,7 +116,9 @@ export default function IntroAddTrip({ navigation, route }) {
             selectedTime:selectedTime
         });
     };
-
+    const today = new Date(); // Get the current date
+    const minDate = today.toISOString().split('T')[0]; // Format the date to YYYY-MM-DD
+  
     return (
         <ScrollView style={{backgroundColor:'white'}}>
 
@@ -201,6 +203,7 @@ export default function IntroAddTrip({ navigation, route }) {
                                     style={{ elevation: 4 }}
                                     markedDates={selectedDates}
                                     markingType={"multi-dot"}
+                                    minDate={minDate}
                                     onDayPress={(day) => {
                                         const selectedDay = day.dateString;
                                         const newDates = { ...selectedDates };
@@ -277,7 +280,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderColor: 'rgba(0, 0, 0, 0.1)',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-
     },
     map: {
         width: '100%',

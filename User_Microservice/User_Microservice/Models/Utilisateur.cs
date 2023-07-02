@@ -19,10 +19,12 @@ namespace User_Microservice.Models
         public bool? Hascar { get; set; }
         public string? CarImg { get; set; }
         public string? CarBrand { get; set; }
-
+        public int Points { get; set; }
         public string Email { get; set; }
         public string Role { get; set; }
         public string Password { get; set; }
+        public bool AllowsNotifications { get; set; }
+        public string? DeviceToken { get; set; }
     }
 }
 

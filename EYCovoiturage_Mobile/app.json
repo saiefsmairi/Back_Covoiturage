@@ -5,7 +5,9 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "scheme": "com.ey.covoiturage",
     "userInterfaceStyle": "light",
+    "plugins": ["expo-notifications"],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -18,6 +20,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package:": "com.ey.covoiturage",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

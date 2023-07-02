@@ -24,10 +24,8 @@ namespace Auth_Microservice.Controllers
             _configuration = configuration;
         }
 
-
-
-        [HttpPost("login")]
-        public async Task<IActionResult> VerifyUserAndLogin([FromBody] LoginDto userLogin)
+        [HttpPost("loginEmulator")]
+        public async Task<IActionResult> VerifyUserAndLoginEmulator([FromBody] LoginDto userLogin)
         {
             // Make an API request to the User microservice to verify the user
             using (var client = new HttpClient())
@@ -59,12 +57,12 @@ namespace Auth_Microservice.Controllers
                         token = token,
                         user = new
                         {
-                            Id=user.Id,
+                            Id = user.Id,
                             FirstName = user.FirstName,
                             LastName = user.LastName,
                             Phone = user.Phone,
                             Email = user.Email,
-                            Adress= user.Adress,
+                            Adress = user.Adress,
                         }
                     };
 
@@ -81,6 +79,74 @@ namespace Auth_Microservice.Controllers
             }
         }
 
+
+        [HttpPost("login")]
+        public async Task<IActionResult> VerifyUserAndLogin([FromBody] LoginDto userLogin)
+        {
+            // Make an API request to the User microservice to verify the user
+            using (var client = new HttpClient())
+            {
+                var userMicroserviceUrl = "https://localhost:7031/api/User/verify";
+                var requestBody = new { Email = userLogin.Email, Password = userLogin.Password };
+
+                var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response;
+                try
+                {
+                    response = await client.PostAsync(userMicroserviceUrl, requestContent);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { message = "Error calling User microservice." });
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var userResponse = await response.Content.ReadAsStringAsync();
+                    var user = JsonConvert.DeserializeObject<User>(userResponse);
+                    var requestBodyNOTIF = new {  DeviceToken = userLogin.DeviceToken, AllowsNotifications = userLogin.AllowsNotifications };
+
+
+                    var updateUserUrl = $"https://localhost:7031/api/User/{user.Id}/UserNotif";
+                    var updateUserContent = new StringContent(JsonConvert.SerializeObject(requestBodyNOTIF), Encoding.UTF8, "application/json");
+                    var updateResponse = await client.PutAsync(updateUserUrl, updateUserContent);
+
+                    if (updateResponse.IsSuccessStatusCode)
+                    {
+                        var token = Generate(user);
+                        var responseObject = new
+                        {
+                            token = token,
+                            user = new
+                            {
+                                Id = user.Id,
+                                FirstName = user.FirstName,
+                                LastName = user.LastName,
+                                Phone = user.Phone,
+                                Email = user.Email,
+                                AllowsNotifications = userLogin.AllowsNotifications,
+                                DeviceToken = userLogin.DeviceToken,
+                            }
+                        };
+
+                        return Ok(responseObject);
+                    }
+                    else
+                    {
+                        return StatusCode(500, new { message = "Error updating user in User microservice." });
+                    }
+                }
+                else if (response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    return BadRequest(new { message = "Invalid Credentials" });
+                }
+                else
+                {
+                    return StatusCode(500, new { message = "Error calling User microservice." });
+                }
+            }
+        }
 
         private string Generate(User user)
         {

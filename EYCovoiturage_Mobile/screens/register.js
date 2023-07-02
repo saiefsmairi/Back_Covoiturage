@@ -94,10 +94,19 @@ export default function Register({ navigation }) {
                             initialValues={{ email: '', firstName: '', lastName: '', phone: '', adress: '', password: '', confirmPassword: '' }}
                             validationSchema={SignupSchema}
                             onSubmit={async values => {
-                                const response = await authService.register(values);
-                                console.log(response);
-                                console.log(values)
-                                navigation.navigate('login')
+                                try {
+                                    const response = await authService.register(values);
+                                    console.log(response);
+                                    console.log(values);
+                                    navigation.navigate('login');
+                                  } catch (error) {
+                                    if (error.response && error.response.status === 400) {
+                                      Alert.alert('Register failed', 'Email already exists. Please use a different email.');
+                                    } else {
+                                    
+                                      Alert.alert('Register failed', 'An error occurred during registration. Please try again.');
+                                    }
+                                  }
 
                             }}
                         >

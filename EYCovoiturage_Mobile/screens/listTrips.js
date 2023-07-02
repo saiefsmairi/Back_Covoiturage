@@ -17,7 +17,7 @@ export default function ListTrips({ navigation, route }) {
     });
   };
 
-  const { userPickupLatitude, userPickupLongitude, userDropLatitude, userDropLongitude } = route.params;
+  const { userPickupLatitude, userPickupLongitude, userDropLatitude, userDropLongitude, selectedDate } = route.params;
 
   useEffect(() => {
     console.log(userPickupLatitude + " " + userPickupLongitude + " " + userDropLatitude + " " + userDropLongitude)
@@ -25,12 +25,13 @@ export default function ListTrips({ navigation, route }) {
     const fetchTrips = async () => {
       //  setIsLoading(true); // Set isLoading to true before making the API call
       try {
-        const response = await axios.get('https://4183-145-62-80-62.ngrok-free.app/api/Trip/filter', {
+        const response = await axios.get('https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/filter', {
           params: {
             userPickupLatitude,
             userPickupLongitude,
             userDropLatitude,
             userDropLongitude,
+            selectedDate
           },
         });
         setTrips(response.data);
@@ -41,33 +42,31 @@ export default function ListTrips({ navigation, route }) {
         setIsLoading(false);
       }
     };
-
     setTrips([]);
     fetchTrips();
   }, [userPickupLatitude, userPickupLongitude, userDropLatitude, userDropLongitude])
 
   const onRefresh = async () => {
-
     console.log("on refresh pressed")
-    console.log(distance)
     setRefreshing(true);
     console.log(userPickupLatitude + " " + userPickupLongitude + " " + userDropLatitude + " " + userDropLongitude)
     setIsLoading(true)
     const fetchTrips = async () => {
       //  setIsLoading(true); // Set isLoading to true before making the API call
       try {
-        const response = await axios.get('https://4183-145-62-80-62.ngrok-free.app/api/Trip/filter', {
+        const response = await axios.get('https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/filter', {
           params: {
             userPickupLatitude,
             userPickupLongitude,
             userDropLatitude,
             userDropLongitude,
-            range:distance
+            range: distance,
+            selectedDate
           },
         });
         setTrips(response.data);
         console.log("***")
-        console.log(response)
+        console.log(response.data)
 
       } catch (error) {
         console.log('Error fetching trips:', error);
@@ -88,16 +87,18 @@ export default function ListTrips({ navigation, route }) {
     setIsLoading(true)
     const fetchTrips = async () => {
       try {
-        const response = await axios.get('https://4183-145-62-80-62.ngrok-free.app/api/Trip/filter', {
+        const response = await axios.get('https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/filter', {
           params: {
             userPickupLatitude,
             userPickupLongitude,
             userDropLatitude,
             userDropLongitude,
-            range
+            range,
+            selectedDate
           },
         });
         setTrips(response.data);
+        console.log(response.data)
       } catch (error) {
         console.log('Error fetching trips:', error);
       } finally {
@@ -146,7 +147,6 @@ export default function ListTrips({ navigation, route }) {
           </HStack>
         </Box>
 
-
       ) : (
         <Box style={{ marginTop: 20 }} >
           {trips && trips.length === 0 ? (
@@ -161,7 +161,6 @@ export default function ListTrips({ navigation, route }) {
     </ScrollView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

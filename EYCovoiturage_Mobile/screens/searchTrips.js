@@ -3,7 +3,7 @@ import TripCard from "../components/tripCard";
 import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, TouchableWithoutFeedback } from 'react-native';
 import { Icon, Input, Box, Divider, Avatar, Heading, AspectRatio, Image, Text, Center, HStack, VStack, Stack, NativeBaseProvider, FlatList, Spacer } from "native-base";
 import axios from "axios";
-
+import { Marker } from 'react-native-maps';
 import { FontAwesome } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
@@ -14,24 +14,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 export default function SearchTrips({ navigation }) {
     const [modalVisible, setModalVisible] = React.useState(false);
-    const [selectedDates, setSelectedDates] = React.useState({});
-    const [showFlatLists, setShowFlatLists] = React.useState(false);
-
-
-    const mapRef = useRef(null);
-
-    const handlePress = ({ }) => {
-        console.log("pressed button")
-        navigation.navigate('rideDetails');
-    };
-    const handleConfirmDates = () => {
-        setModalVisible(false);
-        console.log(selectedDates);
-    }
-
-    const handleSelectDates = () => {
-        setModalVisible(true);
-    }
     const [searchQueryDropPoint, setSearchQueryDropPoint] = useState('');
     const [searchQueryPickPoint, setSearchQueryPickPoint] = useState('');
     const [autocompleteResultsDropPoint, setAutocompleteResultsDropPoint] = useState([]);
@@ -41,20 +23,7 @@ export default function SearchTrips({ navigation }) {
     const [pickupLocationCords, setPickupLocationCords] = useState([]);
     const [dropLocationCords, setDropLocationCords] = useState([]);
 
-    const handleSearchDropPointQueryChange = async (query) => {
-        setSearchQueryDropPoint(query);
-
-        const response = await fetch(
-            `https://api.geoapify.com/v1/geocode/autocomplete?text=${query}&filter=countrycode:tn&apiKey=fad74474846544cfa2e35a5f60a3b11e`
-        );
-        const data = await response.json();
-        setAutocompleteResultsDropPoint(data.features);
-        if (!query) {
-            setAutocompleteResultsDropPoint([]);
-        }
-        setshowDropPointFlatList(query.length > 0);
-
-    };
+    const mapRef = useRef(null);
 
     const handleSearchPickPointQueryChange = async (query) => {
         setSearchQueryPickPoint(query);
@@ -71,16 +40,44 @@ export default function SearchTrips({ navigation }) {
 
     };
 
+    const handleSearchDropPointQueryChange = async (query) => {
+        setSearchQueryDropPoint(query);
+
+        const response = await fetch(
+            `https://api.geoapify.com/v1/geocode/autocomplete?text=${query}&filter=countrycode:tn&apiKey=fad74474846544cfa2e35a5f60a3b11e`
+        );
+        const data = await response.json();
+        setAutocompleteResultsDropPoint(data.features);
+        if (!query) {
+            setAutocompleteResultsDropPoint([]);
+        }
+        setshowDropPointFlatList(query.length > 0);
+
+    };
+
     const handleSelectLocation = (item) => {
         console.log('Location coordinates:', item.geometry.coordinates);
         setSearchQueryDropPoint(item.properties.formatted)
         setDropLocationCords(item.geometry.coordinates)
+        mapRef.current.animateToRegion({
+            latitude: item.geometry.coordinates[1],
+            longitude: item.geometry.coordinates[0],
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+        });
+
 
     };
 
     const handleSelectLocationPickPoint = (item) => {
         console.log('Location coordinates:', item.geometry.coordinates);
         setPickupLocationCords(item.geometry.coordinates)
+        mapRef.current.animateToRegion({
+            latitude: item.geometry.coordinates[1],
+            longitude: item.geometry.coordinates[0],
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+        });
 
         setSearchQueryPickPoint(item.properties.formatted)
     };
@@ -95,16 +92,34 @@ export default function SearchTrips({ navigation }) {
         return `${item.properties.formatted}-${item.properties.city}-${item.properties.country}`;
     };
 
-
     const handlePressSearchTrip = async () => {
-      
+
         navigation.navigate('listTrips', {
             userPickupLatitude: pickupLocationCords[1],
             userPickupLongitude: pickupLocationCords[0],
             userDropLatitude: dropLocationCords[1],
             userDropLongitude: dropLocationCords[0],
+            selectedDate:selectedDate
         });
     };
+
+    const [selectedDate, setSelectedDate] = useState(null);
+
+    const showDatePicker = () => {
+        setModalVisible(true);
+    };
+
+    const hideDatePicker = () => {
+        setModalVisible(false);
+    };
+
+    const handleDayPress = (day) => {
+        setSelectedDate(day.dateString);
+    };
+
+      const handleConfirmDates = () => {
+        setModalVisible(false);
+    }
 
     return (
         <TouchableWithoutFeedback onPress={hideFlatLists}>
@@ -115,7 +130,6 @@ export default function SearchTrips({ navigation }) {
 
                         <TextInput
                             style={{
-
                                 backgroundColor: 'white',
                                 paddingHorizontal: 20,
                                 paddingVertical: 7,
@@ -249,10 +263,11 @@ export default function SearchTrips({ navigation }) {
                             }}
                         >
                             <MaterialIcons name="date-range" size={24} color="#ccc" style={{ marginRight: 10 }} />
-                            <TextInput
+                            <TextInput onTouchStart={showDatePicker} value={selectedDate}
                                 placeholder="Which date?"
                             />
                         </View>
+
                     </Stack>
                 </Stack>
                 <MapView
@@ -266,11 +281,51 @@ export default function SearchTrips({ navigation }) {
                     }}
                 >
 
+                    {pickupLocationCords.length > 0 && (
+                        <Marker
+                            coordinate={{
+                                latitude: pickupLocationCords[1],
+                                longitude: pickupLocationCords[0],
+                            }}
+                        />
+                    )}
+
+                    {dropLocationCords.length > 0 && (
+                        <Marker
+                            coordinate={{
+                                latitude: dropLocationCords[1],
+                                longitude: dropLocationCords[0],
+                            }}
+                        />
+                    )}
                 </MapView>
-                <TouchableOpacity style={styles.button} onPress={handlePressSearchTrip} >
+                <TouchableOpacity style={styles.button} onPress={handlePressSearchTrip} disabled={!selectedDate||!searchQueryPickPoint||!searchQueryDropPoint} >
                     <Text style={styles.textStyle}>Search</Text>
                 </TouchableOpacity>
+
+                <Modal isVisible={modalVisible} backdropColor={"black"} backdropOpacity={0.70} animationType="slide">
+                    <View style={styles.modal} >
+                        <Calendar
+                               onDayPress={handleDayPress}
+
+                            markedDates={{
+                                [selectedDate]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' }
+                            }}
+                        />
+                        <View style={{ flexDirection: "row", justifyContent: "space-around", margin: 10 }}>
+                            <TouchableOpacity style={styles.dateButtons} onPress={() => setModalVisible(false)}>
+                                <Text style={styles.textStyle2}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.dateButtons} onPress={handleConfirmDates}>
+                                <Text style={styles.textStyle2}>Confirm</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
             </View>
+
+
         </TouchableWithoutFeedback>
 
     );
@@ -302,7 +357,9 @@ const styles = StyleSheet.create({
         marginHorizontal: 100,
         marginTop: 5,
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        borderRadius: 10
+        borderRadius: 10,
+        marginBottom: 5,
+
     },
     dateButtons: {
         alignItems: "center",
@@ -310,5 +367,15 @@ const styles = StyleSheet.create({
     },
     textStyle: {
         color: "grey",
+    },
+    textStyle2: {
+        color: "yellow",
+        fontWeight: 500
+    },
+    modal: {
+
+        borderRadius: 10,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
 });

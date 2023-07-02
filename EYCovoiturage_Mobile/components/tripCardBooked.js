@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Modal, Text } from 'react-native';
-import { Box, Stack, Badge, Divider, Avatar, Image } from 'native-base';
+import { Box, Stack, Badge, Divider, Avatar, Image, CheckIcon, DeleteIcon, CloseIcon, SmallCloseIcon } from 'native-base';
 import { MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Circle, CircleSnail } from 'react-native-progress';
@@ -9,6 +9,7 @@ import axios from 'axios';
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserAvatar from 'react-native-user-avatar';
+import { AlertDialog, Button, Center, NativeBaseProvider } from "native-base";
 
 
 const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
@@ -35,7 +36,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
         const getProfileImage = async () => {
 
             try {
-                const response = await axios.get(`https://4183-145-62-80-62.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
+                const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
             } catch (error) {
@@ -91,7 +92,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
         console.log(requestRideId)
         console.log(status)
         try {
-            const response = await axios.put(`https://4183-145-62-80-62.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
+            const response = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -103,6 +104,61 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
             throw error;
         }
     };
+
+
+    const [isOpen, setIsOpen] = React.useState(false);
+    const onClose = () => setIsOpen(false);
+    const cancelRef = React.useRef(null);
+
+
+    const Handlecanceltrip = async (requestRideId) => {
+        console.log(requestRideId)
+        try {
+            const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/${requestRideId}/CheckDeadlineCancel`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+                    try {
+                        if (response.status === 200) {
+                            const response2 = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            });
+                            fetchAcceptedTrips();
+                            return response2.data;
+                        }
+                    } catch (error) {
+                        console.error('Error cancelling ride request1:', error);
+                    }
+                     
+        } catch (error) {
+            if (error.response && error.response.status === 409) {
+                setIsOpen(!isOpen)
+                console.log('Conflict error:', error.response.data);
+            } else {
+                console.error('Error cancelling ride request:', error);
+            }
+
+        }
+    };
+
+    const deleteButtonReservation = async (requestRideId) => {
+        console.log(requestRideId)
+        try {
+            const response2 = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            fetchAcceptedTrips();
+            return response2.data;
+        } catch (error) {
+            console.error('Error cancelling ride request:', error);
+        }
+    };
+
 
     return (
         <TouchableOpacity >
@@ -137,7 +193,8 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
 
                                     />
                                     <Badge
-                                        colorScheme={trip.tripStatus === 'UPCOMING' ? 'success' : 'info'}
+                                        colorScheme={trip.tripStatus === 'UPCOMING' ? 'success' : trip.tripStatus === 'CANCELLED' ? 'red' : 'info'}
+
                                         alignSelf="center"
                                         variant="subtle"
                                         position="absolute"
@@ -161,6 +218,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
                                             mt="-1"
                                         >
                                             {formattedDepartureTime}
+
                                         </Text>
                                         <Text
                                             fontSize="sm"
@@ -187,7 +245,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
                                             mt="-1"
                                             style={{ flexWrap: 'wrap', width: '100%' }}
                                         >
-                                             &#x200E;  {trip.trip.source}
+                                            &#x200E;  {trip.trip.source}
                                         </Text>
                                         <Text
                                             fontSize="sm"
@@ -209,17 +267,31 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
                                     _light={{ bg: 'muted.300' }}
                                     _dark={{ bg: 'muted.50' }}
                                 />
-                                <Stack direction="row" alignItems="center">
-                                    {profileImage ? (
-                                        <Image source={{ uri: `data:image/jpeg;base64,${profileImage}` }} style={{ width: 50, height: 50, borderRadius: 50, marginRight: 10 }} alt="driverimg" />
-                                    ) : (
-                                        <UserAvatar size={40} name={trip.createdBy.firstName} bgColor="#2596be" style={{ marginRight: 10 }} />
-
-                                    )}
-                                    <Text ml="4" fontWeight="bold">
-                                        {trip.createdBy && trip.createdBy.firstName} {trip.createdBy && trip.createdBy.lastName}
-
-                                    </Text>
+                                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                    <Stack direction="row" alignItems="center">
+                                        {profileImage ? (
+                                            <Image
+                                                source={{ uri: `data:image/jpeg;base64,${profileImage}` }}
+                                                style={{ width: 50, height: 50, borderRadius: 50, marginRight: 10 }}
+                                                alt="driverimg"
+                                            />
+                                        ) : (
+                                            <UserAvatar
+                                                size={40}
+                                                name={trip.createdBy.firstName}
+                                                bgColor="#2596be"
+                                                style={{ marginRight: 10 }}
+                                            />
+                                        )}
+                                        <Text ml="4" fontWeight="bold">
+                                            {trip.createdBy && trip.createdBy.firstName} {trip.createdBy && trip.createdBy.lastName}
+                                        </Text>
+                                    </Stack>
+                                    {trip.tripStatus === 'UPCOMING' && (
+                                        <SmallCloseIcon size="5" mt="0.5" onPress={() => Handlecanceltrip(trip.requestId)}
+                                        />
+                                    )
+                                    }
                                 </Stack>
                             </Stack>
                         </Box>
@@ -277,6 +349,27 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
                     )}
                 </Box>
             </Modal>
+
+            <AlertDialog leastDestructiveRef={cancelRef} isOpen={isOpen} onClose={onClose}>
+                <AlertDialog.Content>
+                    <AlertDialog.CloseButton />
+                    <AlertDialog.Header>Cancelling a Booking</AlertDialog.Header>
+                    <AlertDialog.Body>
+                        Your're about to cancel your booking after the deadline,
+                        and will result on loosing your points.
+                    </AlertDialog.Body>
+                    <AlertDialog.Footer>
+                        <Button.Group space={2}>
+                            <Button variant="unstyled" colorScheme="coolGray" onPress={onClose} ref={cancelRef}>
+                                Cancel
+                            </Button>
+                            <Button colorScheme="danger" onPress={() => deleteButtonReservation(trip.requestId)}>
+                                Delete
+                            </Button>
+                        </Button.Group>
+                    </AlertDialog.Footer>
+                </AlertDialog.Content>
+            </AlertDialog>
         </TouchableOpacity>
     );
 };

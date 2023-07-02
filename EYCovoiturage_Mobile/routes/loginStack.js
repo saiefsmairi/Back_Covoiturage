@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import login from '../screens/login'
 import register from '../screens/register'
@@ -15,13 +15,48 @@ import RouteDetails from '../components/routeDetails';
 import FinalAddTrip from '../screens/finalAddtrip';
 import CarInfo from '../screens/carInfo';
 import UploadCarImage from '../screens/uploadCarImage';
+import { useNotifications } from '../hooks/useNotifications';
+import * as Notifications from "expo-notifications";
 
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
+    const navigation = useNavigation();
+    React.useEffect(() => {
+        Notifications.setNotificationHandler({
+            handleNotification: async () => ({
+                shouldShowAlert: true,
+                shouldPlaySound: true,
+                shouldSetBadge: true,
+            }),
+        });
+
+        const responseListener =
+            Notifications.addNotificationResponseReceivedListener(
+                handleNotificationResponse
+
+            );
+
+        return () => {
+            if (responseListener)
+                Notifications.removeNotificationSubscription(responseListener);
+        };
+    }, []);
+
+    const handleNotificationResponse = (response) => {
+        const data = response.notification.request.content.data;
+        console.log(data)
+        if (data.screen == "main") {
+            navigation.navigate("main");
+        }
+        if (data.screen == "requestRidesList") {
+            navigation.navigate("requestRidesList");
+        }
+    };
+
     return (
         <Stack.Navigator
-            initialRouteName="main"
+            initialRouteName="login"
         >
             <Stack.Screen options={{ headerShown: false }} name="main" component={MyTabs} />
             <Stack.Screen
