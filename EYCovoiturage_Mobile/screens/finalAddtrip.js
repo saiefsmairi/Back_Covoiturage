@@ -64,7 +64,7 @@ export default function FinalAddTrip({ navigation, route }) {
 
     const handleCreateTrip = () => {
         console.log(combinedTrip);
-               axios.post("https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/addTrip", combinedTrip)
+               axios.post("https://cb18-102-157-92-55.ngrok-free.app/api/Trip/addTrip", combinedTrip)
                    .then((response) => {
                        console.log("Trip created successfully!", response.data);
                        navigation.navigate('home');

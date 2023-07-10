@@ -4,13 +4,15 @@ import { View, StyleSheet, Text, ScrollViewProps, RefreshControl } from 'react-n
 import axios from "axios";
 import { ScrollView, HStack, Heading, Spinner, Box } from 'native-base';
 import Slider from '@react-native-community/slider';
-
+import SelectDropdown from 'react-native-select-dropdown';
+import { AntDesign } from '@expo/vector-icons';
 export default function ListTrips({ navigation, route }) {
   const [trips, setTrips] = useState([]);
   const [isLoading, setIsLoading] = useState(null);
   const [refreshing, setRefreshing] = React.useState(false);
   const [distance, setDistance] = useState(1);
-
+  const options = ['All', 'Regular', 'Occasional'];
+  const [selectedOption, setSelectedOption] = useState("All");
   const handlePress = (trip) => {
     navigation.navigate('rideDetails', {
       trip
@@ -25,13 +27,14 @@ export default function ListTrips({ navigation, route }) {
     const fetchTrips = async () => {
       //  setIsLoading(true); // Set isLoading to true before making the API call
       try {
-        const response = await axios.get('https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/filter', {
+        const response = await axios.get('https://cb18-102-157-92-55.ngrok-free.app/api/Trip/filter', {
           params: {
             userPickupLatitude,
             userPickupLongitude,
             userDropLatitude,
             userDropLongitude,
-            selectedDate
+            selectedDate,
+            type: selectedOption
           },
         });
         setTrips(response.data);
@@ -54,14 +57,15 @@ export default function ListTrips({ navigation, route }) {
     const fetchTrips = async () => {
       //  setIsLoading(true); // Set isLoading to true before making the API call
       try {
-        const response = await axios.get('https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/filter', {
+        const response = await axios.get('https://cb18-102-157-92-55.ngrok-free.app/api/Trip/filter', {
           params: {
             userPickupLatitude,
             userPickupLongitude,
             userDropLatitude,
             userDropLongitude,
             range: distance,
-            selectedDate
+            selectedDate,
+            type: selectedOption
           },
         });
         setTrips(response.data);
@@ -87,14 +91,15 @@ export default function ListTrips({ navigation, route }) {
     setIsLoading(true)
     const fetchTrips = async () => {
       try {
-        const response = await axios.get('https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/filter', {
+        const response = await axios.get('https://cb18-102-157-92-55.ngrok-free.app/api/Trip/filter', {
           params: {
             userPickupLatitude,
             userPickupLongitude,
             userDropLatitude,
             userDropLongitude,
             range,
-            selectedDate
+            selectedDate,
+            type: selectedOption
           },
         });
         setTrips(response.data);
@@ -110,6 +115,37 @@ export default function ListTrips({ navigation, route }) {
     fetchTrips();
     setRefreshing(false);
   };
+
+  const handleOptionSelect = async (option) => {
+    setSelectedOption(option);
+    fetchFilteredTripsByType(option);
+
+  };
+
+  const fetchFilteredTripsByType = async (selectedOption) => {
+    setIsLoading(true)
+    try {
+      const response = await axios.get('https://cb18-102-157-92-55.ngrok-free.app/api/Trip/filter', {
+        params: {
+          userPickupLatitude,
+          userPickupLongitude,
+          userDropLatitude,
+          userDropLongitude,
+          range: distance,
+          selectedDate,
+          type: selectedOption,
+        },
+      });
+      const data = response.data;
+      setTrips(response.data);
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <ScrollView refreshControl={
@@ -130,11 +166,31 @@ export default function ListTrips({ navigation, route }) {
           thumbTintColor="#00BFFF"
           onValueChange={onSliderValueChanged}
         />
+
         <View style={styles.labelsContainer}>
           <Text style={styles.label}>1 km</Text>
           <Text style={styles.label}>20 km</Text>
         </View>
         <Text style={{ fontSize: 13 }}>Range: {distance} km</Text>
+      </View>
+
+      <View style={styles.containerSelect}>
+        <SelectDropdown style={{ marginTop: 30 }}
+          data={options}
+          onSelect={handleOptionSelect}
+          buttonTextAfterSelection={(selectedItem) => {
+            return selectedItem;
+          }}
+          buttonStyle={styles.dropdown1BtnStyle}
+          buttonTextStyle={styles.dropdown1BtnTxtStyle}
+          renderDropdownIcon={isOpened => {
+            return <AntDesign name={isOpened ? 'up' : 'down'} color={'#444'} size={18} />;
+          }}
+          dropdownIconPosition={'right'}
+          dropdownStyle={styles.dropdown1DropdownStyle}
+          rowStyle={styles.dropdown1RowStyle}
+          rowTextStyle={styles.dropdown1RowTxtStyle}
+        />
       </View>
 
       {isLoading ? (
@@ -169,6 +225,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
   },
+  containerSelect: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: 20
+  },
   slider: {
     width: '100%',
     height: 40,
@@ -183,4 +246,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "grey"
   },
+  dropdown1BtnStyle: {
+    width: '60%',
+    height: 40,
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#444',
+  },
+  dropdown1RowTxtStyle: { color: '#444', textAlign: 'left' },
+  dropdown1BtnTxtStyle: { color: '#444', fontSize: 15 },
+  dropdown1DropdownStyle: { backgroundColor: '#EFEFEF' },
+  dropdown1RowStyle: { backgroundColor: '#EFEFEF', borderBottomColor: '#C5C5C5' },
+  dropdown1RowTxtStyle: { color: '#444', textAlign: 'left' },
 });

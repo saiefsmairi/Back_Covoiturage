@@ -36,7 +36,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
         const getProfileImage = async () => {
 
             try {
-                const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
+                const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
             } catch (error) {
@@ -89,10 +89,12 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
     };
 
     const handleMatchQrcode = async (requestRideId, status) => {
-        console.log(requestRideId)
-        console.log(status)
+        const requestData = {
+            status: status,
+            deviceToken: null
+        };
         try {
-            const response = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, status, {
+            const response = await axios.put(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, requestData, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -114,25 +116,25 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
     const Handlecanceltrip = async (requestRideId) => {
         console.log(requestRideId)
         try {
-            const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/${requestRideId}/CheckDeadlineCancel`, {
+            const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/${requestRideId}/CheckDeadlineCancel`, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-                    try {
-                        if (response.status === 200) {
-                            const response2 = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                            });
-                            fetchAcceptedTrips();
-                            return response2.data;
-                        }
-                    } catch (error) {
-                        console.error('Error cancelling ride request1:', error);
-                    }
-                     
+            try {
+                if (response.status === 200) {
+                    const response2 = await axios.put(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    fetchAcceptedTrips();
+                    return response2.data;
+                }
+            } catch (error) {
+                console.error('Error cancelling ride request1:', error);
+            }
+
         } catch (error) {
             if (error.response && error.response.status === 409) {
                 setIsOpen(!isOpen)
@@ -147,7 +149,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
     const deleteButtonReservation = async (requestRideId) => {
         console.log(requestRideId)
         try {
-            const response2 = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
+            const response2 = await axios.put(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
                 headers: {
                     'Content-Type': 'application/json',
                 },

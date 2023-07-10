@@ -20,7 +20,7 @@ export const useNotifications = () => {
 
             if (finalStatus !== "granted") {
                 if (alertUser) {
-                    alert('Failed to get push token for push notification! U need to enable notifications!');
+                    alert('You need to enable notifications to receive notifications!');
                 }
                 return null;
             }

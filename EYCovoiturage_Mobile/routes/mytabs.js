@@ -7,11 +7,15 @@ import ListTrips from '../screens/listTrips';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Entypo } from '@expo/vector-icons';
 import IntroAddTrip from '../screens/introAddTrip';
 import Profil from '../screens/profil';
 import SearchTrips from '../screens/searchTrips';
 import RequestRidesList from '../screens/requestRidesList';
+import { MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import axios from 'axios';
+
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
@@ -75,7 +79,7 @@ function MyTabs() {
                     tabBarLabel: 'Publish',
                 })}
             />
- {/* 
+            {/* 
             <Tab.Screen
                 name="listTrips"
                 component={ListTrips}
@@ -103,6 +107,7 @@ function MyTabs() {
   */}
 
 
+  
             <Tab.Screen
                 name="requestRidesList"
                 component={RequestRidesList}
@@ -125,6 +130,7 @@ function MyTabs() {
                     ),
                 })}
             />
+
             <Tab.Screen
                 name="profil"
                 component={Profil}
@@ -138,9 +144,32 @@ function MyTabs() {
                             <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 15 }} />
                         </TouchableOpacity>
                     ),
+                    headerRight: () => (
+                        <TouchableOpacity onPress={async () => {
+                            try {
+                                const user = await SecureStore.getItemAsync('user');
+                                var userId = JSON.parse(user).id
+                                const response = await axios.put(
+                                    `https://cb18-102-157-92-55.ngrok-free.app/api/User/${userId}/deleteDeviceTokenLogout`,
+                                    {
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                    }
+                                );
+                                console.log(response.data)
+                                await SecureStore.deleteItemAsync('user');
+                                navigation.navigate('login');
+                            }
+                            catch (error) {
+                                console.log("error logout ",error)
+                            }
+                        }}>
+                            <MaterialIcons name="logout" size={24} color="black" style={{ marginRight: 15 }} />
+                        </TouchableOpacity>
+                    ),
                     tabBarIcon: ({ color, size }) => (
                         <AntDesign name="user" size={size} color={color} />
-
                     ),
                 })}
             />

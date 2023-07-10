@@ -19,7 +19,7 @@ const TripCard = ({ onPress, trip }) => {
   React.useEffect(() => {
     const getProfileImage = async () => {
       try {
-        const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
+        const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
         const base64Image = response.data;
         setProfileImage(base64Image);
       } catch (error) {

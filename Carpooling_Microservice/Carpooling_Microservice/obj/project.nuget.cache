@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "4ZmrgWIwutYlorLfQUxq9Irc636WvlHz6FVDd4Alz5sTLPeKfRs0J3zefSveOYvNaRiAW/nW3NpPxT8Tf3Plqg==",
+  "dgSpecHash": "ZCVYMXPOUYx93mR3aBbZkK7lIbH2aJiBS/E0Hpk5yOufUMTmlS8py3d5w4Pu1o5x8BrQS88CT5ezLgzQCgKUaQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\saief\\source\\repos\\PFE\\Carpooling_Microservice\\Carpooling_Microservice\\Carpooling_Microservice.csproj",
   "expectedPackageFiles": [
@@ -67,6 +67,7 @@
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
+    "C:\\Users\\saief\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.17.2\\microsoft.visualstudio.azure.containers.tools.targets.1.17.2.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.win32.registry\\5.0.0\\microsoft.win32.registry.5.0.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
     "C:\\Users\\saief\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",

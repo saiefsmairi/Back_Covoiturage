@@ -6,13 +6,13 @@ import { NativeBaseProvider, Box, Pressable, Heading, IconButton, Icon, HStack, 
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import { MaterialIcons, Ionicons, Entypo } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons, Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import HomeSvg from "../components/homesvg";
 import Orderride from "../components/orderridesvg";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserAvatar from 'react-native-user-avatar';
-
+import * as SecureStore from 'expo-secure-store';
 export default function RequestRidesList({ }) {
     const [isLoading, setIsLoading] = useState(false);
     const [requestRide, setRequestRide] = useState([]);
@@ -22,16 +22,16 @@ export default function RequestRidesList({ }) {
 
     const fetchRideRequests = async () => {
         try {
-            const value = await AsyncStorage.getItem('user');
+            const value = await SecureStore.getItemAsync('user');
             var userId = JSON.parse(value).id;
-            const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/requests/${userId}`);
+            const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/requests/${userId}`);
             const requestRidesWithProfileImage = [];
-
+            console.log(response.data)
             for (const requestRide of response.data) {
                 const { passengerId } = requestRide;
 
                 try {
-                    const imageResponse = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${passengerId}/profileImage`);
+                    const imageResponse = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/User/${passengerId}/profileImage`);
                     const base64Image = imageResponse.data;
                     requestRide.passenger.image = base64Image;
                 } catch (error) {
@@ -63,16 +63,16 @@ export default function RequestRidesList({ }) {
     const onRefresh = async () => {
         setRefreshing(true);
         try {
-            const value = await AsyncStorage.getItem('user');
+            const value = await SecureStore.getItemAsync('user');
             var userId = JSON.parse(value).id;
-            const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/requests/${userId}`);
+            const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/requests/${userId}`);
             const requestRidesWithProfileImage = [];
 
             for (const requestRide of response.data) {
                 const { passengerId } = requestRide;
 
                 try {
-                    const imageResponse = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${passengerId}/profileImage`);
+                    const imageResponse = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/User/${passengerId}/profileImage`);
                     const base64Image = imageResponse.data;
                     requestRide.passenger.image = base64Image;
                     requestRidesWithProfileImage.push(requestRide);
@@ -100,7 +100,7 @@ export default function RequestRidesList({ }) {
             deviceToken: requestRide.passenger.deviceToken
         };
         try {
-            const response = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/requests/${requestRide.requestRideId}/status`,
+            const response = await axios.put(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/requests/${requestRide.requestRideId}/status`,
                 requestData, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export default function RequestRidesList({ }) {
         };
         console.log(requestData)
         try {
-            const response = await axios.put(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/requests/${requestRide.requestRideId}/status`,
+            const response = await axios.put(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/requests/${requestRide.requestRideId}/status`,
                 requestData, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -172,7 +172,10 @@ export default function RequestRidesList({ }) {
     }>
             <Pressable onPress={() => console.log(isHiddenItemVisible)} _dark={{ bg: 'coolGray.800' }} _light={{ bg: 'white' }}>
                 <Box pl="1" pr="5" py="3">
-                    <HStack alignItems="center" space={3}>
+                    <Text _dark={{ color: 'warmGray.200' }} style={{ color: "grey", fontSize: 10 ,alignSelf:"flex-end"}}>
+                        {new Date(item.requestDate).toUTCString('en-US')}
+                    </Text>
+                    <HStack alignItems="center" space={2}>
 
                         {item.passenger.image ? (
                             <Image
@@ -184,22 +187,32 @@ export default function RequestRidesList({ }) {
                             <UserAvatar size={40} name={item.passenger.firstName} bgColor="#2596be" />
 
                         )}
-                        <VStack>
-                            <Text color="coolGray.800" _dark={{ color: 'warmGray.50' }} bold>
+
+                        <VStack space={1}>
+                            <Ionicons name="person-outline" size={18} color="black" />
+                            <MaterialCommunityIcons name="map-marker-radius" size={18} color="black" />
+                            <MaterialCommunityIcons name="map-marker-radius-outline" size={18} color="black" />
+                        </VStack>
+
+                        <VStack space={1}>
+                            <Text color="coolGray.800" _dark={{ color: 'warmGray.50' }}  style={{ fontSize: 13}} >
                                 {item.passenger.firstName} {item.passenger.lastName}
                             </Text>
-                            <Text color="coolGray.600" _dark={{ color: 'warmGray.200' }} numberOfLines={null}>
-                                {item.source} To {item.destination}
+                            <Text color="coolGray.600" _dark={{ color: 'warmGray.200' }} numberOfLines={null}  style={{ fontSize: 13}}>
+                                {item.source}
+                            </Text>
+                            <Text color="coolGray.600" _dark={{ color: 'warmGray.200' }} numberOfLines={null}  style={{ fontSize: 13}}>
+                                {item.destination}
                             </Text>
                         </VStack>
+
                         <Spacer />
-                        <Text fontSize="xs" color="coolGray.800" _dark={{ color: 'warmGray.50' }} alignSelf="flex-start">
-                            12.30
-                        </Text>
+
                     </HStack>
+
                 </Box>
-            </Pressable>
-        </Box>
+            </Pressable >
+        </Box >
 
     const renderHiddenItem = ({ item }) => {
 
@@ -259,7 +272,7 @@ export default function RequestRidesList({ }) {
                     data={requestRide}
                     renderItem={renderItem}
                     renderHiddenItem={renderHiddenItem}
-                    rightOpenValue={-150} // Width of the hidden items view
+                    rightOpenValue={-140} // Width of the hidden items view
                 />
             )}
 

@@ -14,8 +14,10 @@ builder.Services.AddDbContext<UserContext>
     (options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddHttpClient();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -23,22 +25,28 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseRouting();
 
 //app.UseHttpsRedirection();
 
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.MapControllers();
 
-//using (var scope = app.Services.CreateScope())
-//{
-   // var services = scope.ServiceProvider;
+using (var scope = app.Services.CreateScope())
+{
+var services = scope.ServiceProvider;
 
-   // var context = services.GetRequiredService<UserContext>();
-   // if (context.Database.GetPendingMigrations().Any())
-  //  {
-       // context.Database.Migrate();
-  //  }
-//}
+var context = services.GetRequiredService<UserContext>();
+if (context.Database.GetPendingMigrations().Any())
+  {
+context.Database.Migrate();
+}
+}
 
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chathub");
+});
 app.Run();

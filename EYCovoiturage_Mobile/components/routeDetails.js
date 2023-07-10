@@ -10,6 +10,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const RouteDetails = ({ route }) => {
 
@@ -24,7 +25,7 @@ const RouteDetails = ({ route }) => {
         destination: "Los Angeles",
         availableSeats: 3,
         distance: 2789,
-        type: "regular",
+        // type: "regular",
         EstimatedTime: 10,
         availableDates: [],
         pickupLatitude: '',
@@ -40,7 +41,7 @@ const RouteDetails = ({ route }) => {
     React.useEffect(() => {
         const getData = async () => {
             try {
-                const value = await AsyncStorage.getItem('user');
+                const value = await SecureStore.getItemAsync('user');
                 if (value !== null) {
                     const user = JSON.parse(value);
                     setUserStorage(user);
@@ -56,17 +57,13 @@ const RouteDetails = ({ route }) => {
     }, []);
 
     React.useEffect(() => {
-
-
         const fetchData = async () => {
             try {
                 const apiUrl = `https://api.geoapify.com/v1/routing?waypoints=${pickupLocationCords[1]},${pickupLocationCords[0]}|${dropLocationCords[1]},${dropLocationCords[0]}&mode=drive&apiKey=fad74474846544cfa2e35a5f60a3b11e`;
-
                 axios.get(apiUrl)
                     .then(response => {
                         const distance = (response.data.features[0].properties.distance / 1000).toFixed(2);
                         const time = Math.round(response.data.features[0].properties.time / 60);
-
                         setDistanceAff(distance);
                         setEstimatedTime(time)
                         /*         const route = response.data.features[0].geometry.coordinates[0].map(coord => ({
@@ -151,16 +148,16 @@ const RouteDetails = ({ route }) => {
                 {/*  <Polyline coordinates={routeCoordinates} strokeColor="#F00" strokeWidth={3} /> */}
 
             </MapView>
+
             <View style={styles.card}>
                 <Text style={styles.cardText}>Distance: {distanceAff}  Km</Text>
-                <Text style={styles.cardText}>Estimated time: {estimatedTime} Min</Text>
+                <Text style={styles.cardText}>Estimated time: {estimatedTime > 60 ? `${Math.floor(estimatedTime / 60)} Hour ${estimatedTime % 60}  min` : `${estimatedTime} Min`}</Text>
                 <Stack   >
                     <TouchableOpacity style={styles.button} onPress={handleCreateTrip}>
                         <Text style={styles.textStyle}>Proceed</Text>
                     </TouchableOpacity>
                 </Stack>
             </View>
-
         </View>
     );
 };

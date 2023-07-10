@@ -17,11 +17,18 @@ import CarInfo from '../screens/carInfo';
 import UploadCarImage from '../screens/uploadCarImage';
 import { useNotifications } from '../hooks/useNotifications';
 import * as Notifications from "expo-notifications";
+import * as SecureStore from 'expo-secure-store';
+import VerifyPhone from '../screens/verifyPhone';
+import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native';
+import ChatScreen from '../components/ChatScreen';
 
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
     const navigation = useNavigation();
+    const [isLoggedIn, setIsLoggedIn] = React.useState(null);
+
     React.useEffect(() => {
         Notifications.setNotificationHandler({
             handleNotification: async () => ({
@@ -43,6 +50,16 @@ function MyStack() {
         };
     }, []);
 
+    const checkLoginStatus = async () => {
+        try {
+            const userData = await SecureStore.getItemAsync('user');
+            const isLoggedIn = !!userData;
+            setIsLoggedIn(isLoggedIn);
+        } catch (error) {
+            console.log('Error checking login status:', error);
+        }
+    };
+
     const handleNotificationResponse = (response) => {
         const data = response.notification.request.content.data;
         console.log(data)
@@ -53,12 +70,35 @@ function MyStack() {
             navigation.navigate("requestRidesList");
         }
     };
+    React.useEffect(() => {
+        checkLoginStatus();
+    }, []);
+
+    if (isLoggedIn === null) {
+        return null;
+    }
+
+    //  <Stack.Screen name="chat" component={ChatScreen} />
 
     return (
-        <Stack.Navigator
-            initialRouteName="login"
-        >
+
+        <Stack.Navigator initialRouteName={isLoggedIn ? 'main' : 'login'}>
             <Stack.Screen options={{ headerShown: false }} name="main" component={MyTabs} />
+            <Stack.Screen
+                name="phoneNumberVerification"
+                component={VerifyPhone}
+                options={({ navigation }) => ({
+                    headerShown: true,
+                    title: '',
+                    headerLeft: () => (
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 15 }} />
+                        </TouchableOpacity>
+                    ),
+                })}
+            />
+            <Stack.Screen name="chat" component={ChatScreen} />
+
             <Stack.Screen
                 name="login"
                 component={Login}

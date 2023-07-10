@@ -8,6 +8,7 @@ import axios from 'axios';
 import { TouchableWithoutFeedback } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 export default function UploadCarImage({ navigation, route }) {
     const [profileImage, setProfileImage] = useState('');
@@ -39,11 +40,11 @@ export default function UploadCarImage({ navigation, route }) {
 
                 });
 
-                const value = await AsyncStorage.getItem('user');
+                const value = await SecureStore.getItemAsync('user');
                 var userId = JSON.parse(value).id
 
                 const response = await axios.put(
-                    `https://ac9d-41-62-206-48.ngrok-free.app/api/User/${userId}/uploadCar`,
+                    `https://cb18-102-157-92-55.ngrok-free.app/api/User/${userId}/uploadCar`,
                     formData,
                     {
                         headers: {

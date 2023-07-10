@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carpooling_Microservice", "Carpooling_Microservice\Carpooling_Microservice.csproj", "{C93E75D9-5E9A-405E-ABB7-E14DE36BB388}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carpooling_Microservice", "Carpooling_Microservice\Carpooling_Microservice.csproj", "{C93E75D9-5E9A-405E-ABB7-E14DE36BB388}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{28A1DBF6-D1C0-4F7D-88DA-AE63430FE56B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{C93E75D9-5E9A-405E-ABB7-E14DE36BB388}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C93E75D9-5E9A-405E-ABB7-E14DE36BB388}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C93E75D9-5E9A-405E-ABB7-E14DE36BB388}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28A1DBF6-D1C0-4F7D-88DA-AE63430FE56B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28A1DBF6-D1C0-4F7D-88DA-AE63430FE56B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28A1DBF6-D1C0-4F7D-88DA-AE63430FE56B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28A1DBF6-D1C0-4F7D-88DA-AE63430FE56B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

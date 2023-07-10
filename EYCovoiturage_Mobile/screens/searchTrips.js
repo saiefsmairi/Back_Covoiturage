@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import TripCard from "../components/tripCard";
 import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, TouchableWithoutFeedback } from 'react-native';
 import { Icon, Input, Box, Divider, Avatar, Heading, AspectRatio, Image, Text, Center, HStack, VStack, Stack, NativeBaseProvider, FlatList, Spacer } from "native-base";
@@ -11,6 +11,7 @@ import { Calendar } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
 import MapView from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 
 export default function SearchTrips({ navigation }) {
     const [modalVisible, setModalVisible] = React.useState(false);
@@ -22,8 +23,33 @@ export default function SearchTrips({ navigation }) {
     const [showPickupPointFlatList, setshowPickupPointFlatList] = useState(false);
     const [pickupLocationCords, setPickupLocationCords] = useState([]);
     const [dropLocationCords, setDropLocationCords] = useState([]);
-
+    const [selectedLocation, setSelectedLocation] = useState('');
+    const [selectedLocation2, setSelectedLocation2] = useState(null);
+    const [focusedInput, setFocusedInput] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const pickupInputRef = useRef(null);
     const mapRef = useRef(null);
+
+    const [currentLocation, setCurrentLocation] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
+
+    useEffect(() => {
+        (async () => {
+            // Request permission to access location
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+            // Get the user's current location
+            let { coords } = await Location.getCurrentPositionAsync({});
+            console.log(coords)
+            setCurrentLocation(coords);
+        })();
+        pickupInputRef.current.focus()
+
+    }, []);
+
 
     const handleSearchPickPointQueryChange = async (query) => {
         setSearchQueryPickPoint(query);
@@ -92,40 +118,81 @@ export default function SearchTrips({ navigation }) {
         return `${item.properties.formatted}-${item.properties.city}-${item.properties.country}`;
     };
 
-    const handlePressSearchTrip = async () => {
-
-        navigation.navigate('listTrips', {
-            userPickupLatitude: pickupLocationCords[1],
-            userPickupLongitude: pickupLocationCords[0],
-            userDropLatitude: dropLocationCords[1],
-            userDropLongitude: dropLocationCords[0],
-            selectedDate:selectedDate
-        });
-    };
-
-    const [selectedDate, setSelectedDate] = useState(null);
-
     const showDatePicker = () => {
         setModalVisible(true);
-    };
-
-    const hideDatePicker = () => {
-        setModalVisible(false);
     };
 
     const handleDayPress = (day) => {
         setSelectedDate(day.dateString);
     };
 
-      const handleConfirmDates = () => {
+    const handleConfirmDates = () => {
         setModalVisible(false);
     }
+
+
+    const handlePressSearchTrip = async () => {
+        navigation.navigate('listTrips', {
+            userPickupLatitude: pickupLocationCords[1],
+            userPickupLongitude: pickupLocationCords[0],
+            userDropLatitude: dropLocationCords[1],
+            userDropLongitude: dropLocationCords[0],
+            selectedDate: selectedDate
+        });
+    };
+
+    const handlePressCurrentLocation = async () => {
+        console.log(currentLocation)
+        const { latitude,longitude  } = currentLocation
+        if (focusedInput === 'pickup') {
+            setPickupLocationCords([longitude, latitude]);
+            setSearchQueryPickPoint(`${latitude},${longitude}`);
+        } else if (focusedInput === 'drop') {
+            setDropLocationCords([longitude, latitude]);
+            setSearchQueryDropPoint(`${latitude},${longitude}`);
+        }
+        mapRef.current.animateToRegion({
+            latitude: latitude,
+            longitude:longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+        });
+
+    };
+
+    const handleMapPress = async (event) => {
+        const { latitude, longitude } = event.nativeEvent.coordinate;
+        try {
+            const apiUrl = `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&format=json&apiKey=fad74474846544cfa2e35a5f60a3b11e`;
+            axios.get(apiUrl)
+                .then(response => {
+                    console.log(response.data.results[0].formatted)
+                    if (focusedInput === 'pickup') {
+                        setPickupLocationCords([longitude, latitude]);
+                        console.log([longitude, latitude])
+                        //setSearchQueryPickPoint(`${latitude},${longitude}`);
+                        setSearchQueryPickPoint(response.data.results[0].formatted);
+
+                    } else if (focusedInput === 'drop') {
+                        setDropLocationCords([longitude, latitude]);
+                        //setSearchQueryDropPoint(`${latitude},${longitude}`); 
+                        setSearchQueryDropPoint(response.data.results[0].formatted);
+                    }
+                })
+                .catch(error => {
+                    console.log('Error reverse geocoding api:', error);
+                });
+        } catch (error) {
+            console.log(error)
+        }
+
+    };
 
     return (
         <TouchableWithoutFeedback onPress={hideFlatLists}>
 
             <View style={{ flex: 1 }}>
-                <Stack style={{ zIndex: 1, position: 'absolute', top: 0, left: 0, right: 0 }} >
+                <Stack style={{ zIndex: 1, position: 'absolute', top: 0, left: 0, right: 0, marginTop: 10 }} >
                     <Stack >
 
                         <TextInput
@@ -140,8 +207,13 @@ export default function SearchTrips({ navigation }) {
                             }}
                             value={searchQueryPickPoint}
                             onChangeText={handleSearchPickPointQueryChange}
+                            ref={pickupInputRef}
                             placeholder="Where to pick you from ?"
-                            onFocus={() => setshowPickupPointFlatList(searchQueryPickPoint.length > 0)}
+                            onFocus={() => {
+                                setshowPickupPointFlatList(searchQueryPickPoint.length > 0)
+                                setFocusedInput('pickup');
+
+                            }}
 
                         />
                         {showPickupPointFlatList && (
@@ -183,8 +255,6 @@ export default function SearchTrips({ navigation }) {
                                         </Box>
                                     )}
                                     keyExtractor={(item) => generateKey(item)}
-
-
                                 />
                             </Box>
                         )}
@@ -202,7 +272,10 @@ export default function SearchTrips({ navigation }) {
                             value={searchQueryDropPoint}
                             onChangeText={handleSearchDropPointQueryChange}
                             placeholder="Hey, Where you plan to go ?"
-                            onFocus={() => setshowDropPointFlatList(searchQueryDropPoint.length > 0)}
+                            onFocus={() => {
+                                setshowDropPointFlatList(searchQueryDropPoint.length > 0)
+                                setFocusedInput('drop')
+                            }}
                         />
 
                         {showDropPointFlatList && (
@@ -279,6 +352,8 @@ export default function SearchTrips({ navigation }) {
                         latitudeDelta: 0.0922,
                         longitudeDelta: 0.0421,
                     }}
+                    onPress={handleMapPress}
+
                 >
 
                     {pickupLocationCords.length > 0 && (
@@ -298,15 +373,59 @@ export default function SearchTrips({ navigation }) {
                             }}
                         />
                     )}
+
+                    {selectedLocation && (
+                        <Marker
+                            coordinate={selectedLocation}
+                            pinColor="blue"
+                            draggable
+                            onDragEnd={(event) => {
+                                const { latitude, longitude } = event.nativeEvent.coordinate;
+                                setSelectedLocation({ latitude, longitude });
+                                if (searchQueryPickPoint === '') {
+                                    // If no pick-up point is selected, update the pick-up location
+                                    setPickupLocationCords([longitude, latitude]);
+                                    setSearchQueryPickPoint(''); // Clear previous search query if any
+                                } else if (searchQueryDropPoint === '') {
+                                    // If no drop-off point is selected, update the drop-off location
+                                    setDropLocationCords([longitude, latitude]);
+                                    setSearchQueryDropPoint(''); // Clear previous search query if any
+                                }
+                            }}
+                        />
+                    )}
+
+                    {selectedLocation2 && (
+                        <Marker
+                            coordinate={selectedLocation2}
+                            pinColor="green"
+                            draggable
+                            onDragEnd={(event) => {
+                                const { latitude, longitude } = event.nativeEvent.coordinate;
+                                setSelectedLocation2({ latitude, longitude });
+                                if (searchQueryPickPoint === '') {
+                                    // If no pick-up point is selected, update the pick-up location
+                                    setPickupLocationCords([longitude, latitude]);
+                                    setSearchQueryPickPoint(''); // Clear previous search query if any
+                                } else if (searchQueryDropPoint === '') {
+                                    // If no drop-off point is selected, update the drop-off location
+                                    setDropLocationCords([longitude, latitude]);
+                                    setSearchQueryDropPoint(''); // Clear previous search query if any
+                                }
+                            }}
+                        />
+                    )}
                 </MapView>
-                <TouchableOpacity style={styles.button} onPress={handlePressSearchTrip} disabled={!selectedDate||!searchQueryPickPoint||!searchQueryDropPoint} >
+                <TouchableOpacity style={styles.button} onPress={handlePressSearchTrip} disabled={!selectedDate || !searchQueryPickPoint || !searchQueryDropPoint} >
                     <Text style={styles.textStyle}>Search</Text>
                 </TouchableOpacity>
-
+                <TouchableOpacity style={styles.locations} onPress={handlePressCurrentLocation} >
+                    <MaterialIcons name="my-location" size={24} color="black" />
+                </TouchableOpacity>
                 <Modal isVisible={modalVisible} backdropColor={"black"} backdropOpacity={0.70} animationType="slide">
                     <View style={styles.modal} >
                         <Calendar
-                               onDayPress={handleDayPress}
+                            onDayPress={handleDayPress}
 
                             markedDates={{
                                 [selectedDate]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' }
@@ -359,7 +478,11 @@ const styles = StyleSheet.create({
         position: 'absolute', bottom: 0, left: 0, right: 0,
         borderRadius: 10,
         marginBottom: 5,
-
+    },
+    locations: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
     },
     dateButtons: {
         alignItems: "center",

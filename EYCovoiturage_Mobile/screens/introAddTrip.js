@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, Image, TextInput, ScrollView, Keyboard, Alert, Button, TouchableOpacity, HStack } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, ScrollView, Keyboard, Alert, Button, TouchableOpacity, HStack, YellowBox, LogBox } from 'react-native';
 import { Box, Icon, Stack, Center, Input, FormControl } from "native-base";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Modal from 'react-native-modal';
@@ -19,6 +19,11 @@ export default function IntroAddTrip({ navigation, route }) {
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [selectedTime, setSelectedTime] = useState('');
     const [location, setLocation] = useState(null);
+
+    useEffect(() => {
+        // Disable the specific warning
+        LogBox.ignoreLogs(['Non-serializable values were found in the navigation state']);
+      }, []);
 
     useEffect(() => {
 

@@ -13,6 +13,7 @@ import TripCardBooked from '../components/tripCardBooked';
 import { useFocusEffect } from '@react-navigation/native';
 import { useNotifications } from '../hooks/useNotifications';
 import * as Notifications from "expo-notifications";
+import * as SecureStore from 'expo-secure-store';
 
 function HomeScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
@@ -55,7 +56,7 @@ function HomeScreen({ navigation }) {
     React.useCallback(() => {
       const getData = async () => {
         try {
-          const value = await AsyncStorage.getItem('user');
+          const value = await SecureStore.getItemAsync('user');
           if (value !== null) {
             return value;
           } else {
@@ -70,10 +71,10 @@ function HomeScreen({ navigation }) {
 
       const fetchAceeptedTripsForPassengers = async () => {
         try {
-          const value = await AsyncStorage.getItem('user');
+          const value = await SecureStore.getItemAsync('user');
           var userId = JSON.parse(value).id
           setIsLoading(true);
-          const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+          const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
           setTrips(response.data);
         } catch (error) {
           console.log('Error fetching trips:', error);
@@ -85,9 +86,9 @@ function HomeScreen({ navigation }) {
 
       const fetchPublishedTripsForDrivers = async () => {
         try {
-          const value = await AsyncStorage.getItem('user');
+          const value = await SecureStore.getItemAsync('user');
           var userId = JSON.parse(value).id
-          const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/user/${userId}/trips`);
+          const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/user/${userId}/trips`);
           setTripsPublished(response.data);
         } catch (error) {
           console.log('Error fetching trips ForDrivers:', error);
@@ -104,10 +105,10 @@ function HomeScreen({ navigation }) {
     console.log("on refresh pressed");
     setRefreshing(true);
     try {
-      const value = await AsyncStorage.getItem('user');
+      const value = await SecureStore.getItemAsync('user');
       var userId = JSON.parse(value).id
-      const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
-      const response2 = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/user/${userId}/trips`);
+      const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+      const response2 = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/user/${userId}/trips`);
       setTrips(response.data);
       setTripsPublished(response2.data);
     } catch (error) {
@@ -126,10 +127,10 @@ function HomeScreen({ navigation }) {
   //i pass this function to the child component so if trip status of the request ride changes to started it call this function to get the lastest data 
   const fetchAceeptedTripsForPassengers = async () => {
     try {
-      const value = await AsyncStorage.getItem('user');
+      const value = await SecureStore.getItemAsync('user');
       var userId = JSON.parse(value).id
       setIsLoading(true);
-      const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+      const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
       setTrips(response.data);
     } catch (error) {
       console.log('Error fetching trips:', error);

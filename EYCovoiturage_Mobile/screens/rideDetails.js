@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Box, Divider, Stack, Avatar, Heading, AspectRatio, Image, Text, Center, HStack, NativeBaseProvider, ScrollView } from "native-base";
 import { Ionicons, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
@@ -8,6 +8,10 @@ import axios from "axios";
 import Toast from 'react-native-toast-message';
 import { FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import Communications from 'react-native-communications';
+import { useNavigation } from '@react-navigation/native';
+import UserAvatar from 'react-native-user-avatar';
 
 const RideDetails = ({ handlePress, route }) => {
     const [trip, setTrip] = useState('');
@@ -17,17 +21,20 @@ const RideDetails = ({ handlePress, route }) => {
     const [userStorage, setUserStorage] = useState('');
     const [profileImage, setProfileImage] = useState('');
     const [carImage, setcarImage] = useState('');
+    const [userGetData, setUserGetData] = useState('');
+
+    const navigation = useNavigation();
 
     useEffect(() => {
         console.log("*/*/*/*/")
-
+        console.log(route.params.trip.user)
         console.log(route.params.trip.trip.availableDates)
         setTrip(route.params.trip.trip);
         setUser(route.params.trip.user)
 
         const getCarInfo = async (userId) => {
             try {
-                const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${route.params.trip.trip.userId}/carImage`);
+                const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/User/${route.params.trip.trip.userId}/carImage`);
                 const base64Image = response.data.base64Image;
                 setcarImage(base64Image)
             } catch (error) {
@@ -41,9 +48,11 @@ const RideDetails = ({ handlePress, route }) => {
         getCarInfo(); // Fetch car image separately
         const getProfileImage = async () => {
             try {
-                const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${route.params.trip.trip.userId}/profileImage`);
+                const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/User/${route.params.trip.trip.userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
+                const userResponse = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/User/${route.params.trip.trip.userId}`);
+                setUserGetData(userResponse.data)
 
             } catch (error) {
                 if (error.response && error.response.status === 404) {
@@ -57,7 +66,7 @@ const RideDetails = ({ handlePress, route }) => {
 
         const getData = async (key) => {
             try {
-                const value = await AsyncStorage.getItem('user');
+                const value = await SecureStore.getItemAsync('user');
                 if (value !== null) {
                     setUserStorage(JSON.parse(value))
                     return value;
@@ -71,12 +80,12 @@ const RideDetails = ({ handlePress, route }) => {
         getData();
         const fetchData = async () => {
             try {
-                const value = await AsyncStorage.getItem('user');
+                const value = await SecureStore.getItemAsync('user');
                 var userId = JSON.parse(value).id
-                const userResponse = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/User/${userId}`);
+                const userResponse = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/User/${userId}`);
                 const checkRequestExists = async () => {
                     try {
-                        const response = await axios.get(`https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/${route.params.trip.trip.tripId}/users/${userResponse.data.id}/check-request`);
+                        const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/${route.params.trip.trip.tripId}/users/${userResponse.data.id}/check-request`);
                         console.log(response.data);
                         setIsRequestSent(response.data);
                     } catch (error) {
@@ -104,7 +113,7 @@ const RideDetails = ({ handlePress, route }) => {
         console.log(requestRide);
 
         try {
-            const response = await axios.post(`https://ac9d-41-62-206-48.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
+            const response = await axios.post(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
             console.log(response.data)
             setIsRequestCreated(true);
             Toast.show({
@@ -119,10 +128,22 @@ const RideDetails = ({ handlePress, route }) => {
         }
     };
 
+    const makePhoneCall = (phoneNumber) => {
+        console.log(phoneNumber)
+        const phoneNumberWithoutSpaces = phoneNumber.replace(/\s/g, '');
+        Communications.phonecall(phoneNumberWithoutSpaces, true);
+    };
+
+    const handleNavigateChat = () => {
+        navigation.navigate('chat', {
+            receiverId: route.params.trip.trip.userId
+        });
+
+    };
 
     return (
-        <ScrollView>
-            <Box mx="7" my="2" >
+        <ScrollView  >
+            <Box mx="7" my="2"  >
                 <Box
                     overflow="hidden"
                     borderColor="coolGray.200"
@@ -153,21 +174,29 @@ const RideDetails = ({ handlePress, route }) => {
                                 )}
                             </Stack>
                             <Stack direction="row" alignItems="center" justifyContent="center" marginTop={'-30px'}>
-                                <Box mr={4}>
-                                    <Ionicons name="chatbox-ellipses-outline" size={24} color="black" />
-                                </Box>
+                                {userGetData.isVerifiedPhoneNumber && (
+                                    <Box mr={4}>
+                                        <MaterialIcons name="verified" size={24} color="#0095f6" />
+                                        {/*    <Ionicons name="chatbox-ellipses-outline" size={24} color="black"  onPress={handleNavigateChat} /> */}
+                                    </Box>
+                                )}
+
                                 <Box >
                                     {profileImage ? (
                                         <Image source={{ uri: `data:image/jpeg;base64,${profileImage}` }} style={{ width: 100, height: 100, borderRadius: 50 }} alt="driverimg" />
                                     ) : (
-                                        <Avatar bg="cyan.500" size="xl">
-                                            RS
-                                        </Avatar>
+                                        <UserAvatar size={80} name={route.params.trip.user.firstName} bgColor="#2596be"  />
+
+
                                     )}
                                 </Box>
-                                <Box ml={4}>
-                                    <AntDesign name="phone" size={24} color="black" />
-                                </Box>
+
+                                {userGetData.isVerifiedPhoneNumber && (
+                                    <Box ml={4}>
+                                        <AntDesign name="phone" size={24} color="black" onPress={() => makePhoneCall('+21629162035')} />
+                                    </Box>
+                                )}
+
                             </Stack>
 
                             <Divider
@@ -222,7 +251,7 @@ const RideDetails = ({ handlePress, route }) => {
                                                 _dark={{ color: "violet.400" }}
                                                 fontWeight="500"
                                                 ml="-0.5"
-                                                mt="1" 
+                                                mt="1"
                                             >
                                                 {new Date(dateObj.date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }).replace(/\//g, '-')}
                                             </Text>
@@ -256,6 +285,19 @@ const RideDetails = ({ handlePress, route }) => {
                                         mt="-1"
                                     >
                                         {trip.availableSeats} Seats Available
+                                    </Text>
+                                </Stack>
+                                <Stack direction="row" space={4} alignItems="center" ml="1" >
+                                    <MaterialCommunityIcons name="card-text-outline" size={24} color="black" />
+                                    <Text
+                                        fontSize="xs"
+                                        _light={{ color: "muted.600" }}
+                                        _dark={{ color: "violet.400" }}
+                                        fontWeight="500"
+                                        ml="-0.5"
+                                        mt="-1"
+                                    >
+                                        {trip.description}
                                     </Text>
                                 </Stack>
                             </Stack>
@@ -315,9 +357,9 @@ const RideDetails = ({ handlePress, route }) => {
                                     </Text>
                                 </Box>
                             </Stack>
-                            <Stack space={3}>
+                            <Stack space={5}>
                                 <TouchableOpacity
-                                    style={[styles.button, { opacity: isRequestSent ? 0.5 : 1 }]}
+                                    style={[styles.button, { opacity: isRequestSent ? 0.5 : 1, marginTop: 10 }]}
                                     onPress={createRequestRide}
                                     disabled={isRequestSent}
                                 >

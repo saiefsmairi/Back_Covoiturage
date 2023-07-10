@@ -12,6 +12,8 @@ using User_Microservice.DTO;
 using Auth_Microservice.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace User.Controllers
 {
@@ -22,6 +24,9 @@ namespace User.Controllers
         private readonly IUserRepository _repository;
         private readonly UserContext _context;
         private HttpClient _client;
+        private readonly string twilioAccountSid = "ACb6f469cc427a1d8ecbfee4779793b6d5";
+        private readonly string twilioAuthToken = "50c3dea6fbcb8bcf9ea827c185ef4379";
+        private readonly string twilioPhoneNumber = "+16186682361";
 
 
         public UserController(IUserRepository reposiotory, UserContext context, HttpClient client)
@@ -52,6 +57,7 @@ namespace User.Controllers
                 Role = "User",
                 AllowsNotifications = false,
                 DeviceToken=null,
+                IsVerifiedPhoneNumber = false,
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password)
             };
 
@@ -89,6 +95,19 @@ namespace User.Controllers
             return Ok();
         }
 
+        [HttpPut("{id}/deleteDeviceTokenLogout")]
+        public IActionResult deleteDeviceTokenLogout(int id)
+        {
+            var user = _repository.GetById(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            user.DeviceToken = null;
+            user.AllowsNotifications =false;
+            _repository.UpdateUser(user);
+            return Ok();
+        }
 
 
 
@@ -135,7 +154,7 @@ namespace User.Controllers
             return Ok(updatedUserDto); 
         }
 
-
+        //user image methods
 
         [HttpPut("{userId}/upload")]
         public async Task<IActionResult> UploadImage(int userId, IFormFile profilePhoto)
@@ -284,6 +303,36 @@ namespace User.Controllers
             return Ok(user);
         }
 
+
+        [HttpPost("sendSMSForConfirmPhone")]
+        public IActionResult SendSms(string phoneNumber, string message)
+        {
+            TwilioClient.Init(twilioAccountSid, twilioAuthToken);
+
+            var twilioMessage = MessageResource.Create(
+                body: message,
+                from: new Twilio.Types.PhoneNumber(twilioPhoneNumber),
+                to: new Twilio.Types.PhoneNumber(phoneNumber)
+            );
+
+            return Ok(twilioMessage.Body);
+        }
+
+        [HttpPut("{userEmail}/updateVerifyPhoneStatus")]
+        public IActionResult updateVerifyPhoneStatus(string userEmail)
+        {
+            var user = _repository.GetByEmail(userEmail);
+
+            if (user == null)
+            {
+                return NotFound();
+            }   
+
+            user.IsVerifiedPhoneNumber= true;
+            _context.SaveChanges();
+
+            return Ok(user);
+        }
 
 
 

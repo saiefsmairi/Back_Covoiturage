@@ -18,7 +18,7 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
 
     const handleQRCodeIconPress = async (tripId) => {
         try {
-            fetch(`https://ac9d-41-62-206-48.ngrok-free.app/api/RequestRide/generate?driverId=1&tripId=${tripId}`)
+            fetch(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/generate?driverId=1&tripId=${tripId}`)
                 .then(response => {
                     if (response.ok) {
                         return response.blob();
@@ -81,19 +81,28 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
                                     </Text>
                                 </Stack>
 
-                                <Stack direction="row" space={4} alignItems="center" ml="1">
+                                <Stack direction="row" space={4} ml="1">
                                     <AntDesign name="calendar" size={24} color="black" />
-                                    <Text fontSize="xs" >
-                                        {new Date(trip.dateDebut).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }).replace(/\//g, '-')}
-                                        {' to '}
-                                        {new Date(trip.dateFin).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }).replace(/\//g, '-')}
-                                    </Text>
+                                    <Stack direction="row" space={6} flexWrap="wrap" >
+                                        {trip.availableDates?.map((dateObj, index) => (
+                                            <Text
+                                                key={dateObj.tripDatesId}
+                                                fontSize="xs"
+                                                _light={{ color: "muted.600" }}
+                                                _dark={{ color: "violet.400" }}
+                                                fontWeight="500"
+                                                ml="-0.5"
+                                            >
+                                                {new Date(dateObj.date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }).replace(/\//g, '-')}
+                                            </Text>
+                                        ))}
+                                    </Stack>
                                 </Stack>
 
                                 <Stack direction="row" space={4} alignItems="center" ml="1">
                                     <Ionicons name="md-time-outline" size={24} color="black" />
                                     <Text fontSize="xs" >
-                                        Departure time: {trip.departureTime}
+                                        Departure time: {trip.departureTime.split(':').slice(0, 2).join(':')}
                                     </Text>
                                 </Stack>
 

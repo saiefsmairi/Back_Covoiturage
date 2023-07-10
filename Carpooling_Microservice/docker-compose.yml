@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  carpooling_microservice:
+    image: ${DOCKER_REGISTRY-}carpoolingmicroservice
+    build:
+      context: .
+      dockerfile: Carpooling_Microservice/Dockerfile

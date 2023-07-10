@@ -1,10 +1,11 @@
 import axios from 'axios'
 const API_URL = '/users/'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 // Register user
 const register = async (userData) => {
-  const response = await axios.post("https://ac9d-41-62-206-48.ngrok-free.app/api/User/register", userData)
+  const response = await axios.post("https://cb18-102-157-92-55.ngrok-free.app/api/User/register", userData)
 
   /*  if (response.data) {
      localStorage.setItem('user', JSON.stringify(response.data))
@@ -17,11 +18,11 @@ const register = async (userData) => {
 const login = async (userData) => {
   console.log(userData)
    try {
-    const response = await axios.post("https://ac9d-41-62-206-48.ngrok-free.app/api/Auth/login", userData);
+    const response = await axios.post("https://cb18-102-157-92-55.ngrok-free.app/api/Auth/login", userData);
     console.log(response.data.user);
 
     if (response.data) {
-      await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+      await SecureStore.setItemAsync('user', JSON.stringify(response.data.user));
       console.log('Login success & User data saved successfully!');
     }
 
@@ -35,11 +36,11 @@ const login = async (userData) => {
 const loginemulator = async (userData) => {
   console.log(userData)
    try {
-    const response = await axios.post("https://ac9d-41-62-206-48.ngrok-free.app/api/Auth/loginEmulator", userData);
+    const response = await axios.post("https://cb18-102-157-92-55.ngrok-free.app/api/Auth/loginEmulator", userData);
     console.log(response.data.user);
 
     if (response.data) {
-      await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+      await SecureStore.setItemAsync('user', JSON.stringify(response.data.user));
       console.log('Login success & User data saved successfully!');
     }
 

@@ -36,7 +36,7 @@ namespace Carpooling_Microservice.Models
         [NotMapped]
         public string DepartureTimeInput { get; set; }
 
-        public string Type { get; set; }
+        public string? Type { get; set; }
         public ICollection<TripDates> AvailableDates { get; set; }
 
         public int UserId { get; set; }

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Box, Divider, Avatar, Heading, AspectRatio, Image, Text, Center, HStack, VStack, Stack, NativeBaseProvider, FlatList, Spacer, Input, Icon } from "native-base";
-import { View, TouchableOpacity, TextInput, TouchableWithoutFeedback } from "react-native";
+import { View, TouchableOpacity, TextInput, TouchableWithoutFeedback, LogBox } from "react-native";
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -10,7 +10,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 
-const MapComponent = ({route}) => {
+const MapComponent = ({ route }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [autocompleteResults, setAutocompleteResults] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState(null);
@@ -31,6 +31,7 @@ const MapComponent = ({route}) => {
         }
     };
 
+
     const handleSelectLocation = (item) => {
         console.log('Selected location:', item.properties.formatted);
         console.log('Location coordinates:', item.geometry.coordinates);
@@ -45,12 +46,12 @@ const MapComponent = ({route}) => {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
         });
-   
-         setTimeout(() => {
 
-          route.params.onReturn( item);
-          navigation.goBack()
-        }, 3000); 
+        setTimeout(() => {
+
+            route.params.onReturn(item);
+            navigation.goBack()
+        }, 2000);
 
     };
 
@@ -58,6 +59,9 @@ const MapComponent = ({route}) => {
         setAutocompleteResults([]);
     };
 
+    const generateKey = (item) => {
+        return `${item.properties.formatted}-${item.properties.city}-${item.properties.country}`;
+    };
     return (
         <TouchableWithoutFeedback onPress={hideFlatList}>
 
@@ -93,6 +97,7 @@ const MapComponent = ({route}) => {
                                     pl={["4", "4"]}
                                     pr={["5", "5"]}
                                     py="2"
+                                  
                                 >
                                     <HStack space={[2, 3]} justifyContent="space-between">
                                         <VStack>
@@ -113,7 +118,7 @@ const MapComponent = ({route}) => {
                                     </HStack>
                                 </Box>
                             )}
-                            keyExtractor={(item) => item.id}
+                            keyExtractor={(item) => generateKey(item)}
                         />
                     </Box>
                 </View>

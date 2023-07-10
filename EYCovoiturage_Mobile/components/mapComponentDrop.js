@@ -10,7 +10,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 
-const MapComponentDrop = ({route}) => {
+const MapComponentDrop = ({ route }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [autocompleteResults, setAutocompleteResults] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState(null);
@@ -48,11 +48,11 @@ const MapComponentDrop = ({route}) => {
         console.log("*****")
 
         console.log(item.properties.formatted)
-         setTimeout(() => {
-        
-          route.params.onReturn( item);
-          navigation.goBack()
-        }, 3000); 
+        setTimeout(() => {
+
+            route.params.onReturn(item);
+            navigation.goBack()
+        }, 2000);
 
     };
 
@@ -60,6 +60,9 @@ const MapComponentDrop = ({route}) => {
         setAutocompleteResults([]);
     };
 
+    const generateKey = (item) => {
+        return `${item.properties.formatted}-${item.properties.city}-${item.properties.country}`;
+    };
 
     return (
         <TouchableWithoutFeedback onPress={hideFlatList}>
@@ -116,7 +119,7 @@ const MapComponentDrop = ({route}) => {
                                     </HStack>
                                 </Box>
                             )}
-                            keyExtractor={(item) => item.id}
+                            keyExtractor={(item) => generateKey(item)}
                         />
                     </Box>
 

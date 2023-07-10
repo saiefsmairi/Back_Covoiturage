@@ -118,8 +118,14 @@ namespace Test4.Controllers
             model.DateDebut = startDate;
             model.DateFin = endDate;
 
+            if (model.AvailableDates.Count > 1) {
+                model.Type = "Regular";
+            }
+            else if(model.AvailableDates.Count == 1) {
+                model.Type = "Occasional";
+            }
+
             var result = _repository.createTrip(model);
-            //or hedhi  var result = _repository.createTrip(trip);
 
             _repository.SaveChanges();
             var tripWithUser = new
@@ -264,7 +270,8 @@ namespace Test4.Controllers
         [HttpGet("user/{userId}/trips")]
         public ActionResult<IEnumerable<Trip>> GetTripsForUser(int userId)
         {
-            var trips = _context.Trips.Where(t => t.UserId == userId).ToList();
+            var trips = _context.Trips.Where(t => t.UserId == userId)
+                .Include(t => t.AvailableDates).ToList();
             return Ok(trips);
         }
 
@@ -327,14 +334,27 @@ namespace Test4.Controllers
         }
 
         [HttpGet("filter")]
-        public async Task<IActionResult> FilterTripsAsync(double userPickupLatitude, double userPickupLongitude, double userDropLatitude, double userDropLongitude, int range, DateTime selectedDate)
+        public async Task<IActionResult> FilterTripsAsync(double userPickupLatitude, double userPickupLongitude, double userDropLatitude, double userDropLongitude, int range, DateTime selectedDate,string type)
         {
+            List<Trip> allTrips = new List<Trip>();
             double proximityThreshold=0;
            // var allTrips = _context.Trips.Where(t => t.AvailableSeats > 0&t.UserId!=userId).ToList();
-            var allTrips = _context.Trips
-            .Where(t => t.AvailableSeats > 0 && t.AvailableDates.Any(d => d.Date == selectedDate))
-            .Include(t => t.AvailableDates)
-            .ToList();
+
+            if (type == "All")
+            {
+                 allTrips = _context.Trips
+                      .Where(t => t.AvailableSeats > 0 && t.AvailableDates.Any(d => d.Date == selectedDate))
+                      .Include(t => t.AvailableDates)
+                      .ToList();
+
+            }
+            else if (type =="Regular" || type == "Occasional")
+            {
+                allTrips = _context.Trips.Where(t => t.AvailableSeats > 0 && t.AvailableDates.Any(d => d.Date == selectedDate) && t.Type == type)
+                        .Include(t => t.AvailableDates)
+                        .ToList();
+            }
+      
 
             if (range==0)
             {
