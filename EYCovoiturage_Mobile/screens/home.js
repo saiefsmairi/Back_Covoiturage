@@ -74,7 +74,7 @@ function HomeScreen({ navigation }) {
           const value = await SecureStore.getItemAsync('user');
           var userId = JSON.parse(value).id
           setIsLoading(true);
-          const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+          const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
           setTrips(response.data);
         } catch (error) {
           console.log('Error fetching trips:', error);
@@ -88,7 +88,7 @@ function HomeScreen({ navigation }) {
         try {
           const value = await SecureStore.getItemAsync('user');
           var userId = JSON.parse(value).id
-          const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/user/${userId}/trips`);
+          const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/user/${userId}/trips`);
           setTripsPublished(response.data);
         } catch (error) {
           console.log('Error fetching trips ForDrivers:', error);
@@ -107,8 +107,8 @@ function HomeScreen({ navigation }) {
     try {
       const value = await SecureStore.getItemAsync('user');
       var userId = JSON.parse(value).id
-      const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
-      const response2 = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/user/${userId}/trips`);
+      const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+      const response2 = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/user/${userId}/trips`);
       setTrips(response.data);
       setTripsPublished(response2.data);
     } catch (error) {
@@ -130,7 +130,7 @@ function HomeScreen({ navigation }) {
       const value = await SecureStore.getItemAsync('user');
       var userId = JSON.parse(value).id
       setIsLoading(true);
-      const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+      const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
       setTrips(response.data);
     } catch (error) {
       console.log('Error fetching trips:', error);

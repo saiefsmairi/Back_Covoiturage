@@ -102,6 +102,7 @@ const RouteDetails = ({ route }) => {
 
 
     const handleCreateTrip = () => {
+        console.log(trip)
         navigation.navigate('finalAddTrip', {
             trip
         });
@@ -151,7 +152,7 @@ const RouteDetails = ({ route }) => {
 
             <View style={styles.card}>
                 <Text style={styles.cardText}>Distance: {distanceAff}  Km</Text>
-                <Text style={styles.cardText}>Estimated time: {estimatedTime > 60 ? `${Math.floor(estimatedTime / 60)} Hour ${estimatedTime % 60}  min` : `${estimatedTime} Min`}</Text>
+                <Text style={styles.cardText}>Estimated time: {estimatedTime > 60 ? `${Math.floor(estimatedTime / 60)} Hour(s) ${estimatedTime % 60}  min` : `${estimatedTime} Min`}</Text>
                 <Stack   >
                     <TouchableOpacity style={styles.button} onPress={handleCreateTrip}>
                         <Text style={styles.textStyle}>Proceed</Text>

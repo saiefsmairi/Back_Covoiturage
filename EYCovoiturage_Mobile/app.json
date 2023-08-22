@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "com.ey.covoiturage",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "plugins": ["expo-notifications"],
     "splash": {
       "image": "./assets/splash.png",

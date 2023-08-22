@@ -12,7 +12,6 @@ namespace Carpooling_Microservice.DbConfig
         public DbSet<Trip> Trips { set; get; }
         public DbSet<RequestRide> RequestsRides { set; get; }
 
-        public DbSet<Booking> Bookings { set; get; }
 
         public CarpoolingContext(DbContextOptions<CarpoolingContext> opt) : base(opt)
         {
@@ -33,10 +32,6 @@ namespace Carpooling_Microservice.DbConfig
             .HasForeignKey(e => e.TripId);
 
 
-            modelBuilder.Entity<Trip>()
-           .HasMany(e => e.Bookings)
-           .WithOne(e => e.Trip)
-           .HasForeignKey(e => e.TripId);
 
         }
     }

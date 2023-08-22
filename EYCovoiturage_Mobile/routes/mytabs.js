@@ -150,7 +150,7 @@ function MyTabs() {
                                 const user = await SecureStore.getItemAsync('user');
                                 var userId = JSON.parse(user).id
                                 const response = await axios.put(
-                                    `https://cb18-102-157-92-55.ngrok-free.app/api/User/${userId}/deleteDeviceTokenLogout`,
+                                    `https://dcc6-197-0-80-111.ngrok-free.app/api/User/${userId}/deleteDeviceTokenLogout`,
                                     {
                                         headers: {
                                             'Content-Type': 'application/json',

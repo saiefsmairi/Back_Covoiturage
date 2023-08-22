@@ -111,6 +111,7 @@ export default function IntroAddTrip({ navigation, route }) {
     };
 
     const handlePressRouteComponent = () => {
+        console.log(selectedDates)
         navigation.navigate('routeDetails', {
             pickupLocationCords: pickupLocationCords,
             dropLocationCords: dropLocationCords,

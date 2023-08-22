@@ -24,14 +24,14 @@ export default function RequestRidesList({ }) {
         try {
             const value = await SecureStore.getItemAsync('user');
             var userId = JSON.parse(value).id;
-            const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/requests/${userId}`);
+            const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/RequestRide/requests/${userId}`);
             const requestRidesWithProfileImage = [];
             console.log(response.data)
             for (const requestRide of response.data) {
                 const { passengerId } = requestRide;
 
                 try {
-                    const imageResponse = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/User/${passengerId}/profileImage`);
+                    const imageResponse = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/User/${passengerId}/profileImage`);
                     const base64Image = imageResponse.data;
                     requestRide.passenger.image = base64Image;
                 } catch (error) {
@@ -65,14 +65,14 @@ export default function RequestRidesList({ }) {
         try {
             const value = await SecureStore.getItemAsync('user');
             var userId = JSON.parse(value).id;
-            const response = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/requests/${userId}`);
+            const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/RequestRide/requests/${userId}`);
             const requestRidesWithProfileImage = [];
 
             for (const requestRide of response.data) {
                 const { passengerId } = requestRide;
 
                 try {
-                    const imageResponse = await axios.get(`https://cb18-102-157-92-55.ngrok-free.app/api/User/${passengerId}/profileImage`);
+                    const imageResponse = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/User/${passengerId}/profileImage`);
                     const base64Image = imageResponse.data;
                     requestRide.passenger.image = base64Image;
                     requestRidesWithProfileImage.push(requestRide);
@@ -100,7 +100,7 @@ export default function RequestRidesList({ }) {
             deviceToken: requestRide.passenger.deviceToken
         };
         try {
-            const response = await axios.put(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/requests/${requestRide.requestRideId}/status`,
+            const response = await axios.put(`https://dcc6-197-0-80-111.ngrok-free.app/api/RequestRide/requests/${requestRide.requestRideId}/status`,
                 requestData, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export default function RequestRidesList({ }) {
         };
         console.log(requestData)
         try {
-            const response = await axios.put(`https://cb18-102-157-92-55.ngrok-free.app/api/RequestRide/requests/${requestRide.requestRideId}/status`,
+            const response = await axios.put(`https://dcc6-197-0-80-111.ngrok-free.app/api/RequestRide/requests/${requestRide.requestRideId}/status`,
                 requestData, {
                 headers: {
                     'Content-Type': 'application/json',

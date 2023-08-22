@@ -42,7 +42,6 @@ namespace Carpooling_Microservice.Models
         public int UserId { get; set; }
 
         public ICollection<RequestRide>? RequestRides { get; set; }
-        public ICollection<Booking>? Bookings { get; set; }
 
         public Trip(string source, string destination, DateTime dateDebut, DateTime dateFin, int availableSeats, float distance, string type)
         {

@@ -162,19 +162,52 @@ namespace Test4.Controllers
 
         // DELETE api/<TripController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
-            _repository.deleteTrip(id);
-            _repository.SaveChanges();
+            var tripToDelete = _context.Trips.Include(t => t.RequestRides).FirstOrDefault(t => t.TripId == id);
+            
+            if (tripToDelete.RequestRides != null)
+            {
+                _context.RequestsRides.RemoveRange(tripToDelete.RequestRides);
+            }
+            _context.Trips.Remove(tripToDelete);
+
+            _context.SaveChanges(); 
+
+            return Ok();
         }
 
 
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Trip model)
+        [HttpPut("{tripId}")]
+        public IActionResult UpdateTrip(int tripId, [FromBody] TripUpdateData tripData)
         {
-            _repository.Update(model,id);
-            return Ok(model);
+            // Retrieve the existing trip from the database
+            var existingTrip = _context.Trips
+                .Include(t => t.AvailableDates)
+                .FirstOrDefault(t => t.TripId == tripId);
+
+            if (existingTrip == null)
+            {
+                return NotFound();
+            }
+
+            // Update the properties of the existing trip
+            existingTrip.AvailableSeats = tripData.availableSeats;
+            TimeSpan time1 = TimeSpan.Parse(tripData.departureTime);
+            existingTrip.DepartureTime = time1;
+            existingTrip.Destination = tripData.destination;
+            existingTrip.Source = tripData.source;
+
+
+
+            // Add new TripDates based on the dateList
+            existingTrip.AvailableDates = tripData.availableDates;
+
+            _context.SaveChanges();
+
+            return Ok();
         }
+
 
         //CHECK IF THE PASSENGER HAS ALDREADY SENT A REQUEST FOR A SPECIFIC TRIP
         [HttpGet("{tripId}/users/{passengerId}/check-request")]

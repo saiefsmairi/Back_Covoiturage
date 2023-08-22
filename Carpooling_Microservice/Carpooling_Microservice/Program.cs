@@ -17,7 +17,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<CarpoolingContext>
     (options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ITripRepository, TripRepository>();
-builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IRequestRideRepository, RequestRideRepository>();
 builder.Services.AddSingleton<PushApiClient>();
 

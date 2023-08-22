@@ -33,16 +33,16 @@ app.UseRouting();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-var services = scope.ServiceProvider;
+//using (var scope = app.Services.CreateScope())
+//{
+//var services = scope.ServiceProvider;
 
-var context = services.GetRequiredService<UserContext>();
-if (context.Database.GetPendingMigrations().Any())
-  {
-context.Database.Migrate();
-}
-}
+//var context = services.GetRequiredService<UserContext>();
+//if (context.Database.GetPendingMigrations().Any())
+ // {
+//context.Database.Migrate();
+//}
+//}
 
 
 app.UseEndpoints(endpoints =>
