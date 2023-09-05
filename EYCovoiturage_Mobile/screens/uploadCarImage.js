@@ -44,7 +44,7 @@ export default function UploadCarImage({ navigation, route }) {
                 var userId = JSON.parse(value).id
 
                 const response = await axios.put(
-                    `https://dcc6-197-0-80-111.ngrok-free.app/api/User/${userId}/uploadCar`,
+                    `https://4466-197-2-98-33.ngrok-free.app/api/User/${userId}/uploadCar`,
                     formData,
                     {
                         headers: {

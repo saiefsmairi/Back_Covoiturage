@@ -66,11 +66,11 @@ const RouteDetails = ({ route }) => {
                         const time = Math.round(response.data.features[0].properties.time / 60);
                         setDistanceAff(distance);
                         setEstimatedTime(time)
-                        /*         const route = response.data.features[0].geometry.coordinates[0].map(coord => ({
+                                const route = response.data.features[0].geometry.coordinates[0].map(coord => ({
                                     latitude: coord[1],
                                     longitude: coord[0],
                                 }));
-                                setRouteCoordinates(route); */
+                                setRouteCoordinates(route); 
                         setTrip(prevTrip => ({ ...prevTrip, distance: distance, EstimatedTime: time }));
                     })
                     .catch(error => {
@@ -146,7 +146,7 @@ const RouteDetails = ({ route }) => {
                     title={'Destination'}
                 />
 
-                {/*  <Polyline coordinates={routeCoordinates} strokeColor="#F00" strokeWidth={3} /> */}
+                 <Polyline coordinates={routeCoordinates} strokeColor="#F00" strokeWidth={3} /> 
 
             </MapView>
 

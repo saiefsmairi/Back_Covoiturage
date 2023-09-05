@@ -24,6 +24,10 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
     const estimatedTime = trip.trip.estimatedTime;
     const arrivalTime = departureTime.add(estimatedTime, 'minutes');
     const [profileImage, setProfileImage] = useState('');
+    const [isOpen, setIsOpen] = React.useState(false);
+    const onClose = () => setIsOpen(false);
+    const cancelRef = React.useRef(null);
+
 
     useEffect(() => {
         (async () => {
@@ -36,7 +40,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
         const getProfileImage = async () => {
 
             try {
-                const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
+                const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
             } catch (error) {
@@ -54,26 +58,35 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
 
     const handleScanQRCode = (tripId) => {
         console.log("selectedTripId")
-        console.log(tripId)
+        console.log(trip)
         setSelectedTripId(tripId)
         setShowScanner(true);
     };
 
     const handleBarCodeScanned = ({ type, data }) => {
+        console.log("******/*/****")
+        console.log(trip.tripStatus)
+
         setIsLoading(true);
         const parsedData = JSON.parse(data);
         const scannedtripId = parsedData.TripId;
         setTimeout(() => {
             if (scannedtripId == selectedTripId) {
-                console.log('Trip started');
-                setMatchedTrip(true);
-                handleMatchQrcode(trip.requestId, "Booked")
+                if (trip.tripStatus === 'STARTED') {
+                    console.log('Trip finished');
+                    setMatchedTrip(true);
+                    handleMatchQrcode(trip.requestId, "Finished")
+                }
+                else {
+                    console.log('Trip started');
+                    setMatchedTrip(true);
+                    handleMatchQrcode(trip.requestId, "Booked")
+                }
 
             } else {
                 console.log('Scanned trip does not match the selected trip');
                 setMatchedTrip(false);
             }
-
             setTimeout(() => {
                 setIsLoading(false);
                 setShowScanner(false);
@@ -83,10 +96,6 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
         setMatchedTrip(null);
     };
 
-    const handleCloseScanner = () => {
-        setIsLoading(false);
-        setShowScanner(false);
-    };
 
     const handleMatchQrcode = async (requestRideId, status) => {
         const requestData = {
@@ -94,7 +103,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
             deviceToken: null
         };
         try {
-            const response = await axios.put(`https://dcc6-197-0-80-111.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, requestData, {
+            const response = await axios.put(`https://4466-197-2-98-33.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, requestData, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -106,24 +115,23 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
             throw error;
         }
     };
-
-
-    const [isOpen, setIsOpen] = React.useState(false);
-    const onClose = () => setIsOpen(false);
-    const cancelRef = React.useRef(null);
+    const handleCloseScanner = () => {
+        setIsLoading(false);
+        setShowScanner(false);
+    };
 
 
     const Handlecanceltrip = async (requestRideId) => {
         console.log(requestRideId)
         try {
-            const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/RequestRide/${requestRideId}/CheckDeadlineCancel`, {
+            const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/RequestRide/${requestRideId}/CheckDeadlineCancel`, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
             try {
                 if (response.status === 200) {
-                    const response2 = await axios.put(`https://dcc6-197-0-80-111.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
+                    const response2 = await axios.put(`https://4466-197-2-98-33.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -149,7 +157,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
     const deleteButtonReservation = async (requestRideId) => {
         console.log(requestRideId)
         try {
-            const response2 = await axios.put(`https://dcc6-197-0-80-111.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
+            const response2 = await axios.put(`https://4466-197-2-98-33.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -195,7 +203,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
 
                                     />
                                     <Badge
-                                        colorScheme={trip.tripStatus === 'UPCOMING' ? 'success' : trip.tripStatus === 'CANCELLED' ? 'red' : 'info'}
+                                        colorScheme={trip.tripStatus === 'UPCOMING' || trip.tripStatus === 'FINISHED' ? 'success' : trip.tripStatus === 'CANCELLED' ? 'red' : 'info'}
 
                                         alignSelf="center"
                                         variant="subtle"
@@ -321,17 +329,27 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
                                             <CircleSnail color={['green', 'yellow', 'blue']} size={200} />
                                             <Text>Verifying...</Text>
                                         </>
-                                    ) : matchedTrip ? (
+
+                                    ) : matchedTrip && trip.tripStatus === 'STARTED' ? (
+                                        <>
+                                            <Feather name="check-circle" size={50} color="green" />
+                                            <Text>The Trip is finished .</Text>
+
+                                        </>
+
+                                    ) : matchedTrip  ? (
                                         <>
                                             <Feather name="check-circle" size={50} color="green" />
                                             <Text>Matching trip found! Starting the trip...</Text>
+
                                         </>
-                                    ) : (
-                                        <>
-                                            <Feather name="x-circle" size={50} color="red" />
-                                            <Text>Invalid trip. Please try again.</Text>
-                                        </>
-                                    )}
+                                    )
+                                        : (
+                                            <>
+                                                <Feather name="x-circle" size={50} color="red" />
+                                                <Text>Invalid trip. Please try again.</Text>
+                                            </>
+                                        )}
                                 </Box>
                             )}
                             <TouchableOpacity
@@ -366,7 +384,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
                                 Cancel
                             </Button>
                             <Button colorScheme="danger" onPress={() => deleteButtonReservation(trip.requestId)}>
-                                Delete
+                                Confirm
                             </Button>
                         </Button.Group>
                     </AlertDialog.Footer>

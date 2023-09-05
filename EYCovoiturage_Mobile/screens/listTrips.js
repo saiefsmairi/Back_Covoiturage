@@ -27,7 +27,7 @@ export default function ListTrips({ navigation, route }) {
     const fetchTrips = async () => {
       //  setIsLoading(true); // Set isLoading to true before making the API call
       try {
-        const response = await axios.get('https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/filter', {
+        const response = await axios.get('https://4466-197-2-98-33.ngrok-free.app/api/Trip/filter', {
           params: {
             userPickupLatitude,
             userPickupLongitude,
@@ -57,7 +57,7 @@ export default function ListTrips({ navigation, route }) {
     const fetchTrips = async () => {
       //  setIsLoading(true); // Set isLoading to true before making the API call
       try {
-        const response = await axios.get('https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/filter', {
+        const response = await axios.get('https://4466-197-2-98-33.ngrok-free.app/api/Trip/filter', {
           params: {
             userPickupLatitude,
             userPickupLongitude,
@@ -91,7 +91,7 @@ export default function ListTrips({ navigation, route }) {
     setIsLoading(true)
     const fetchTrips = async () => {
       try {
-        const response = await axios.get('https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/filter', {
+        const response = await axios.get('https://4466-197-2-98-33.ngrok-free.app/api/Trip/filter', {
           params: {
             userPickupLatitude,
             userPickupLongitude,
@@ -125,7 +125,7 @@ export default function ListTrips({ navigation, route }) {
   const fetchFilteredTripsByType = async (selectedOption) => {
     setIsLoading(true)
     try {
-      const response = await axios.get('https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/filter', {
+      const response = await axios.get('https://4466-197-2-98-33.ngrok-free.app/api/Trip/filter', {
         params: {
           userPickupLatitude,
           userPickupLongitude,

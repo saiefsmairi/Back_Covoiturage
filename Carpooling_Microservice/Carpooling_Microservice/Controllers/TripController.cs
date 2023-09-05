@@ -274,7 +274,7 @@ namespace Test4.Controllers
         {
             var acceptedTrips = await _context.RequestsRides
                 .Include(rr => rr.Trip)
-                .Where(rr => rr.PassengerId == passengerId && (rr.Status == "Accepted" || rr.Status == "Booked"||rr.Status == "Cancelled"))
+                .Where(rr => rr.PassengerId == passengerId && (rr.Status == "Accepted" || rr.Status == "Booked"||rr.Status == "Cancelled" || rr.Status == "Finished"))
                 .Select(rr => new { Trip = rr.Trip, RequestId = rr.RequestRideId, TripStatus = rr.TripStatus, UserId = rr.Trip.UserId })
                 .OrderBy(rr => rr.Trip.DepartureTime)
                 .ToListAsync();

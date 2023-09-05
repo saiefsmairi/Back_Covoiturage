@@ -239,6 +239,7 @@ namespace Test4.Controllers
             }
             else if (requestData.status == "Declined")
             {
+                var trip = await _context.Trips.FindAsync(requestRide.TripId);
                 //Sendnotification
                 string message = $"Trip from {requestRide.Trip.Source} to {requestRide.Trip.Destination} is declined ";
                 SendPushNotification(requestData.deviceToken, "Ride request declined", message);
@@ -248,6 +249,11 @@ namespace Test4.Controllers
             {
                 requestRide.TripStatus = "STARTED";
             }
+            else if (requestData.status == "Finished")
+            {
+                requestRide.TripStatus = "FINISHED";
+            }
+
             // Update the status property
             requestRide.Status = requestData.status;
            

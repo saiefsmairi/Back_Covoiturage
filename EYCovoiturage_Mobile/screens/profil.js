@@ -59,7 +59,7 @@ export default function Profil({ navigation }) {
                 const value = await SecureStore.getItemAsync('user');
                 var userId = JSON.parse(value).id
                 console.log(userId)
-                const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/User/${userId}`);
+                const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/User/${userId}`);
 
                 console.log(response.data)
                 setUser(response.data)
@@ -82,7 +82,7 @@ export default function Profil({ navigation }) {
             const value = await SecureStore.getItemAsync('user');
             var userId = JSON.parse(value).id
             try {
-                const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/User/${userId}/profileImage`);
+                const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/User/${userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
             } catch (error) {
@@ -107,7 +107,7 @@ export default function Profil({ navigation }) {
                 try {
                     const value = await SecureStore.getItemAsync('user');
                     var userId = JSON.parse(value).id
-                    const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/User/${userId}`);
+                    const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/User/${userId}`);
                     console.log(response.data)
                     setUser(response.data)
                     const { firstName, lastName, email, phone, adress } = response.data;
@@ -138,7 +138,7 @@ export default function Profil({ navigation }) {
             const value = await SecureStore.getItemAsync('user');
             var userId = JSON.parse(value).id
             try {
-                const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/User/${userId}/carImage`);
+                const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/User/${userId}/carImage`);
                 const base64Image = response.data.base64Image;
                 setSelectedCarbrand(response.data.carBrand)
                 setcarImage(base64Image)
@@ -158,7 +158,7 @@ export default function Profil({ navigation }) {
             const value = await SecureStore.getItemAsync('user');
             var userId = JSON.parse(value).id
             try {
-                const response = await axios.get(`https://dcc6-197-0-80-111.ngrok-free.app/api/User/users/${userId}/TotalPoints`);
+                const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/User/users/${userId}/TotalPoints`);
                 setTotalPoints(response.data)
             } catch (error) {
                 console.log('Error retrieving total user points:', error);
@@ -194,7 +194,7 @@ export default function Profil({ navigation }) {
                 var userId = JSON.parse(value).id
 
                 const response = await axios.put(
-                    `https://dcc6-197-0-80-111.ngrok-free.app/api/User/${userId}/upload`,
+                    `https://4466-197-2-98-33.ngrok-free.app/api/User/${userId}/upload`,
                     formData,
                     {
                         headers: {
@@ -224,7 +224,7 @@ export default function Profil({ navigation }) {
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.put(`https://dcc6-197-0-80-111.ngrok-free.app/api/User/${userStorage.id}`, formData);
+            const response = await axios.put(`https://4466-197-2-98-33.ngrok-free.app/api/User/${userStorage.id}`, formData);
             const updatedUser = response.data;
             await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
             setUserStorage(updatedUser);
@@ -253,7 +253,7 @@ export default function Profil({ navigation }) {
              const phoneNumber = '+21629162035'; 
              const code = generateVerificationCode(); 
          
-             const response = await axios.post('https://dcc6-197-0-80-111.ngrok-free.app/api/User/sendSMSForConfirmPhone', null, {
+             const response = await axios.post('https://4466-197-2-98-33.ngrok-free.app/api/User/sendSMSForConfirmPhone', null, {
                params: {
                  phoneNumber: phoneNumber,
                  message: code

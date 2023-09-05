@@ -5,7 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 
 // Register user
 const register = async (userData) => {
-  const response = await axios.post("https://dcc6-197-0-80-111.ngrok-free.app/api/User/register", userData)
+  const response = await axios.post("https://4466-197-2-98-33.ngrok-free.app/api/User/register", userData)
 
   /*  if (response.data) {
      localStorage.setItem('user', JSON.stringify(response.data))
@@ -18,7 +18,7 @@ const register = async (userData) => {
 const login = async (userData) => {
   console.log(userData)
    try {
-    const response = await axios.post("https://dcc6-197-0-80-111.ngrok-free.app/api/Auth/login", userData);
+    const response = await axios.post("https://4466-197-2-98-33.ngrok-free.app/api/Auth/login", userData);
     console.log(response.data.user);
 
     if (response.data) {
@@ -36,7 +36,7 @@ const login = async (userData) => {
 const loginemulator = async (userData) => {
   console.log(userData)
    try {
-    const response = await axios.post("https://dcc6-197-0-80-111.ngrok-free.app/api/Auth/loginEmulator", userData);
+    const response = await axios.post("https://4466-197-2-98-33.ngrok-free.app/api/Auth/loginEmulator", userData);
     console.log(response.data.user);
 
     if (response.data) {

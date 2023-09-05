@@ -67,7 +67,7 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
         console.log("combinedTrip")
         console.log(combinedTrip)
         try {
-            const response = await axios.put(`https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/${combinedTrip.tripId}`, combinedTrip, {
+            const response = await axios.put(`https://4466-197-2-98-33.ngrok-free.app/api/Trip/${combinedTrip.tripId}`, combinedTrip, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -84,7 +84,7 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
 
     const handleQRCodeIconPress = async (tripId) => {
         try {
-            fetch(`https://dcc6-197-0-80-111.ngrok-free.app/api/RequestRide/generate?driverId=1&tripId=${tripId}`)
+            fetch(`https://4466-197-2-98-33.ngrok-free.app/api/RequestRide/generate?driverId=1&tripId=${tripId}`)
                 .then(response => {
                     if (response.ok) {
                         return response.blob();
@@ -124,7 +124,7 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
 
     const handleDelete = async (tripId) => {
         axios
-            .delete(`https://dcc6-197-0-80-111.ngrok-free.app/api/Trip/${tripId}`)
+            .delete(`https://4466-197-2-98-33.ngrok-free.app/api/Trip/${tripId}`)
             .then((response) => {
                 console.log('Trip deleted successfully.');
             })

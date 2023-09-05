@@ -25,7 +25,7 @@ namespace User.Controllers
         private readonly UserContext _context;
         private HttpClient _client;
         private readonly string twilioAccountSid = "ACb6f469cc427a1d8ecbfee4779793b6d5";
-        private readonly string twilioAuthToken = "50c3dea6fbcb8bcf9ea827c185ef4379";
+        private readonly string twilioAuthToken = "e34c13cc31f6c160fe53811893e76864";
         private readonly string twilioPhoneNumber = "+16186682361";
 
 
