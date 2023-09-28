@@ -14,6 +14,7 @@ export default function Login({ navigation }) {
 
   const [loading, setLoading] = React.useState(false);
   const [show, setShow] = React.useState(false);
+  const [loginError, setLoginError] = React.useState(null);
 
   const SigninSchema = Yup.object().shape({
 
@@ -88,13 +89,18 @@ export default function Login({ navigation }) {
                 values.DeviceToken = DeviceToken;
                 values.AllowsNotifications = true;
                 const response = await authService.login(values);
-                if (response){
+                if (response) {
                   navigation.navigate("main");
-                }              }
+                }
+                else {
+                  setLoginError('Invalid credentials. Please check your email and password.');
+                }
+
+              }
               else {
                 console.log('2222')
                 const response = await authService.loginemulator(values);
-                if (response){
+                if (response) {
                   navigation.navigate("main");
                 }
               }
@@ -133,7 +139,12 @@ export default function Login({ navigation }) {
                 {touched.password && errors.password && (
                   <Text style={{ color: "red", fontSize: 12 }}>{errors.password}</Text>
                 )}
+                {loginError && (
+                  <Text style={{ color: 'red', fontSize: 12, marginTop: 5 }}>{loginError}</Text>
+                )}
                 <VStack space={3} mt="16">
+
+
                   <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                     <Text style={styles.textStyle}>Login</Text>
                   </TouchableOpacity>

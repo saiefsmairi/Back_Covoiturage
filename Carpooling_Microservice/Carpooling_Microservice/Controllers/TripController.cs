@@ -310,13 +310,13 @@ namespace Test4.Controllers
 
 
 
-        // TRAJAA LES TRIPS BOOKED POUR UN PASSENGER
+        // TRAJAA LES TRIPS FINISHED POUR UN PASSENGER POUR CALCULEZ SES POINTS POUR LES VOYAGES TERMINEE
         [HttpGet("passengers/{passengerId}/trips/booked")]
         public async Task<IActionResult> GetBookedTripsForPassenger(int passengerId)
         {
             var acceptedTrips = await _context.RequestsRides
                 .Include(rr => rr.Trip)
-                .Where(rr => rr.PassengerId == passengerId && rr.Status == "Booked")
+                .Where(rr => rr.PassengerId == passengerId && rr.Status == "Finished")
                 .Select(rr => rr.Trip)
                 .ToListAsync();
 

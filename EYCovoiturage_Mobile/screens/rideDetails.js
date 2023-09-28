@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { TouchableOpacity, StyleSheet, Dimensions, Linking } from 'react-native';
 import { Box, Divider, Stack, Avatar, Heading, AspectRatio, Image, Text, Center, HStack, NativeBaseProvider, ScrollView } from "native-base";
 import { Ionicons, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
@@ -34,7 +34,7 @@ const RideDetails = ({ handlePress, route }) => {
 
         const getCarInfo = async (userId) => {
             try {
-                const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/User/${route.params.trip.trip.userId}/carImage`);
+                const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/User/${route.params.trip.trip.userId}/carImage`);
                 const base64Image = response.data.base64Image;
                 setcarImage(base64Image)
             } catch (error) {
@@ -48,10 +48,10 @@ const RideDetails = ({ handlePress, route }) => {
         getCarInfo(); // Fetch car image separately
         const getProfileImage = async () => {
             try {
-                const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/User/${route.params.trip.trip.userId}/profileImage`);
+                const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/User/${route.params.trip.trip.userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
-                const userResponse = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/User/${route.params.trip.trip.userId}`);
+                const userResponse = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/User/${route.params.trip.trip.userId}`);
                 setUserGetData(userResponse.data)
 
             } catch (error) {
@@ -82,10 +82,10 @@ const RideDetails = ({ handlePress, route }) => {
             try {
                 const value = await SecureStore.getItemAsync('user');
                 var userId = JSON.parse(value).id
-                const userResponse = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/User/${userId}`);
+                const userResponse = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/User/${userId}`);
                 const checkRequestExists = async () => {
                     try {
-                        const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/Trip/${route.params.trip.trip.tripId}/users/${userResponse.data.id}/check-request`);
+                        const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/${route.params.trip.trip.tripId}/users/${userResponse.data.id}/check-request`);
                         console.log(response.data);
                         setIsRequestSent(response.data);
                     } catch (error) {
@@ -113,7 +113,7 @@ const RideDetails = ({ handlePress, route }) => {
         console.log(requestRide);
 
         try {
-            const response = await axios.post(`https://4466-197-2-98-33.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
+            const response = await axios.post(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
             console.log(response.data)
             setIsRequestCreated(true);
             Toast.show({
@@ -129,16 +129,17 @@ const RideDetails = ({ handlePress, route }) => {
     };
 
     const makePhoneCall = (phoneNumber) => {
-        console.log(phoneNumber)
-        const phoneNumberWithoutSpaces = phoneNumber.replace(/\s/g, '');
-        Communications.phonecall(phoneNumberWithoutSpaces, true);
+        const url = 'tel://' + phoneNumber
+        Linking.openURL(url)
+        /*         console.log(phoneNumber)
+                const phoneNumberWithoutSpaces = phoneNumber.replace(/\s/g, '');
+                Communications.phonecall(phoneNumberWithoutSpaces, true); */
     };
 
     const handleNavigateChat = () => {
         navigation.navigate('chat', {
             receiverId: route.params.trip.trip.userId
         });
-
     };
 
     return (
@@ -185,7 +186,7 @@ const RideDetails = ({ handlePress, route }) => {
                                     {profileImage ? (
                                         <Image source={{ uri: `data:image/jpeg;base64,${profileImage}` }} style={{ width: 100, height: 100, borderRadius: 50 }} alt="driverimg" />
                                     ) : (
-                                        <UserAvatar size={80} name={route.params.trip.user.firstName} bgColor="#2596be"  />
+                                        <UserAvatar size={80} name={route.params.trip.user.firstName} bgColor="#2596be" />
 
 
                                     )}

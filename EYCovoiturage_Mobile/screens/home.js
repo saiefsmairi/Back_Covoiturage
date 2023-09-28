@@ -74,7 +74,7 @@ function HomeScreen({ navigation }) {
           const value = await SecureStore.getItemAsync('user');
           var userId = JSON.parse(value).id
           setIsLoading(true);
-          const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+          const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
           setTrips(response.data);
         } catch (error) {
           console.log('Error fetching trips:', error);
@@ -88,7 +88,7 @@ function HomeScreen({ navigation }) {
         try {
           const value = await SecureStore.getItemAsync('user');
           var userId = JSON.parse(value).id
-          const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/Trip/user/${userId}/trips`);
+          const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/user/${userId}/trips`);
           setTripsPublished(response.data);
         } catch (error) {
           console.log('Error fetching trips ForDrivers:', error);
@@ -107,8 +107,8 @@ function HomeScreen({ navigation }) {
     try {
       const value = await SecureStore.getItemAsync('user');
       var userId = JSON.parse(value).id
-      const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
-      const response2 = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/Trip/user/${userId}/trips`);
+      const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+      const response2 = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/user/${userId}/trips`);
       setTrips(response.data);
       setTripsPublished(response2.data);
     } catch (error) {
@@ -130,7 +130,7 @@ function HomeScreen({ navigation }) {
       const value = await SecureStore.getItemAsync('user');
       var userId = JSON.parse(value).id
       setIsLoading(true);
-      const response = await axios.get(`https://4466-197-2-98-33.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
+      const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/passengers/${userId}/trips/accepted`);
       setTrips(response.data);
     } catch (error) {
       console.log('Error fetching trips:', error);
@@ -213,13 +213,13 @@ function HomeScreen({ navigation }) {
     <TabBar
       {...props}
       indicatorStyle={{ backgroundColor: '#47a7f4' }}
-      style={{ backgroundColor: 'white' }}
+      style={{ backgroundColor: 'white',marginTop:'5%' }}
       activeColor="#47a7f4" // Customize the active tab text color
       inactiveColor="black" // Customize the inactive tab text color
     />
   );
   return (
-    <View style={styles.container2}>
+    <View style={styles.container2} >
 
       <TabView
         navigationState={{ index, routes }}

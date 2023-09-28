@@ -5,7 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 
 // Register user
 const register = async (userData) => {
-  const response = await axios.post("https://4466-197-2-98-33.ngrok-free.app/api/User/register", userData)
+  const response = await axios.post("https://da8a-102-157-148-107.ngrok-free.app/api/User/register", userData)
 
   /*  if (response.data) {
      localStorage.setItem('user', JSON.stringify(response.data))
@@ -17,26 +17,31 @@ const register = async (userData) => {
 // Login user
 const login = async (userData) => {
   console.log(userData)
-   try {
-    const response = await axios.post("https://4466-197-2-98-33.ngrok-free.app/api/Auth/login", userData);
-    console.log(response.data.user);
+  try {
+    const response = await axios.post("https://da8a-102-157-148-107.ngrok-free.app/api/Auth/login", userData);
+    console.log(response);
 
     if (response.data) {
       await SecureStore.setItemAsync('user', JSON.stringify(response.data.user));
       console.log('Login success & User data saved successfully!');
     }
-
     return response;
+
   } catch (error) {
-    console.log('Error during login:', error);
-  } 
+    if (error.response && error.response.status === 400) {
+      // Log the message when credentials are invalid
+      console.log('Invalid Credentials');
+    } else {
+      console.log('Error during login:', error);
+    }
+  }
 };
 
 
 const loginemulator = async (userData) => {
   console.log(userData)
-   try {
-    const response = await axios.post("https://4466-197-2-98-33.ngrok-free.app/api/Auth/loginEmulator", userData);
+  try {
+    const response = await axios.post("https://da8a-102-157-148-107.ngrok-free.app/api/Auth/loginEmulator", userData);
     console.log(response.data.user);
 
     if (response.data) {
@@ -47,7 +52,7 @@ const loginemulator = async (userData) => {
     return response;
   } catch (error) {
     console.log('Error during login:', error);
-  } 
+  }
 };
 
 // Logout user

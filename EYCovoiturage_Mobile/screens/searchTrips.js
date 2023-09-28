@@ -192,7 +192,7 @@ export default function SearchTrips({ navigation }) {
         <TouchableWithoutFeedback onPress={hideFlatLists}>
 
             <View style={{ flex: 1 }}>
-                <Stack style={{ zIndex: 1, position: 'absolute', top: 0, left: 0, right: 0, marginTop: 10 }} >
+                <Stack style={{ zIndex: 1, position: 'absolute', top: 0, left: 0, right: 0, marginTop: '5%' }} >
                     <Stack >
 
                         <TextInput
