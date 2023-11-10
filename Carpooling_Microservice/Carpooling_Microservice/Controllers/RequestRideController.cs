@@ -183,7 +183,7 @@ namespace Test4.Controllers
                 {
                     requestRide.Status = "CANCELLED";
                     requestRide.TripStatus = "CANCELLED";
-                    requestRide.Trip.AvailableSeats--;
+                    requestRide.Trip.AvailableSeats++;
                     var userId = requestRide.PassengerId;
                     var pointsToDeduct = 100; 
                     var updatePointsUrl = $"https://localhost:7031/api/User/users/{userId}/points";

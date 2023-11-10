@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Divider, Button, Avatar, Heading, AspectRatio, Image, Text, Center, HStack, Stack, NativeBaseProvider, View, Modal, FormControl, Input, Badge } from "native-base";
+import { Box, Divider, Button, Avatar, Heading, AspectRatio, Image, Text, Center, HStack, Stack, NativeBaseProvider, View, Modal, FormControl, Input, Badge, AlertDialog } from "native-base";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from "react";
@@ -9,8 +9,11 @@ import moment from 'moment';
 import axios from "axios";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
-const TripCardWithQRcode = ({ onPress, trip }) => {
+const TripCardWithQRcode = ({ onPress, trip, requestRidesWithPassengerInfos }) => {
     const [imageSource, setImageSource] = useState(null);
+    const [isOpen, setIsOpen] = React.useState(false);
+    const onClose = () => setIsOpen(false);
+    const cancelRef = React.useRef(null);
     const [showModal, setShowModal] = React.useState(false);
     const [showModalEditTrip, setShowModalEditTrip] = React.useState(false);
     const [modalDate, setModalDate] = useState(false);
@@ -34,6 +37,11 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
 
 
     React.useEffect(() => {
+        // console.log("wiwiwi")
+        //console.log(requestRidesWithPassengerInfos.requestRidesWithPassengerInfos[0].requestRide)
+        // console.log(requestRidesWithPassengerInfos.requestRidesWithPassengerInfos[0].passenger)
+
+
         const { source, destination, availableSeats, departureTime, availableDates, tripId } = trip;
         setFormData({
             source,
@@ -67,7 +75,7 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
         console.log("combinedTrip")
         console.log(combinedTrip)
         try {
-            const response = await axios.put(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/${combinedTrip.tripId}`, combinedTrip, {
+            const response = await axios.put(`https://3d7f-102-156-193-206.ngrok-free.app/api/Trip/${combinedTrip.tripId}`, combinedTrip, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -84,7 +92,7 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
 
     const handleQRCodeIconPress = async (tripId) => {
         try {
-            fetch(`https://da8a-102-157-148-107.ngrok-free.app/api/RequestRide/generate?driverId=1&tripId=${tripId}`)
+            fetch(`https://3d7f-102-156-193-206.ngrok-free.app/api/RequestRide/generate?driverId=1&tripId=${tripId}`)
                 .then(response => {
                     if (response.ok) {
                         return response.blob();
@@ -123,14 +131,39 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
     };
 
     const handleDelete = async (tripId) => {
+        console.log(requestRidesWithPassengerInfos.requestRidesWithPassengerInfos.length)
+        if (requestRidesWithPassengerInfos.requestRidesWithPassengerInfos.length < 1) {
+            axios
+                .delete(`https://3d7f-102-156-193-206.ngrok-free.app/api/Trip/${tripId}`)
+                .then((response) => {
+                    console.log('Trip deleted successfully.');
+                })
+                .catch((error) => {
+                    console.error('Error deleting trip:', error);
+                });
+        }
+        else {
+            setIsOpen(!isOpen)
+        }
+
+    };
+
+    //delete trip with tan9is points
+    const deleteButtonTrip = async (tripId) => {
+        const passengerDeviceTokens = requestRidesWithPassengerInfos.requestRidesWithPassengerInfos
+            .filter(info => info.passenger && info.passenger.allowsNotifications)
+            .map(info => info.passenger.deviceToken);
         axios
-            .delete(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/${tripId}`)
+            .delete(`https://3d7f-102-156-193-206.ngrok-free.app/api/Trip/${tripId}/DecreaseandDelete`, {
+                data: passengerDeviceTokens
+            })
             .then((response) => {
                 console.log('Trip deleted successfully.');
             })
             .catch((error) => {
                 console.error('Error deleting trip:', error);
             });
+
     };
 
     return (
@@ -210,10 +243,55 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
                                     </Text>
                                 </Stack>
 
+
+
+                                <Stack direction="column" space={2} alignItems="center" ml="1" mb="2">
+                                    <AntDesign name="user" size={24} color="black" />
+
+                                </Stack>
+
+
+
+                                <Stack direction="column" space={2} ml="1">
+                                    {requestRidesWithPassengerInfos.requestRidesWithPassengerInfos.length > 0 ? (
+                                        requestRidesWithPassengerInfos.requestRidesWithPassengerInfos.map((info, index) => (
+                                            <Stack key={index} direction="row">
+                                                <Ionicons name="ios-caret-forward" size={24} color="yellow" />
+                                                {info.passenger && <Text>{info.passenger.firstName} {info.passenger.lastName} : </Text>}
+                                                {info.requestRide && <Text fontWeight={'bold'}>{info.requestRide.tripStatus}</Text>}
+                                            </Stack>
+                                        ))
+                                    ) : (
+                                        <Text>Pour le moment, aucun passager n'a rejoint ce voyage.</Text>
+                                    )}
+                                </Stack>
+
+
                             </Stack>
                             {/*  <Box position="absolute" top="2" right="2">
                                 <MaterialCommunityIcons name="qrcode-plus" size={24} color="black" />
                             </Box> */}
+
+                            <AlertDialog leastDestructiveRef={cancelRef} isOpen={isOpen} onClose={onClose}>
+                                <AlertDialog.Content>
+                                    <AlertDialog.CloseButton />
+                                    <AlertDialog.Header>Deleting Trip</AlertDialog.Header>
+                                    <AlertDialog.Body>
+                                        Your're about to delete a trip that has passengers on it ,if you continue this will result on loosing your points.
+                                    </AlertDialog.Body>
+                                    <AlertDialog.Footer>
+                                        <Button.Group space={2}>
+                                            <Button variant="unstyled" colorScheme="coolGray" onPress={onClose} ref={cancelRef}>
+                                                Cancel
+                                            </Button>
+                                            <Button colorScheme="danger" onPress={() => deleteButtonTrip(trip.tripId)}>
+                                                Confirm
+                                            </Button>
+                                        </Button.Group>
+                                    </AlertDialog.Footer>
+                                </AlertDialog.Content>
+                            </AlertDialog>
+
 
                         </Box>
                     </Box>
@@ -223,29 +301,29 @@ const TripCardWithQRcode = ({ onPress, trip }) => {
             <Modal isOpen={showModalEditTrip} onClose={() => setShowModalEditTrip(false)} size={"full"}>
                 <Modal.Content maxWidth="400px">
                     <Modal.CloseButton />
-                    <Modal.Header>Trip informations</Modal.Header>
+                    <Modal.Header>Update Trip informations</Modal.Header>
                     <Modal.Body>
                         <FormControl>
-                            <FormControl.Label>source</FormControl.Label>
+                            <FormControl.Label>Source</FormControl.Label>
                             <Input value={formData.source}
                                 onChangeText={(value) => handleChange('source', value)} />
                         </FormControl>
 
                         <FormControl>
-                            <FormControl.Label>destination</FormControl.Label>
+                            <FormControl.Label>Destination</FormControl.Label>
                             <Input value={formData.destination}
                                 onChangeText={(value) => handleChange('destination', value)} />
                         </FormControl>
 
 
                         <FormControl>
-                            <FormControl.Label>availableSeats</FormControl.Label>
+                            <FormControl.Label>Available Seats</FormControl.Label>
                             <Input value={trip.availableSeats.toString()}
                                 onChangeText={(value) => handleChange('availableSeats', value)} />
                         </FormControl>
 
                         <FormControl>
-                            <FormControl.Label>departureTime</FormControl.Label>
+                            <FormControl.Label>Departure Time</FormControl.Label>
                             <Input
                                 value={moment(selectedTime).format('HH:mm')}
                                 onTouchStart={() => setDatePickerVisible(true)}

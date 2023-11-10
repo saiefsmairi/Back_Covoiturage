@@ -19,6 +19,7 @@ using System.Security.Claims;
 using Auth_Microservice.Dtos;
 using Carpooling_Microservice.Dtos;
 using Carpooling_Microservice.NotificationsConfig;
+using System.Text;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -177,6 +178,43 @@ namespace Test4.Controllers
             return Ok();
         }
 
+        // delete trip wuth tan9is points from the driver
+        [HttpDelete("{id}/DecreaseandDelete")]
+        public async Task<IActionResult> DeleteWithPointsDecreaseAsync(int id, [FromBody] List<string> passengerDeviceTokens)
+        {
+            var tripToDelete = _context.Trips.Include(t => t.RequestRides).FirstOrDefault(t => t.TripId == id);
+
+            if (tripToDelete.RequestRides != null)
+            {
+                _context.RequestsRides.RemoveRange(tripToDelete.RequestRides);
+            }
+            var pointsToDeduct = 500;
+            var updatePointsUrl = $"https://localhost:7031/api/User/users/{tripToDelete.UserId}/points";
+            var payload = JsonConvert.SerializeObject(pointsToDeduct);
+            using (var httpClient = new HttpClient())
+            {
+                var content = new StringContent(payload, Encoding.UTF8, "application/json");
+                var response = await httpClient.PutAsync(updatePointsUrl, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return BadRequest("Error calling update points method from user microservice0");
+                }
+            }
+           _context.Trips.Remove(tripToDelete);
+
+            _context.SaveChanges();
+            //Sendnotification to passengers to inform about the trip cancel
+            foreach (var passengerDeviceToken in passengerDeviceTokens)
+            {
+                string message = $"Trip from {tripToDelete.Source} to {tripToDelete.Destination} is Removed By the driver ";
+                SendPushNotification(passengerDeviceToken, "Trip is deleted", message);
+            }
+         
+            return Ok();
+        }
+
+
 
         [HttpPut("{tripId}")]
         public IActionResult UpdateTrip(int tripId, [FromBody] TripUpdateData tripData)
@@ -301,12 +339,42 @@ namespace Test4.Controllers
 
         // TRAJAA LES TRIPS ELI AAMALHOM (creation) UN USER (driver) fel home
         [HttpGet("user/{userId}/trips")]
-        public ActionResult<IEnumerable<Trip>> GetTripsForUser(int userId)
+        public async Task<ActionResult<IEnumerable<object>>> GetTripsForUserAsync(int userId)
         {
-            var trips = _context.Trips.Where(t => t.UserId == userId)
-                .Include(t => t.AvailableDates).ToList();
-            return Ok(trips);
+            var trips = _context.Trips
+                .Where(t => t.UserId == userId)
+                .Include(t => t.AvailableDates)
+                .Include(t => t.RequestRides)
+                .ToList();
+
+            var tripWithItsPassengers = new List<object>();
+
+            foreach (var trip in trips)
+            {
+                var requestRidesWithPassengerInfos = new List<object>();
+                foreach (var requestRide in trip.RequestRides)
+                {
+                    var passenger = await GetUserFromUserMicroservice(requestRide.PassengerId);
+                    var requestRideWithPassengerInfo = new
+                    {
+                        RequestRide = requestRide,
+                        Passenger = passenger
+                    };
+                    requestRidesWithPassengerInfos.Add(requestRideWithPassengerInfo);
+                }
+
+                var tripWithItsPassenger = new
+                {
+                    Trip = trip,
+                    RequestRidesWithPassengerInfos = requestRidesWithPassengerInfos
+                };
+
+                tripWithItsPassengers.Add(tripWithItsPassenger);
+            }
+
+            return Ok(tripWithItsPassengers);
         }
+
 
 
 
@@ -340,7 +408,7 @@ namespace Test4.Controllers
                 var tripData = new TripWithPassengerCountDto
                 {
                     Trip = trip,
-                    PassengerCount = trip.RequestRides.Count(rr => rr.Status == "Booked")
+                    PassengerCount = trip.RequestRides.Count(rr => rr.Status == "Finished")
                 };
 
                 tripList.Add(tripData);

@@ -99,7 +99,7 @@ const AnimatedExample = ({ navigation, verificationCode }) => {
       }
       else {
         try {
-          const response = await axios.put(`https://4466-197-2-98-33.ngrok-free.app/api/User/${userStorage.email}/updateVerifyPhoneStatus`, {
+          const response = await axios.put(`https://3d7f-102-156-193-206.ngrok-free.app/api/User/${userStorage.email}/updateVerifyPhoneStatus`, {
             headers: {
               'Content-Type': 'application/json',
             },

@@ -34,7 +34,7 @@ const RideDetails = ({ handlePress, route }) => {
 
         const getCarInfo = async (userId) => {
             try {
-                const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/User/${route.params.trip.trip.userId}/carImage`);
+                const response = await axios.get(`https://3d7f-102-156-193-206.ngrok-free.app/api/User/${route.params.trip.trip.userId}/carImage`);
                 const base64Image = response.data.base64Image;
                 setcarImage(base64Image)
             } catch (error) {
@@ -48,10 +48,10 @@ const RideDetails = ({ handlePress, route }) => {
         getCarInfo(); // Fetch car image separately
         const getProfileImage = async () => {
             try {
-                const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/User/${route.params.trip.trip.userId}/profileImage`);
+                const response = await axios.get(`https://3d7f-102-156-193-206.ngrok-free.app/api/User/${route.params.trip.trip.userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
-                const userResponse = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/User/${route.params.trip.trip.userId}`);
+                const userResponse = await axios.get(`https://3d7f-102-156-193-206.ngrok-free.app/api/User/${route.params.trip.trip.userId}`);
                 setUserGetData(userResponse.data)
 
             } catch (error) {
@@ -82,10 +82,10 @@ const RideDetails = ({ handlePress, route }) => {
             try {
                 const value = await SecureStore.getItemAsync('user');
                 var userId = JSON.parse(value).id
-                const userResponse = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/User/${userId}`);
+                const userResponse = await axios.get(`https://3d7f-102-156-193-206.ngrok-free.app/api/User/${userId}`);
                 const checkRequestExists = async () => {
                     try {
-                        const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/${route.params.trip.trip.tripId}/users/${userResponse.data.id}/check-request`);
+                        const response = await axios.get(`https://3d7f-102-156-193-206.ngrok-free.app/api/Trip/${route.params.trip.trip.tripId}/users/${userResponse.data.id}/check-request`);
                         console.log(response.data);
                         setIsRequestSent(response.data);
                     } catch (error) {
@@ -113,7 +113,7 @@ const RideDetails = ({ handlePress, route }) => {
         console.log(requestRide);
 
         try {
-            const response = await axios.post(`https://da8a-102-157-148-107.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
+            const response = await axios.post(`https://3d7f-102-156-193-206.ngrok-free.app/api/Trip/${trip.tripId}/request-rides`, requestRide);
             console.log(response.data)
             setIsRequestCreated(true);
             Toast.show({
@@ -194,7 +194,7 @@ const RideDetails = ({ handlePress, route }) => {
 
                                 {userGetData.isVerifiedPhoneNumber && (
                                     <Box ml={4}>
-                                        <AntDesign name="phone" size={24} color="black" onPress={() => makePhoneCall('+21629162035')} />
+                                        <AntDesign name="phone" size={24} color="black" onPress={() => makePhoneCall('+21697260648')} />
                                     </Box>
                                 )}
 

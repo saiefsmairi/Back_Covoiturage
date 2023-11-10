@@ -40,7 +40,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
         const getProfileImage = async () => {
 
             try {
-                const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
+                const response = await axios.get(`https://3d7f-102-156-193-206.ngrok-free.app/api/User/${trip.trip.userId}/profileImage`);
                 const base64Image = response.data;
                 setProfileImage(base64Image);
             } catch (error) {
@@ -103,7 +103,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
             deviceToken: null
         };
         try {
-            const response = await axios.put(`https://da8a-102-157-148-107.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, requestData, {
+            const response = await axios.put(`https://3d7f-102-156-193-206.ngrok-free.app/api/RequestRide/requests/${requestRideId}/status`, requestData, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -120,18 +120,23 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
         setShowScanner(false);
     };
 
+    const ConfirmEndtrip = async (requestRideId) => {
+        console.log(requestRideId)
+        handleMatchQrcode(trip.requestId, "Finished")
+
+    };
 
     const Handlecanceltrip = async (requestRideId) => {
         console.log(requestRideId)
         try {
-            const response = await axios.get(`https://da8a-102-157-148-107.ngrok-free.app/api/RequestRide/${requestRideId}/CheckDeadlineCancel`, {
+            const response = await axios.get(`https://3d7f-102-156-193-206.ngrok-free.app/api/RequestRide/${requestRideId}/CheckDeadlineCancel`, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
             try {
                 if (response.status === 200) {
-                    const response2 = await axios.put(`https://da8a-102-157-148-107.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
+                    const response2 = await axios.put(`https://3d7f-102-156-193-206.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -154,10 +159,12 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
         }
     };
 
+
+
     const deleteButtonReservation = async (requestRideId) => {
         console.log(requestRideId)
         try {
-            const response2 = await axios.put(`https://da8a-102-157-148-107.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
+            const response2 = await axios.put(`https://3d7f-102-156-193-206.ngrok-free.app/api/RequestRide/${requestRideId}/cancel`, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -202,9 +209,19 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
                                         onPress={() => handleScanQRCode(trip.trip.tripId)}
 
                                     />
+
+
+                                    {trip.tripStatus !== 'FINISHED'&& trip.tripStatus !== 'UPCOMING'&& trip.tripStatus !== 'CANCELLED' && (
+                                        <TouchableOpacity onPress={() => ConfirmEndtrip(trip.requestId)}>
+                                            <Badge colorScheme="success" alignSelf="center" variant="solid" marginLeft={2}>
+                                                Confirm Arrival
+                                            </Badge>
+                                        </TouchableOpacity>
+                                    )}
+
+
                                     <Badge
                                         colorScheme={trip.tripStatus === 'UPCOMING' || trip.tripStatus === 'FINISHED' ? 'success' : trip.tripStatus === 'CANCELLED' ? 'red' : 'info'}
-
                                         alignSelf="center"
                                         variant="subtle"
                                         position="absolute"
@@ -337,7 +354,7 @@ const TripCardBooked = ({ trip, fetchAcceptedTrips }) => {
 
                                         </>
 
-                                    ) : matchedTrip  ? (
+                                    ) : matchedTrip ? (
                                         <>
                                             <Feather name="check-circle" size={50} color="green" />
                                             <Text>Matching trip found! Starting the trip...</Text>

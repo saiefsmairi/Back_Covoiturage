@@ -24,9 +24,9 @@ namespace User.Controllers
         private readonly IUserRepository _repository;
         private readonly UserContext _context;
         private HttpClient _client;
-        private readonly string twilioAccountSid = "ACb6f469cc427a1d8ecbfee4779793b6d5";
-        private readonly string twilioAuthToken = "e34c13cc31f6c160fe53811893e76864";
-        private readonly string twilioPhoneNumber = "+16186682361";
+        private readonly string twilioAccountSid = "AC6c439a4d8d186bfa24e56e69ef18dc56";
+        private readonly string twilioAuthToken = "90af3a32a8a3a5369557b1cca7d795d5";
+        private readonly string twilioPhoneNumber = "+12055372795";
 
 
         public UserController(IUserRepository reposiotory, UserContext context, HttpClient client)
@@ -263,29 +263,44 @@ namespace User.Controllers
                 var bookedTripsResponseContent = await bookedTripsResponse.Content.ReadAsStringAsync();
                 var createdTripsResponseContent = await createdTripsResponse.Content.ReadAsStringAsync();
 
+                // Log received data
+                Console.WriteLine("Booked Trips: " + bookedTripsResponseContent);
+                Console.WriteLine("Created Trips: " + createdTripsResponseContent);
+
                 var bookedTrips = JsonConvert.DeserializeObject<List<TripDto>>(bookedTripsResponseContent);
                 var createdTrips = JsonConvert.DeserializeObject<List<TripWithPassengerCountDto>>(createdTripsResponseContent);
 
                 int totalPoints = 0;
 
+                // Calculate points for booked trips by passengers
                 foreach (var trip in bookedTrips)
                 {
                     int tripPoints = (int)(trip.Distance * 150);
                     totalPoints += tripPoints;
                 }
+
+                // Calculate points for created trips by drivers
                 foreach (var createdTrip in createdTrips)
                 {
-                    int tripPoints = (int)(createdTrip.Trip.Distance * createdTrip.PassengerCount*150);
+                    int tripPoints = (int)(createdTrip.Trip.Distance * createdTrip.PassengerCount * 150);
                     totalPoints += tripPoints;
                 }
+
+                // Log calculated points
+                Console.WriteLine("Total Points: " + totalPoints);
+
+                // Update user's total points in the database
                 var user = _repository.GetById(userId);
                 user.Points = totalPoints;
                 _context.SaveChanges();
+
                 return Ok(totalPoints);
             }
 
             return NotFound();
         }
+
+
 
         [HttpPut("users/{userId}/points")]
         public IActionResult UpdateUserPoints(int userId, [FromBody] int points)
