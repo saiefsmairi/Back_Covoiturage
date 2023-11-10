@@ -78,12 +78,12 @@ we are always intrested with the second url , this url : " a955-102-156-16-113.n
 
 6. now for the frontend :
 
-let's hit CTRL+H and replace the old url "https://3d7f-102-156-193-206.ngrok-free.app" with the new generated url from ngrok
+let's hit CTRL+H and replace the old url used to make api calls: "https://3d7f-102-156-193-206.ngrok-free.app" with the new generated url from ngrok
 
 6.1. Run the project with :
 
 ```JS
-npm start;
+npm start
 ```
 and scan the generated qrCode with expo app . 
 
